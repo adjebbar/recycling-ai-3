@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Recycle, ScanLine } from "lucide-react";
+import { Recycle, ScanLine, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // A component to represent a water bottle
@@ -41,17 +41,17 @@ const SeeItInAction = () => {
 
   useEffect(() => {
     const sequence = [
-      () => setPhase('scanning'),
-      () => setPhase('scanned'),
-      () => setPhase('recycling'),
-      () => setPhase('idle'),
+      () => setPhase('scanning'),  // Start scanning
+      () => setPhase('scanned'),   // Scan complete, show verification
+      () => setPhase('recycling'), // Start recycling process
+      () => setPhase('idle'),      // Reset
     ];
 
     const timers = [
-      setTimeout(sequence[0], 500),   // Start scanning
-      setTimeout(sequence[1], 2000),  // Scan complete
-      setTimeout(sequence[2], 3000),  // Start recycling
-      setTimeout(sequence[3], 4500),  // Reset
+      setTimeout(sequence[0], 500),
+      setTimeout(sequence[1], 2000),
+      setTimeout(sequence[2], 3500),
+      setTimeout(sequence[3], 5000),
     ];
 
     return () => timers.forEach(clearTimeout);
@@ -59,9 +59,9 @@ const SeeItInAction = () => {
 
   const statusText = {
     idle: "Ready to scan...",
-    scanning: "Scanning for plastic bottles...",
-    scanned: "Points awarded!",
-    recycling: "Recycling complete!",
+    scanning: "Scanning barcode...",
+    scanned: "Plastic bottle verified!",
+    recycling: "Points awarded & recycling...",
   };
 
   return (
@@ -70,9 +70,10 @@ const SeeItInAction = () => {
         <div className="relative h-56 w-full flex items-center justify-between">
           {/* Phone on the left */}
           <PhoneMockup>
-            <div className="w-full h-full flex flex-col items-center justify-center text-center text-white p-2">
-              <ScanLine className={cn("h-10 w-10 text-primary transition-opacity", phase === 'scanning' ? 'opacity-100' : 'opacity-50')} />
-              <p className="text-xs font-semibold mt-2">SCANNER</p>
+            <div className="w-full h-full flex flex-col items-center justify-center text-center text-white p-2 relative">
+              <ScanLine className={cn("h-10 w-10 text-primary transition-all duration-300", phase !== 'scanned' ? 'opacity-100 scale-100' : 'opacity-0 scale-50')} />
+              <CheckCircle className={cn("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-12 w-12 text-green-500 transition-all duration-300", phase === 'scanned' ? 'opacity-100 scale-100' : 'opacity-0 scale-50')} />
+              <p className="absolute bottom-4 text-xs font-semibold">SCANNER</p>
             </div>
           </PhoneMockup>
 
@@ -89,10 +90,11 @@ const SeeItInAction = () => {
               className={cn(
                 "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-1500 ease-in-out",
                 phase === 'idle' || phase === 'scanning' ? "opacity-0 scale-75" : "opacity-100 scale-100",
+                phase === 'scanned' && "shadow-lg shadow-primary/60 rounded-full",
                 phase === 'recycling' && "translate-x-[120%] scale-50 opacity-0",
               )}
             >
-              <PlasticBottle className={cn("scale-125", phase === 'scanned' && "animate-pulse-once")} />
+              <PlasticBottle className="scale-125" />
               {phase === 'scanned' && (
                 <Badge
                   variant="secondary"

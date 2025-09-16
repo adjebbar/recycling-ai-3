@@ -7,15 +7,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Medal } from 'lucide-react';
 import { getLevelFromPoints } from '@/lib/levels';
 
-const maskEmail = (email: string) => {
-  if (!email) return '';
-  const [name, domain] = email.split('@');
-  if (name.length <= 2) {
-    return `${name[0]}***@${domain}`;
-  }
-  return `${name.slice(0, 2)}***@${domain}`;
-};
-
 const getRankColor = (rank: number) => {
   if (rank === 1) return 'text-yellow-500';
   if (rank === 2) return 'text-gray-400';
@@ -68,6 +59,9 @@ const LeaderboardPage = () => {
               ) : (
                 users?.map((user, index) => {
                   const level = getLevelFromPoints(user.points);
+                  const userName = (user.first_name && user.last_name) 
+                    ? `${user.first_name} ${user.last_name}` 
+                    : 'Anonymous Recycler';
                   return (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">
@@ -79,7 +73,7 @@ const LeaderboardPage = () => {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{maskEmail(user.email)}</TableCell>
+                      <TableCell>{userName}</TableCell>
                       <TableCell>{level.name}</TableCell>
                       <TableCell className="text-right font-semibold">{user.points.toLocaleString()}</TableCell>
                     </TableRow>

@@ -3,14 +3,15 @@ import { supabase } from '@/lib/supabaseClient';
 
 export interface LeaderboardUser {
   id: string;
-  email: string;
+  first_name: string | null;
+  last_name: string | null;
   points: number;
 }
 
 const fetchLeaderboard = async (): Promise<LeaderboardUser[]> => {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, email, points')
+    .select('id, first_name, last_name, points')
     .order('points', { ascending: false })
     .limit(10);
 

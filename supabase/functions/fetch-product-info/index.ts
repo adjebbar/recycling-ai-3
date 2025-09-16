@@ -23,7 +23,25 @@ serve(async (req) => {
     }
 
     console.log(`Fetching product info for barcode: ${barcode}`);
-    const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout for external API call
+
+    let response;
+    try {
+      response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`, {
+        signal: controller.signal
+      });
+    } catch (fetchError: any) {
+      clearTimeout(timeoutId);
+      console.error(`Network error fetching from Open Food Facts for barcode ${barcode}:`, fetchError);
+      return new Response(JSON.stringify({ error: `Network error connecting to product database: ${fetchError.message}` }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -38,7 +56,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error in fetch-product-info edge function: ${error.message}`);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -33,10 +33,6 @@ const SignUpPage = () => {
     if (error) {
       showError(error.message);
     } else {
-      const { error: rpcError } = await supabase.rpc('increment_active_recyclers');
-      if (rpcError) {
-        console.error("Could not increment active recyclers count:", rpcError.message);
-      }
       showSuccess('Check your email for the confirmation link!');
       navigate('/login');
     }

@@ -14,6 +14,8 @@ interface AuthContextType {
   points: number;
   totalScans: number;
   level: Level | null;
+  firstName: string | null;
+  lastName: string | null;
   totalBottlesRecycled: number;
   activeRecyclers: number;
   addPoints: (amount: number, barcode?: string) => Promise<void>;
@@ -21,6 +23,7 @@ interface AuthContextType {
   resetCommunityStats: () => Promise<void>;
   fetchCommunityStats: () => Promise<void>;
   resetAnonymousPoints: () => void;
+  refetchProfile: () => Promise<void>;
   loading: boolean;
 }
 
@@ -34,6 +37,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [points, setPoints] = useState(0);
   const [totalScans, setTotalScans] = useState(0);
   const [level, setLevel] = useState<Level | null>(null);
+  const [firstName, setFirstName] = useState<string | null>(null);
+  const [lastName, setLastName] = useState<string | null>(null);
   const [anonymousPoints, setAnonymousPoints] = useState(0);
   const [totalBottlesRecycled, setTotalBottlesRecycled] = useState(0);
   const [activeRecyclers, setActiveRecyclers] = useState(0);
@@ -57,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchUserProfile = useCallback(async (currentUser: User) => {
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('points')
+      .select('points, first_name, last_name')
       .eq('id', currentUser.id)
       .single();
 
@@ -78,6 +83,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return { ...profile, totalScans: count ?? 0 };
   }, []);
+
+  const fetchAndSetData = useCallback(async (userToFetch: User | null) => {
+    if (userToFetch) {
+      const profileAndStats = await fetchUserProfile(userToFetch);
+      let currentPoints = profileAndStats?.points || 0;
+      
+      const localPoints = Number(localStorage.getItem('anonymousPoints') || '0');
+      if (localPoints > 0) {
+        showSuccess(`Merging ${localPoints} saved points to your account!`);
+        currentPoints += localPoints;
+        await supabase.from('profiles').update({ points: currentPoints }).eq('id', userToFetch.id);
+        localStorage.removeItem('anonymousPoints');
+        setAnonymousPoints(0);
+      }
+
+      setPoints(currentPoints);
+      setFirstName(profileAndStats?.first_name || null);
+      setLastName(profileAndStats?.last_name || null);
+      setTotalScans(profileAndStats?.totalScans || 0);
+      setLevel(getLevelFromPoints(currentPoints));
+    } else {
+      // User is logged out
+      setPoints(0);
+      setTotalScans(0);
+      setLevel(null);
+      setFirstName(null);
+      setLastName(null);
+      const localPoints = Number(localStorage.getItem('anonymousPoints') || '0');
+      setAnonymousPoints(localPoints);
+    }
+  }, [fetchUserProfile]);
 
   useEffect(() => {
     setLoading(true);
@@ -102,32 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const currentUser = session?.user ?? null;
       setSession(session);
       setUser(currentUser);
-
-      if (currentUser) {
-        const profileAndStats = await fetchUserProfile(currentUser);
-        let currentPoints = profileAndStats?.points || 0;
-        
-        const localPoints = Number(localStorage.getItem('anonymousPoints') || '0');
-        if (localPoints > 0) {
-          showSuccess(`Merging ${localPoints} saved points to your account!`);
-          currentPoints += localPoints;
-          await supabase.from('profiles').update({ points: currentPoints }).eq('id', currentUser.id);
-          localStorage.removeItem('anonymousPoints');
-          setAnonymousPoints(0);
-        }
-
-        setPoints(currentPoints);
-        setTotalScans(profileAndStats?.totalScans || 0);
-        setLevel(getLevelFromPoints(currentPoints));
-        
-      } else {
-        // User is logged out
-        setPoints(0);
-        setTotalScans(0);
-        setLevel(null);
-        const localPoints = Number(localStorage.getItem('anonymousPoints') || '0');
-        setAnonymousPoints(localPoints);
-      }
+      await fetchAndSetData(currentUser);
       setLoading(false);
     });
 
@@ -135,7 +146,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       subscription.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, [fetchCommunityStats, fetchUserProfile]);
+  }, [fetchCommunityStats, fetchAndSetData]);
 
   const addPoints = async (amount: number, barcode?: string) => {
     const { error: statsError } = await supabase.rpc('increment_total_bottles');
@@ -217,12 +228,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     showSuccess("Your session score has been reset.");
   };
 
+  const refetchProfile = useCallback(async () => {
+    if (user) {
+      const profileAndStats = await fetchUserProfile(user);
+      setPoints(profileAndStats?.points || 0);
+      setFirstName(profileAndStats?.first_name || null);
+      setLastName(profileAndStats?.last_name || null);
+      setTotalScans(profileAndStats?.totalScans || 0);
+      setLevel(getLevelFromPoints(profileAndStats?.points || 0));
+    }
+  }, [user, fetchUserProfile]);
+
   const value = {
     session,
     user,
     points: user ? points : anonymousPoints,
     totalScans: user ? totalScans : 0,
     level,
+    firstName,
+    lastName,
     totalBottlesRecycled,
     activeRecyclers,
     addPoints,
@@ -230,6 +254,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     resetCommunityStats,
     fetchCommunityStats,
     resetAnonymousPoints,
+    refetchProfile,
     loading,
   };
 

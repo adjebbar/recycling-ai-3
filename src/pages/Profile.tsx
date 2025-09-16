@@ -15,7 +15,7 @@ import { Star } from "lucide-react";
 
 const ProfilePage = () => {
   const { t } = useTranslation();
-  const { user, points, totalScans, level } = useAuth();
+  const { user, points, totalScans, level, firstName, lastName } = useAuth();
   const { data: scanHistory, isLoading } = useProfileData();
   const animatedPoints = useAnimatedCounter(points);
   const animatedTotalScans = useAnimatedCounter(totalScans);
@@ -23,7 +23,7 @@ const ProfilePage = () => {
   return (
     <div className="container mx-auto p-4 animate-fade-in-up">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">{t('profile.title')}</h1>
+        <h1 className="text-3xl font-bold mb-2">{firstName && lastName ? `${firstName} ${lastName}` : t('profile.title')}</h1>
         <p className="text-lg text-muted-foreground">{user?.email}</p>
       </div>
 

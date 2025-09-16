@@ -24,7 +24,7 @@ const steps = [
 const GettingStarted = () => {
   return (
     <>
-      <h2 className="text-3xl font-bold mb-6 text-center">How It Works</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center text-white">How It Works</h2>
       <div className="grid gap-6 md:grid-cols-3 max-w-4xl mx-auto">
         {steps.map((step, index) => {
           const Icon = step.icon;

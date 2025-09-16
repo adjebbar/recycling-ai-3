@@ -84,6 +84,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { ...profile, totalScans: count ?? 0 };
   }, []);
 
+  const refetchProfile = useCallback(async () => {
+    if (user) {
+      const profileAndStats = await fetchUserProfile(user);
+      if (profileAndStats) {
+        setPoints(profileAndStats.points || 0);
+        setFirstName(profileAndStats.first_name || null);
+        setLastName(profileAndStats.last_name || null);
+        setTotalScans(profileAndStats.totalScans || 0);
+        setLevel(getLevelFromPoints(profileAndStats.points || 0));
+      } else {
+        console.warn("Refetch profile failed, keeping current state.");
+      }
+    }
+  }, [user, fetchUserProfile]);
+
   const fetchAndSetData = useCallback(async (userToFetch: User | null) => {
     if (userToFetch) {
       const profileAndStats = await fetchUserProfile(userToFetch);
@@ -157,9 +172,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (user) {
       const oldStats = { points, totalScans };
       const oldLevel = getLevelFromPoints(points);
+      // Optimistically update local state for immediate feedback
       const newPoints = points + amount;
-      const newLevel = getLevelFromPoints(newPoints);
       const newTotalScans = totalScans + 1;
+      const newLevel = getLevelFromPoints(newPoints);
 
       setPoints(newPoints);
       setTotalScans(newTotalScans);
@@ -170,16 +186,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         showSuccess(`🎉 Leveled Up to ${newLevel.name}! 🎉`);
       }
 
-      const { error } = await supabase.from('profiles').update({ points: newPoints }).eq('id', user.id);
-      if (error) {
+      const { error: profileUpdateError } = await supabase.from('profiles').update({ points: newPoints }).eq('id', user.id);
+      if (profileUpdateError) {
+        // Revert local state if profile update fails
         setPoints(points);
         setTotalScans(totalScans);
         setLevel(oldLevel);
         showError("Failed to update your points.");
         return;
       }
-      await supabase.from('scan_history').insert({ user_id: user.id, points_earned: amount, product_barcode: barcode });
+      
+      const { error: scanHistoryError } = await supabase.from('scan_history').insert({ user_id: user.id, points_earned: amount, product_barcode: barcode });
+      if (scanHistoryError) {
+        // Revert local state if scan history fails
+        setPoints(points);
+        setTotalScans(totalScans);
+        setLevel(oldLevel);
+        console.error("Failed to record scan history:", scanHistoryError.message);
+        showError("Failed to record scan history.");
+        return;
+      }
 
+      // After successful database updates, re-fetch profile to ensure full consistency
+      await refetchProfile();
+      
       const newStats = { points: newPoints, totalScans: newTotalScans };
       achievementsList.forEach(achievement => {
         if (!achievement.condition(oldStats) && achievement.condition(newStats)) {
@@ -227,17 +257,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setAnonymousPoints(0);
     showSuccess("Your session score has been reset.");
   };
-
-  const refetchProfile = useCallback(async () => {
-    if (user) {
-      const profileAndStats = await fetchUserProfile(user);
-      setPoints(profileAndStats?.points || 0);
-      setFirstName(profileAndStats?.first_name || null);
-      setLastName(profileAndStats?.last_name || null);
-      setTotalScans(profileAndStats?.totalScans || 0);
-      setLevel(getLevelFromPoints(profileAndStats?.points || 0));
-    }
-  }, [user, fetchUserProfile]);
 
   const value = {
     session,

@@ -1,0 +1,92 @@
+{
+  "nav": {
+    "appName": "إيكو سكان الذكاء الاصطناعي",
+    "scan": "مسح",
+    "challenges": "التحديات",
+    "leaderboard": "لوحة الصدارة",
+    "login": "تسجيل الدخول",
+    "signup": "التسجيل",
+    "points": "{{count}} نقطة",
+    "myAccount": "حسابي",
+    "profile": "الملف الشخصي",
+    "admin": "المسؤول",
+    "logout": "تسجيل الخروج"
+  },
+  "home": {
+    "hero": {
+      "recycle": "إعادة تدوير. ",
+      "earnRepeat": "اكسب. كرر."
+    },
+    "subtitle": "تتبع إعادة تدويرك، واكسب النقاط، وساهم في كوكب أكثر خضرة.",
+    "startScanning": "ابدأ المسح",
+    "yourPoints": "نقاطك",
+    "anonymousSubtitle": "سجل الدخول لحفظ تقدمك!",
+    "resetScore": "إعادة تعيين نقاط الجلسة",
+    "recyclingAnimation": {
+      "message": "استمر في العمل الرائع!"
+    }
+  },
+  "scanner": {
+    "title": "مسح وإعادة تدوير",
+    "subtitle": "امسح الباركود الخاص بالزجاجات البلاستيكية لكسب النقاط!",
+    "cameraTab": "الكاميرا",
+    "manualTab": "يدوي",
+    "verifying": "جارٍ التحقق من الباركود...",
+    "success": "تم مسح الزجاجة البلاستيكية! +{{points}} نقطة!",
+    "notPlastic": "لا يبدو أن هذه زجاجة بلاستيكية.",
+    "notFound": "المنتج غير موجود. يرجى تجربة باركود آخر.",
+    "connectionError": "تعذر الاتصال بقاعدة بيانات المنتج. يرجى المحاولة مرة أخرى.",
+    "manualTitle": "إدخال الباركود يدويًا",
+    "manualDescription": "أدخل رقم الباركود إذا كانت الكاميرا لا تعمل.",
+    "manualPlaceholder": "أدخل رقم الباركود",
+    "manualButton": "إرسال",
+    "sessionScore": "نقاط جلستك",
+    "cameraPermission": "إذن الكاميرا مطلوب للمسح.",
+    "welcomeBackTitle": "مرحبًا بعودتك!",
+    "welcomeBackDescription": "لديك نقاط غير محفوظة من جلستك الأخيرة. سجل الدخول لحفظها أو أعد تعيين نقاطك.",
+    "resetScore": "إعادة تعيين النقاط",
+    "signupPromptTitle": "هل تريد حفظ نقاطك؟",
+    "signupPromptDescription": "أنشئ حسابًا لتتبع تقدمك وفتح المزيد من الميزات!",
+    "alreadyScannedRecently": "لقد قمت بمسح هذا العنصر للتو. يرجى الانتظار لحظة قبل المسح مرة أخرى."
+  },
+  "profile": {
+    "title": "ملفك الشخصي",
+    "totalPoints": "إجمالي النقاط",
+    "bottlesRecycled": "الزجاجات المعاد تدويرها",
+    "recentActivity": "النشاط الأخير",
+    "recentActivityDescription": "آخر 20 عملية مسح لك.",
+    "date": "التاريخ",
+    "barcode": "الباركود",
+    "points": "النقاط",
+    "achievements": "الإنجازات"
+  },
+  "challenges": {
+    "title": "التحديات",
+    "subtitle": "أكمل التحديات لكسب نقاط إضافية!",
+    "points": "نقطة",
+    "claimed": "تم المطالبة",
+    "claim": "المطالبة بالمكافأة",
+    "locked": "مغلق"
+  },
+  "rewards": {
+    "title": "المكافآت",
+    "subtitle": "استبدل نقاطك بأشياء رائعة!",
+    "yourPoints": "نقاطك: {{count}}",
+    "points": "نقطة",
+    "notEnoughPoints": "نقاط غير كافية",
+    "redeem": "استبدال",
+    "loginToRedeem": "تسجيل الدخول للاستبدال"
+  },
+  "achievements": {
+    "firstScanName": "أول مسح",
+    "firstScanDescription": "امسح أول زجاجة لك.",
+    "noviceRecyclerName": "مبتدئ إعادة التدوير",
+    "noviceRecyclerDescription": "امسح 10 زجاجات.",
+    "pointCollectorName": "جامع النقاط",
+    "pointCollectorDescription": "اكسب 100 نقطة.",
+    "dedicatedRecyclerName": "مُعيد تدوير مخلص",
+    "dedicatedRecyclerDescription": "امسح 50 زجاجة.",
+    "pointsHoarderName": "مخزن النقاط",
+    "pointsHoarderDescription": "اكسب 500 نقطة."
+  }
+}

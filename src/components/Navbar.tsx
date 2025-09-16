@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { supabase } from '@/lib/supabaseClient';
-import { showSuccess } from '@/utils/toast';
+import { showSuccess, showError } from '@/utils/toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,9 +34,13 @@ export const Navbar = () => {
   }
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    showSuccess("You have been logged out.");
-    navigate('/');
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      showError(`Logout failed: ${error.message}`);
+    } else {
+      showSuccess("You have been logged out.");
+      navigate('/');
+    }
   };
 
   const changeLanguage = (lng: string) => {

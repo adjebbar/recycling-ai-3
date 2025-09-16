@@ -35,18 +35,32 @@ const NfcPage = () => {
 
     try {
       const ndef = new NDEFReader();
-      const dataToWrite = {
-        userId: user.id,
-        totalScans: totalScans,
-        points: points,
-        co2SavedKg: parseFloat(co2Saved),
-        energySavedKWh: parseFloat(energySaved),
-        virtualCashValue: parseFloat(virtualCashValue),
+      
+      const giftCardData = {
+        issuer: "EcoScan AI",
+        cardType: "Recycling Rewards Card",
+        cardholderId: user.id,
+        issuedAt: new Date().toISOString(),
+        balance: {
+          points: points,
+          virtualValue: parseFloat(virtualCashValue),
+          currency: "USD"
+        },
+        metadata: {
+          totalScans: totalScans,
+          co2SavedKg: parseFloat(co2Saved),
+          energySavedKWh: parseFloat(energySaved)
+        }
       };
 
       await ndef.write({
-        records: [{ recordType: "text", data: JSON.stringify(dataToWrite) }],
+        records: [{
+          recordType: "mime",
+          mediaType: "application/vnd.ecoscan.giftcard+json",
+          data: JSON.stringify(giftCardData, null, 2) // Pretty-print JSON
+        }],
       });
+
       showSuccess("Successfully wrote your recycling data to the NFC card!");
     } catch (error) {
       console.error("NFC write error:", error);

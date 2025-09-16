@@ -95,30 +95,9 @@ export default {
             transform: "translateY(0)",
           },
         },
-        "slide-in-recycle": {
-          "0%": {
-            left: "-10%",
-            transform: "translateY(-50%) rotate(-30deg)",
-            opacity: "0",
-          },
-          "20%": {
-            opacity: "1",
-          },
-          "80%": {
-            left: "70%",
-            transform: "translateY(-50%) rotate(0deg)",
-            opacity: "1",
-          },
-          "100%": {
-            left: "70%",
-            transform: "translateY(-50%) rotate(0deg)",
-            opacity: "0",
-          },
-        },
-        "scan-line": {
-          "0%": { top: "10%", opacity: "0" },
-          "20%, 80%": { opacity: "1" },
-          "100%": { top: "90%", opacity: "0" },
+        "scan-beam": {
+          "0%, 100%": { opacity: "0", transform: "scaleX(0.1)" },
+          "50%": { opacity: "1", transform: "scaleX(1)" },
         },
         "point-burst": {
           "0%": { transform: "scale(0.5) translateY(10px)", opacity: "0" },
@@ -134,8 +113,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in-up": "fade-in-up 0.5s ease-out forwards",
-        "slide-in-recycle": "slide-in-recycle 3s ease-in-out infinite",
-        "scan-line": "scan-line 2.5s ease-out infinite",
+        "scan-beam": "scan-beam 1.5s ease-in-out",
         "point-burst": "point-burst 0.5s ease-out forwards",
         "pulse-once": "pulse-once 0.5s ease-in-out",
       },

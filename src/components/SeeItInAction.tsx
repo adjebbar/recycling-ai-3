@@ -7,72 +7,78 @@ import { Smartphone, GlassWater, Recycle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SeeItInAction = () => {
-  const [step, setStep] = useState(0);
+  const [state, setState] = useState<'idle' | 'scanning' | 'scanned' | 'recycling'>('idle');
 
   useEffect(() => {
+    // This creates a continuous loop for the animation
     const sequence = [
-      () => setStep(1), // Start scan
-      () => setStep(2), // Show points
-      () => setStep(3), // Move bottle
-      () => setStep(0), // Reset
+      () => setState('scanning'),
+      () => setState('scanned'),
+      () => setState('recycling'),
+      () => setState('idle'),
     ];
 
-    const timers = sequence.map((action, index) => 
-      setTimeout(action, index * 2000 + 1000)
+    const timers = sequence.map((action, index) =>
+      setTimeout(action, (index + 1) * 2000)
     );
 
     return () => timers.forEach(clearTimeout);
-  }, [step === 3]); // Rerun the effect after the sequence completes
+  }, [state === 'idle']); // Rerun the effect only when the animation cycle restarts
+
+  const statusText = {
+    idle: "Ready to scan...",
+    scanning: "Scanning for plastic bottles...",
+    scanned: "Points awarded!",
+    recycling: "Recycling complete!",
+  };
 
   return (
     <Card className="w-full max-w-3xl mx-auto bg-card/80 backdrop-blur-lg border shadow-xl rounded-2xl">
       <CardContent className="p-6 md:p-8">
-        <div className="relative h-48 w-full flex items-center justify-center">
-          {/* Phone */}
-          <Smartphone className="h-32 w-32 text-muted-foreground z-10" />
+        <div className="relative h-48 w-full flex items-center justify-between px-4 overflow-hidden">
+          {/* Phone on the left */}
+          <div className="z-10">
+            <Smartphone className="h-32 w-32 text-muted-foreground" />
+          </div>
 
-          {/* Scan Line */}
-          {step === 1 && (
-            <div className="absolute h-20 w-20 left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 overflow-hidden">
-              <div className="absolute h-1 w-full bg-primary/70 rounded-full shadow-[0_0_10px_theme(colors.primary)] animate-scan-line" />
-            </div>
+          {/* Scan Beam */}
+          {state === 'scanning' && (
+            <div className="absolute left-1/4 w-1/2 h-1 bg-primary rounded-full animate-scan-beam" />
           )}
 
-          {/* Bottle */}
-          <GlassWater
+          {/* Bottle in the middle, moves to the right */}
+          <div
             className={cn(
-              "h-16 w-16 text-foreground absolute transition-all duration-1000 ease-in-out",
-              step < 3 ? "left-1/2 -translate-x-1/2" : "left-[calc(100%-8rem)]",
-              step === 3 && "opacity-0"
+              "absolute left-1/2 -translate-x-1/2 transition-all duration-1000 ease-in-out z-20",
+              state === 'recycling' && "left-[calc(100%-5rem)] opacity-0 scale-50",
+              state === 'scanned' && "animate-pulse-once"
             )}
-          />
+          >
+            <GlassWater className="h-16 w-16 text-foreground" />
+            {/* Points Badge */}
+            {state === 'scanned' && (
+              <Badge
+                variant="secondary"
+                className="absolute -top-4 left-1/2 -translate-x-1/2 text-lg bg-primary/20 text-primary-foreground animate-point-burst"
+              >
+                +10 Points
+              </Badge>
+            )}
+          </div>
 
-          {/* Points Badge */}
-          {step >= 2 && (
-            <Badge
-              variant="secondary"
-              className="absolute left-1/2 -translate-x-1/2 top-8 text-lg bg-primary/20 text-primary-foreground animate-point-burst"
-            >
-              +10 Points
-            </Badge>
-          )}
-
-          {/* Recycling Bin */}
-          <div className="absolute right-8 top-1/2 -translate-y-1/2">
+          {/* Recycling Bin on the right */}
+          <div className="z-10">
             <Recycle
               className={cn(
                 "h-20 w-20 text-primary transition-transform",
-                step === 3 && "animate-pulse-once"
+                state === 'recycling' && "animate-pulse-once"
               )}
             />
           </div>
         </div>
         <div className="text-center mt-4">
-          <p className="font-semibold text-lg">
-            {step === 0 && "Ready to scan..."}
-            {step === 1 && "Scanning for plastic bottles..."}
-            {step === 2 && "Points awarded!"}
-            {step === 3 && "Recycling complete!"}
+          <p className="font-semibold text-lg h-6">
+            {statusText[state]}
           </p>
           <p className="text-sm text-muted-foreground">
             Our system automatically verifies and rewards you.

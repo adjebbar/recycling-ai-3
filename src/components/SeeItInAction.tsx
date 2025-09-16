@@ -6,13 +6,22 @@ import { Badge } from "@/components/ui/badge";
 import { Recycle, ScanLine, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// A simple component to represent a plastic bottle
+// A component to represent a water bottle
 const PlasticBottle = ({ className }: { className?: string }) => (
-  <div className={cn("relative h-20 w-10", className)}>
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 h-2 w-4 bg-blue-400 rounded-t-sm" />
-    <div className="h-full w-full bg-blue-300/70 backdrop-blur-sm rounded-t-lg rounded-b-md border-2 border-blue-300" />
-    <div className="absolute top-4 left-0 w-full h-8 bg-white/50 flex items-center justify-center">
-      <Recycle className="w-4 h-4 text-blue-500/50" />
+  <div className={cn("relative h-24 w-10", className)}>
+    {/* Cap */}
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 h-3 w-5 bg-sky-500 rounded-t-sm z-10" />
+    
+    {/* Bottle Body */}
+    <div className="absolute top-2 left-0 w-full h-full bg-sky-300/60 rounded-t-lg rounded-b-md border-2 border-sky-400/80 overflow-hidden">
+      {/* Water inside */}
+      <div className="absolute bottom-0 left-0 w-full h-5/6 bg-sky-400/70" />
+      
+      {/* Reflection Highlight 1 */}
+      <div className="absolute top-4 left-2 w-1 h-12 bg-white/50 rounded-full" />
+      
+      {/* Reflection Highlight 2 */}
+      <div className="absolute top-6 right-2 w-0.5 h-8 bg-white/40 rounded-full" />
     </div>
   </div>
 );

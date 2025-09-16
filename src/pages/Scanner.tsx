@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Camera, CameraOff, Keyboard, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { Camera, CameraOff, Keyboard, CheckCircle2, XCircle, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useAnimatedCounter } from '@/hooks/useAnimatedCounter';
 import { supabase } from '@/lib/supabaseClient';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const POINTS_PER_BOTTLE = 10;
 
@@ -82,6 +83,7 @@ const ScannerPage = () => {
   const [manualBarcode, setManualBarcode] = useState('');
   const navigate = useNavigate();
   const [scanResult, setScanResult] = useState<{ type: 'success' | 'error'; message: string; imageUrl?: string } | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null); // New state for camera errors
 
   useEffect(() => {
     const hasShownPrompt = sessionStorage.getItem('resetPromptShown');
@@ -170,6 +172,12 @@ const ScannerPage = () => {
     setManualBarcode('');
   };
 
+  const handleCameraError = (error: string) => {
+    console.error("Camera error:", error);
+    setCameraError(error);
+    showError(t('scanner.cameraInitError'));
+  };
+
   return (
     <div className="min-h-[calc(100vh-4rem)] w-full text-foreground relative">
       <div
@@ -201,7 +209,21 @@ const ScannerPage = () => {
           <TabsContent value="camera">
             <Card className="overflow-hidden bg-card/70 backdrop-blur-lg border">
               <CardContent className="p-4 relative">
-                <BarcodeScanner onScanSuccess={processBarcode} />
+                {cameraError ? (
+                  <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
+                    <AlertTriangle className="h-8 w-8 mb-4" />
+                    <AlertTitle className="text-xl font-bold">{t('scanner.cameraErrorTitle')}</AlertTitle>
+                    <AlertDescription className="mt-2 text-base">
+                      {t('scanner.cameraErrorMessage')}
+                      <p className="mt-2 text-sm text-muted-foreground">({cameraError})</p>
+                      <Button onClick={() => setCameraError(null)} className="mt-6">
+                        {t('scanner.retryCamera')}
+                      </Button>
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <BarcodeScanner onScanSuccess={processBarcode} onScanFailure={handleCameraError} />
+                )}
                 {scanResult && (
                   <div
                     className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4 animate-fade-in-up"

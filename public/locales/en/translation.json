@@ -1,72 +1,46 @@
 {
   "nav": {
-    "appName": "EcoScan AI",
     "scan": "Scan",
-    "challenges": "Challenges",
     "leaderboard": "Leaderboard",
-    "login": "Login",
-    "signup": "Sign Up",
+    "appName": "EcoScan AI",
     "points": "{{count}} Points",
     "myAccount": "My Account",
     "profile": "Profile",
     "admin": "Admin",
-    "logout": "Log Out"
+    "logout": "Logout",
+    "login": "Login",
+    "signup": "Sign Up"
   },
   "home": {
     "hero": {
-      "recycle": "Recycle. ",
+      "recycle": "Recycle.",
       "earnRepeat": "Earn. Repeat."
     },
-    "subtitle": "Track your recycling, earn points, and contribute to a greener planet.",
-    "startScanning": "Start Scanning",
-    "yourPoints": "Your Points",
-    "anonymousSubtitle": "Log in to save your progress!",
-    "resetScore": "Reset Session Score",
-    "recyclingAnimation": {
-      "message": "Keep up the great work!"
-    }
-  },
-  "scanner": {
-    "title": "Scan & Recycle",
-    "subtitle": "Scan plastic bottle barcodes to earn points!",
-    "cameraTab": "Camera",
-    "manualTab": "Manual",
-    "verifying": "Verifying barcode...",
-    "success": "Plastic bottle scanned! +{{points}} points!",
-    "notPlastic": "This doesn't seem to be a plastic bottle.",
-    "notFound": "Product not found. Please try another barcode.",
-    "connectionError": "Could not connect to product database. Please try again.",
-    "manualTitle": "Enter Barcode Manually",
-    "manualDescription": "Enter the barcode number if the camera isn't working.",
-    "manualPlaceholder": "Enter barcode number",
-    "manualButton": "Submit",
-    "sessionScore": "Your Session Score",
-    "cameraPermission": "Camera permission required for scanning.",
-    "welcomeBackTitle": "Welcome Back!",
-    "welcomeBackDescription": "You have unsaved points from your last session. Log in to save them or reset your score.",
-    "resetScore": "Reset Score",
-    "signupPromptTitle": "Want to save your points?",
-    "signupPromptDescription": "Create an account to track your progress and unlock more features!",
-    "alreadyScannedRecently": "You just scanned this item. Please wait a moment before scanning again."
+    "subtitle": "Scan plastic bottles, earn points, and contribute to a cleaner planet.",
+    "startScanning": "Start Scanning"
   },
   "profile": {
-    "title": "Your Profile",
+    "title": "My Profile",
     "totalPoints": "Total Points",
     "bottlesRecycled": "Bottles Recycled",
     "recentActivity": "Recent Activity",
-    "recentActivityDescription": "Your last 20 scans.",
+    "recentActivityDescription": "Your last 20 scans",
     "date": "Date",
     "barcode": "Barcode",
     "points": "Points",
     "achievements": "Achievements"
   },
-  "challenges": {
-    "title": "Challenges",
-    "subtitle": "Complete challenges to earn bonus points!",
-    "points": "points",
-    "claimed": "Claimed",
-    "claim": "Claim Reward",
-    "locked": "Locked"
+  "achievements": {
+    "firstScanName": "First Scan!",
+    "firstScanDescription": "Scanned your first bottle.",
+    "noviceRecyclerName": "Novice Recycler",
+    "noviceRecyclerDescription": "Scanned 10 bottles.",
+    "pointCollectorName": "Point Collector",
+    "pointCollectorDescription": "Collected 100 points.",
+    "dedicatedRecyclerName": "Dedicated Recycler",
+    "dedicatedRecyclerDescription": "Scanned 50 bottles.",
+    "pointsHoarderName": "Points Hoarder",
+    "pointsHoarderDescription": "Collected 500 points."
   },
   "rewards": {
     "title": "Rewards",
@@ -77,16 +51,30 @@
     "redeem": "Redeem",
     "loginToRedeem": "Login to Redeem"
   },
-  "achievements": {
-    "firstScanName": "First Scan",
-    "firstScanDescription": "Scan your very first bottle.",
-    "noviceRecyclerName": "Novice Recycler",
-    "noviceRecyclerDescription": "Scan 10 bottles.",
-    "pointCollectorName": "Point Collector",
-    "pointCollectorDescription": "Earn 100 points.",
-    "dedicatedRecyclerName": "Dedicated Recycler",
-    "dedicatedRecyclerDescription": "Scan 50 bottles.",
-    "pointsHoarderName": "Points Hoarder",
-    "pointsHoarderDescription": "Earn 500 points."
+  "scanner": {
+    "title": "Scan & Recycle",
+    "subtitle": "Scan plastic bottle barcodes to earn points and help the planet.",
+    "verifying": "Verifying barcode...",
+    "success": "Plastic bottle recycled! You earned {{points}} points!",
+    "notPlastic": "This doesn't seem to be a plastic bottle we can recycle.",
+    "notFound": "Product not found. Please try another barcode.",
+    "connectionError": "Could not connect to product database. Please try again.",
+    "cameraTab": "Camera",
+    "manualTab": "Manual",
+    "manualTitle": "Manual Entry",
+    "manualDescription": "Enter the barcode manually if the camera isn't working.",
+    "manualPlaceholder": "Enter barcode number",
+    "manualButton": "Submit",
+    "sessionScore": "Session Score",
+    "resetScore": "Reset Score",
+    "cameraPermission": "Camera permission is required for scanning.",
+    "welcomeBackTitle": "Welcome back!",
+    "welcomeBackDescription": "You have points from your last anonymous session. Would you like to add them to your account?",
+    "signupPromptTitle": "Want to save your points?",
+    "signupPromptDescription": "Sign up or log in to keep track of your recycling progress and earn rewards!",
+    "cameraInitError": "Failed to initialize camera.",
+    "cameraErrorTitle": "Camera Error",
+    "cameraErrorMessage": "Could not access the camera. Please ensure camera permissions are granted for this site and no other application is using the camera.",
+    "retryCamera": "Retry Camera"
   }
 }

@@ -5,11 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
 import { showError, showSuccess, showInfo } from '@/utils/toast';
-import { Nfc } from 'lucide-react';
+import { Nfc, Leaf, Zap, Star, Scan } from 'lucide-react';
 
 const NfcPage = () => {
-  const { user } = useAuth();
+  const { user, points, totalScans } = useAuth();
   const [isWriting, setIsWriting] = useState(false);
+
+  // Constants for impact calculation
+  const CO2_SAVED_PER_BOTTLE_KG = 0.03;
+  const ENERGY_SAVED_PER_BOTTLE_KWH = 0.18;
+
+  const co2Saved = (totalScans * CO2_SAVED_PER_BOTTLE_KG).toFixed(2);
+  const energySaved = (totalScans * ENERGY_SAVED_PER_BOTTLE_KWH).toFixed(2);
 
   const handleWriteNfc = async () => {
     if (!('NDEFReader' in window)) {
@@ -26,10 +33,18 @@ const NfcPage = () => {
 
     try {
       const ndef = new NDEFReader();
+      const dataToWrite = {
+        userId: user.id,
+        totalScans: totalScans,
+        points: points,
+        co2SavedKg: parseFloat(co2Saved),
+        energySavedKWh: parseFloat(energySaved),
+      };
+
       await ndef.write({
-        records: [{ recordType: "text", data: user.id }],
+        records: [{ recordType: "text", data: JSON.stringify(dataToWrite) }],
       });
-      showSuccess("Successfully wrote your ID to the NFC card!");
+      showSuccess("Successfully wrote your recycling data to the NFC card!");
     } catch (error) {
       console.error("NFC write error:", error);
       showError(`Failed to write to NFC card: ${error.message}`);
@@ -43,7 +58,7 @@ const NfcPage = () => {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">NFC Card Management</h1>
         <p className="text-lg text-muted-foreground">
-          Write your unique user ID to a physical NFC card to create a portable loyalty card.
+          Write your unique user ID and recycling stats to a physical NFC card.
         </p>
       </div>
 
@@ -51,23 +66,45 @@ const NfcPage = () => {
         <CardHeader>
           <CardTitle>Write to NFC Card</CardTitle>
           <CardDescription>
-            This will securely write your unique user ID to an NFC card. You can then use this card at partner locations to redeem your points.
+            This will securely write your recycling summary to an NFC card. You can then use this card at partner locations.
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center">
-          <div className="mb-6">
-            <Nfc className={`h-24 w-24 mx-auto text-primary ${isWriting ? 'animate-pulse' : ''}`} />
+        <CardContent>
+          <div className="mb-6 text-left p-4 border rounded-lg bg-muted/50 space-y-2">
+            <h4 className="font-semibold mb-2 text-center">Your Recycling Snapshot</h4>
+            <div className="flex items-center justify-between text-sm">
+              <span className="flex items-center text-muted-foreground"><Scan className="w-4 h-4 mr-2" /> Bottles Scanned</span>
+              <span className="font-bold">{totalScans}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="flex items-center text-muted-foreground"><Star className="w-4 h-4 mr-2" /> Current Points</span>
+              <span className="font-bold text-primary">{points}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="flex items-center text-muted-foreground"><Leaf className="w-4 h-4 mr-2" /> CO₂ Saved</span>
+              <span className="font-bold">{co2Saved} kg</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="flex items-center text-muted-foreground"><Zap className="w-4 h-4 mr-2" /> Energy Saved</span>
+              <span className="font-bold">{energySaved} kWh</span>
+            </div>
           </div>
-          <Button 
-            size="lg" 
-            onClick={handleWriteNfc} 
-            disabled={isWriting}
-          >
-            {isWriting ? 'Waiting for Card...' : 'Start Writing to Card'}
-          </Button>
-          <p className="text-xs text-muted-foreground mt-4">
-            Note: This feature requires a browser that supports Web NFC, such as Chrome on Android.
-          </p>
+
+          <div className="text-center">
+            <div className="mb-6">
+              <Nfc className={`h-24 w-24 mx-auto text-primary ${isWriting ? 'animate-pulse' : ''}`} />
+            </div>
+            <Button 
+              size="lg" 
+              onClick={handleWriteNfc} 
+              disabled={isWriting || !user}
+            >
+              {isWriting ? 'Waiting for Card...' : 'Start Writing to Card'}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-4">
+              Note: This feature requires a browser that supports Web NFC, such as Chrome on Android.
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

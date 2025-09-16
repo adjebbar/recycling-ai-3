@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps } from "lucide-react";
+import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -53,6 +53,9 @@ const LandingPage = () => {
 
   const animatedBottles = useAnimatedCounter(totalBottlesRecycled, 1000);
   const animatedRecyclers = useAnimatedCounter(activeRecyclers, 1000);
+
+  const CO2_SAVED_PER_BOTTLE_KG = 0.03;
+  const animatedCo2Saved = (animatedBottles * CO2_SAVED_PER_BOTTLE_KG).toFixed(1);
 
   return (
     <div className="min-h-screen w-full text-foreground overflow-x-hidden relative">
@@ -137,10 +140,10 @@ const LandingPage = () => {
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <h2 className="text-3xl md:text-4xl font-bold text-white">Join a Growing Movement</h2>
+                <h2 className="text-3xl md:text-4xl font-bold text-white">Our Collective Impact</h2>
                 <p className="text-gray-300 mt-2">You're not just recycling; you're part of a global community making a difference.</p>
               </div>
-              <div className="grid gap-8 md:grid-cols-2 max-w-3xl mx-auto">
+              <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
                   <Card className="bg-card/90 border">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -162,6 +165,18 @@ const LandingPage = () => {
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedRecyclers.toLocaleString()}</div>
                       <p className="text-xs text-muted-foreground">making a positive impact right now.</p>
+                    </CardContent>
+                  </Card>
+                </div>
+                <div className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+                  <Card className="bg-card/90 border">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">CO₂ Saved</CardTitle>
+                      <Leaf className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-4xl font-bold text-primary">{animatedCo2Saved} kg</div>
+                      <p className="text-xs text-muted-foreground">preventing harmful greenhouse gases.</p>
                     </CardContent>
                   </Card>
                 </div>

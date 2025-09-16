@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Recycle, ScanLine, CheckCircle2 } from "lucide-react";
+import { Recycle, ScanLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // A component to represent a water bottle
@@ -37,22 +37,25 @@ const PhoneMockup = ({ children }: { children: React.ReactNode }) => (
 );
 
 const SeeItInAction = () => {
-  const [state, setState] = useState<'idle' | 'scanning' | 'scanned' | 'recycling'>('idle');
+  const [phase, setPhase] = useState<'idle' | 'scanning' | 'scanned' | 'recycling'>('idle');
 
   useEffect(() => {
     const sequence = [
-      () => setState('scanning'),
-      () => setState('scanned'),
-      () => setState('recycling'),
-      () => setState('idle'),
+      () => setPhase('scanning'),
+      () => setPhase('scanned'),
+      () => setPhase('recycling'),
+      () => setPhase('idle'),
     ];
 
-    const timers = sequence.map((action, index) =>
-      setTimeout(action, (index + 1) * 2500) // Increased duration for clarity
-    );
+    const timers = [
+      setTimeout(sequence[0], 500),   // Start scanning
+      setTimeout(sequence[1], 2000),  // Scan complete
+      setTimeout(sequence[2], 3000),  // Start recycling
+      setTimeout(sequence[3], 4500),  // Reset
+    ];
 
     return () => timers.forEach(clearTimeout);
-  }, [state === 'idle']);
+  }, [phase === 'idle']);
 
   const statusText = {
     idle: "Ready to scan...",
@@ -62,58 +65,43 @@ const SeeItInAction = () => {
   };
 
   return (
-    <Card className="w-full max-w-3xl mx-auto bg-card/80 backdrop-blur-lg border shadow-xl rounded-2xl">
+    <Card className="w-full max-w-3xl mx-auto bg-card/80 backdrop-blur-lg border shadow-xl rounded-2xl overflow-hidden">
       <CardContent className="p-6 md:p-8">
-        <div className="relative h-56 w-full flex items-center justify-around px-4 overflow-hidden">
+        <div className="relative h-56 w-full flex items-center justify-between">
           {/* Phone on the left */}
           <PhoneMockup>
             <div className="w-full h-full flex flex-col items-center justify-center text-center text-white p-2">
-              {state === 'idle' && (
-                <div className="animate-fade-in-up space-y-2">
-                  <ScanLine className="h-8 w-8 text-primary" />
-                  <p className="text-xs font-semibold">Tap to Scan</p>
-                </div>
-              )}
-              {state === 'scanning' && (
-                <div className="w-full h-full relative flex items-center justify-center animate-fade-in-up overflow-hidden">
-                   <PlasticBottle className="scale-150" />
-                   <div className="absolute w-full h-1 bg-red-500/80 rounded-full animate-scan-beam-vertical" />
-                </div>
-              )}
-              {state === 'scanned' && (
-                 <div className="animate-point-burst space-y-2">
-                    <CheckCircle2 className="h-10 w-10 text-green-500" />
-                    <p className="text-lg font-bold text-green-400">+10 Points</p>
-                 </div>
-              )}
-               {state === 'recycling' && (
-                 <div className="animate-fade-in-up space-y-2">
-                    <Recycle className="h-8 w-8 text-primary animate-spin" style={{ animationDuration: '2s' }} />
-                    <p className="text-xs font-semibold">Success!</p>
-                 </div>
-              )}
+              <ScanLine className={cn("h-10 w-10 text-primary transition-opacity", phase === 'scanning' ? 'opacity-100' : 'opacity-50')} />
+              <p className="text-xs font-semibold mt-2">SCANNER</p>
             </div>
           </PhoneMockup>
 
-          {/* Bottle in the middle, moves to the right */}
-          <div
-            className={cn(
-              "absolute left-1/2 -translate-x-1/2 transition-all duration-1000 ease-in-out z-20",
-              "opacity-0", // Initially hidden
-              (state === 'scanning' || state === 'scanned') && "opacity-100",
-              state === 'scanned' && "animate-pulse-once",
-              state === 'recycling' && "left-[calc(100%-6rem)] opacity-0 scale-50",
-            )}
-          >
-            <PlasticBottle className="scale-125" />
-            {state === 'scanned' && (
-              <Badge
-                variant="secondary"
-                className="absolute -top-4 left-1/2 -translate-x-1/2 text-lg bg-primary/20 text-primary-foreground animate-point-burst"
-              >
-                +10 Points
-              </Badge>
-            )}
+          {/* Animation Space */}
+          <div className="absolute left-0 top-0 w-full h-full">
+            {/* Scanning Beam */}
+            <div className={cn(
+              "absolute left-[28%] top-1/2 -translate-y-1/2 h-1 bg-primary/80 rounded-full origin-left transition-transform duration-1000 ease-in-out",
+              phase === 'scanning' ? "scale-x-100" : "scale-x-0"
+            )} style={{ width: '44%' }} />
+
+            {/* Bottle */}
+            <div
+              className={cn(
+                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-1500 ease-in-out",
+                phase === 'idle' || phase === 'scanning' ? "opacity-0 scale-75" : "opacity-100 scale-100",
+                phase === 'recycling' && "translate-x-[120%] scale-50 opacity-0",
+              )}
+            >
+              <PlasticBottle className={cn("scale-125", phase === 'scanned' && "animate-pulse-once")} />
+              {phase === 'scanned' && (
+                <Badge
+                  variant="secondary"
+                  className="absolute -top-4 left-1/2 -translate-x-1/2 text-lg bg-primary/20 text-primary-foreground animate-point-burst"
+                >
+                  +10 Points
+                </Badge>
+              )}
+            </div>
           </div>
 
           {/* Recycling Bin on the right */}
@@ -121,14 +109,14 @@ const SeeItInAction = () => {
             <Recycle
               className={cn(
                 "h-24 w-24 text-primary transition-transform",
-                state === 'recycling' && "animate-pulse-once"
+                phase === 'recycling' && "animate-pulse-once"
               )}
             />
           </div>
         </div>
         <div className="text-center mt-4">
           <p className="font-semibold text-lg h-6">
-            {statusText[state]}
+            {statusText[phase]}
           </p>
           <p className="text-sm text-muted-foreground">
             Our system automatically verifies and rewards you.

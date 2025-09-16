@@ -3,14 +3,34 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Smartphone, GlassWater, Recycle } from "lucide-react";
+import { Recycle, ScanLine, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// A simple component to represent a plastic bottle
+const PlasticBottle = ({ className }: { className?: string }) => (
+  <div className={cn("relative h-20 w-10", className)}>
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 h-2 w-4 bg-blue-400 rounded-t-sm" />
+    <div className="h-full w-full bg-blue-300/70 backdrop-blur-sm rounded-t-lg rounded-b-md border-2 border-blue-300" />
+    <div className="absolute top-4 left-0 w-full h-8 bg-white/50 flex items-center justify-center">
+      <Recycle className="w-4 h-4 text-blue-500/50" />
+    </div>
+  </div>
+);
+
+// A component to represent the phone
+const PhoneMockup = ({ children }: { children: React.ReactNode }) => (
+  <div className="relative h-48 w-24 bg-slate-800 rounded-2xl border-4 border-slate-900 shadow-lg">
+    <div className="absolute top-2 left-1/2 -translate-x-1/2 h-1 w-8 bg-slate-900 rounded-full" />
+    <div className="absolute inset-x-1 top-4 bottom-1 bg-black rounded-lg overflow-hidden">
+      {children}
+    </div>
+  </div>
+);
 
 const SeeItInAction = () => {
   const [state, setState] = useState<'idle' | 'scanning' | 'scanned' | 'recycling'>('idle');
 
   useEffect(() => {
-    // This creates a continuous loop for the animation
     const sequence = [
       () => setState('scanning'),
       () => setState('scanned'),
@@ -19,11 +39,11 @@ const SeeItInAction = () => {
     ];
 
     const timers = sequence.map((action, index) =>
-      setTimeout(action, (index + 1) * 2000)
+      setTimeout(action, (index + 1) * 2500) // Increased duration for clarity
     );
 
     return () => timers.forEach(clearTimeout);
-  }, [state === 'idle']); // Rerun the effect only when the animation cycle restarts
+  }, [state === 'idle']);
 
   const statusText = {
     idle: "Ready to scan...",
@@ -35,27 +55,48 @@ const SeeItInAction = () => {
   return (
     <Card className="w-full max-w-3xl mx-auto bg-card/80 backdrop-blur-lg border shadow-xl rounded-2xl">
       <CardContent className="p-6 md:p-8">
-        <div className="relative h-48 w-full flex items-center justify-between px-4 overflow-hidden">
+        <div className="relative h-56 w-full flex items-center justify-around px-4 overflow-hidden">
           {/* Phone on the left */}
-          <div className="z-10">
-            <Smartphone className="h-32 w-32 text-muted-foreground" />
-          </div>
-
-          {/* Scan Beam */}
-          {state === 'scanning' && (
-            <div className="absolute left-1/4 w-1/2 h-1 bg-primary rounded-full animate-scan-beam" />
-          )}
+          <PhoneMockup>
+            <div className="w-full h-full flex flex-col items-center justify-center text-center text-white p-2">
+              {state === 'idle' && (
+                <div className="animate-fade-in-up space-y-2">
+                  <ScanLine className="h-8 w-8 text-primary" />
+                  <p className="text-xs font-semibold">Tap to Scan</p>
+                </div>
+              )}
+              {state === 'scanning' && (
+                <div className="w-full h-full relative flex items-center justify-center animate-fade-in-up overflow-hidden">
+                   <PlasticBottle className="scale-150" />
+                   <div className="absolute w-full h-1 bg-red-500/80 rounded-full animate-scan-beam-vertical" />
+                </div>
+              )}
+              {state === 'scanned' && (
+                 <div className="animate-point-burst space-y-2">
+                    <CheckCircle2 className="h-10 w-10 text-green-500" />
+                    <p className="text-lg font-bold text-green-400">+10 Points</p>
+                 </div>
+              )}
+               {state === 'recycling' && (
+                 <div className="animate-fade-in-up space-y-2">
+                    <Recycle className="h-8 w-8 text-primary animate-spin" style={{ animationDuration: '2s' }} />
+                    <p className="text-xs font-semibold">Success!</p>
+                 </div>
+              )}
+            </div>
+          </PhoneMockup>
 
           {/* Bottle in the middle, moves to the right */}
           <div
             className={cn(
               "absolute left-1/2 -translate-x-1/2 transition-all duration-1000 ease-in-out z-20",
-              state === 'recycling' && "left-[calc(100%-5rem)] opacity-0 scale-50",
-              state === 'scanned' && "animate-pulse-once"
+              "opacity-0", // Initially hidden
+              (state === 'scanning' || state === 'scanned') && "opacity-100",
+              state === 'scanned' && "animate-pulse-once",
+              state === 'recycling' && "left-[calc(100%-6rem)] opacity-0 scale-50",
             )}
           >
-            <GlassWater className="h-16 w-16 text-foreground" />
-            {/* Points Badge */}
+            <PlasticBottle className="scale-125" />
             {state === 'scanned' && (
               <Badge
                 variant="secondary"
@@ -70,7 +111,7 @@ const SeeItInAction = () => {
           <div className="z-10">
             <Recycle
               className={cn(
-                "h-20 w-20 text-primary transition-transform",
+                "h-24 w-24 text-primary transition-transform",
                 state === 'recycling' && "animate-pulse-once"
               )}
             />

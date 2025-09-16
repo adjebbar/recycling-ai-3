@@ -95,9 +95,9 @@ export default {
             transform: "translateY(0)",
           },
         },
-        "scan-beam": {
-          "0%, 100%": { opacity: "0", transform: "scaleX(0.1)" },
-          "50%": { opacity: "1", transform: "scaleX(1)" },
+        "scan-beam-vertical": {
+          "0%": { transform: "translateY(-80px)" },
+          "100%": { transform: "translateY(80px)" },
         },
         "point-burst": {
           "0%": { transform: "scale(0.5) translateY(10px)", opacity: "0" },
@@ -113,7 +113,7 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in-up": "fade-in-up 0.5s ease-out forwards",
-        "scan-beam": "scan-beam 1.5s ease-in-out",
+        "scan-beam-vertical": "scan-beam-vertical 1.2s ease-in-out infinite alternate",
         "point-burst": "point-burst 0.5s ease-out forwards",
         "pulse-once": "pulse-once 0.5s ease-in-out",
       },

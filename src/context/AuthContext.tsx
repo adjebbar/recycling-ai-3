@@ -117,21 +117,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     setLoading(true);
-    let incrementTimeoutId: ReturnType<typeof setTimeout>;
-
-    const scheduleIncrement = () => {
-      // Schedule next increment after a random delay (e.g., 3 to 11 seconds)
-      const randomInterval = Math.random() * 8000 + 3000;
-      incrementTimeoutId = setTimeout(() => {
-        setActiveRecyclers(prevRecyclers => prevRecyclers + 1);
-        scheduleIncrement(); // Schedule the next one
-      }, randomInterval);
-    };
-
-    fetchCommunityStats().then(() => {
-      // Start the continuous increment after fetching initial stats
-      scheduleIncrement();
-    });
+    fetchCommunityStats();
 
     const channel = supabase
       .channel('community-stats-changes')
@@ -142,11 +128,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const newStats = payload.new as { total_bottles_recycled: number; active_recyclers: number };
           if (newStats) {
             setTotalBottlesRecycled(newStats.total_bottles_recycled);
-            // When stats are updated (e.g., reset from admin), clear the scheduled increment
-            // and restart it with the new base value.
-            clearTimeout(incrementTimeoutId);
             setActiveRecyclers(newStats.active_recyclers);
-            scheduleIncrement();
           }
         }
       )
@@ -163,7 +145,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       subscription.unsubscribe();
       supabase.removeChannel(channel);
-      clearTimeout(incrementTimeoutId); // Clean up on unmount
     };
   }, [fetchCommunityStats, fetchAndSetData]);
 

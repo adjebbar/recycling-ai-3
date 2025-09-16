@@ -23,6 +23,7 @@ import { ConfettiProvider } from "./components/ConfettiProvider";
 import SettingsPage from "./pages/Settings";
 import { ScanFAB } from "./components/ScanFAB";
 import { MadeWithDyad } from "./components/made-with-dyad"; // Import MadeWithDyad
+import NfcPage from "./pages/NfcPage";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const AppContent = () => {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/nfc" element={<NfcPage />} />
           
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminPage />} />

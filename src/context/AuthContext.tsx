@@ -45,24 +45,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { fire: fireConfetti } = useConfetti();
 
   const fetchCommunityStats = useCallback(async () => {
-    const { data, error } = await supabase
+    // Fetch active recyclers from community_stats
+    const { data: communityData, error: communityError } = await supabase
       .from('community_stats')
-      .select('total_bottles_recycled, active_recyclers')
+      .select('active_recyclers')
       .eq('id', 1)
       .single();
 
-    if (error) {
-      console.error('Error fetching community stats:', error.message);
-    } else if (data) {
-      setTotalBottlesRecycled(data.total_bottles_recycled);
-      setActiveRecyclers(data.active_recyclers);
+    if (communityError) {
+      console.error('Error fetching active recyclers:', communityError.message);
+      setActiveRecyclers(0); // Default to 0 on error
+    } else if (communityData) {
+      setActiveRecyclers(communityData.active_recyclers);
+    }
+
+    // Calculate total bottles recycled by summing all profiles' total_scans
+    const { data: totalScansSum, error: sumError } = await supabase
+      .from('profiles')
+      .select('total_scans');
+
+    if (sumError) {
+      console.error('Error summing total scans from profiles:', sumError.message);
+      setTotalBottlesRecycled(0); // Default to 0 on error
+    } else if (totalScansSum) {
+      const sum = totalScansSum.reduce((acc, profile) => acc + (profile.total_scans || 0), 0);
+      setTotalBottlesRecycled(sum);
     }
   }, []);
 
   const fetchUserProfile = useCallback(async (currentUser: User) => {
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('points, first_name, last_name')
+      .select('points, first_name, last_name, total_scans') // Also fetch total_scans from profile
       .eq('id', currentUser.id)
       .single();
 
@@ -70,18 +84,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error('Error fetching user profile:', profileError);
       return null;
     }
-
-    const { count, error: countError } = await supabase
-      .from('scan_history')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', currentUser.id);
     
-    if (countError) {
-      console.error('Error fetching scan count:', countError);
-      return { ...profile, totalScans: 0 };
-    }
-
-    return { ...profile, totalScans: count ?? 0 };
+    // totalScans is now directly from the profile table
+    return { ...profile, totalScans: profile?.total_scans ?? 0 };
   }, []);
 
   const refetchProfile = useCallback(async () => {
@@ -103,11 +108,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (userToFetch) {
       const profileAndStats = await fetchUserProfile(userToFetch);
       let currentPoints = profileAndStats?.points || 0;
+      let currentTotalScans = profileAndStats?.totalScans || 0;
       
       const localPoints = Number(localStorage.getItem('anonymousPoints') || '0');
       if (localPoints > 0) {
         showSuccess(`Merging ${localPoints} saved points to your account!`);
         currentPoints += localPoints;
+        // Note: We are not merging anonymous scans into total_scans here, only points.
+        // If anonymous scans should also merge, additional logic would be needed.
         await supabase.from('profiles').update({ points: currentPoints }).eq('id', userToFetch.id);
         localStorage.removeItem('anonymousPoints');
         setAnonymousPoints(0);
@@ -116,7 +124,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setPoints(currentPoints);
       setFirstName(profileAndStats?.first_name || null);
       setLastName(profileAndStats?.last_name || null);
-      setTotalScans(profileAndStats?.totalScans || 0);
+      setTotalScans(currentTotalScans);
       setLevel(getLevelFromPoints(currentPoints));
     } else {
       // User is logged out
@@ -140,9 +148,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'community_stats', filter: 'id=eq.1' },
         (payload) => {
-          const newStats = payload.new as { total_bottles_recycled: number; active_recyclers: number };
+          const newStats = payload.new as { active_recyclers: number }; // total_bottles_recycled is now calculated
           if (newStats) {
-            setTotalBottlesRecycled(newStats.total_bottles_recycled);
             setActiveRecyclers(newStats.active_recyclers);
           }
         }
@@ -164,14 +171,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [fetchCommunityStats, fetchAndSetData]);
 
   const addPoints = async (amount: number, barcode?: string) => {
-    const { error: statsError } = await supabase.rpc('increment_total_bottles');
-    if (statsError) {
-      console.error("Failed to update community stats:", statsError.message);
-    }
-
     if (user) {
       const oldStats = { points, totalScans };
       const oldLevel = getLevelFromPoints(points);
+      
       // Optimistically update local state for immediate feedback
       const newPoints = points + amount;
       const newTotalScans = totalScans + 1;
@@ -186,13 +189,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         showSuccess(`🎉 Leveled Up to ${newLevel.name}! 🎉`);
       }
 
-      const { error: profileUpdateError } = await supabase.from('profiles').update({ points: newPoints }).eq('id', user.id);
+      const { error: profileUpdateError } = await supabase
+        .from('profiles')
+        .update({ points: newPoints, total_scans: newTotalScans }) // Update total_scans in profile
+        .eq('id', user.id);
+      
       if (profileUpdateError) {
         // Revert local state if profile update fails
         setPoints(points);
         setTotalScans(totalScans);
         setLevel(oldLevel);
-        showError("Failed to update your points.");
+        showError("Failed to update your points and scan count.");
         return;
       }
       
@@ -209,6 +216,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // After successful database updates, re-fetch profile to ensure full consistency
       await refetchProfile();
+      await fetchCommunityStats(); // Re-fetch community stats to update total bottles recycled
       
       const newStats = { points: newPoints, totalScans: newTotalScans };
       achievementsList.forEach(achievement => {
@@ -248,8 +256,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const resetCommunityStats = async () => {
-    await supabase.from('community_stats').update({ total_bottles_recycled: 0, active_recyclers: 0 }).eq('id', 1);
+    // Reset active recyclers in community_stats
+    await supabase.from('community_stats').update({ active_recyclers: 0 }).eq('id', 1);
+    // Reset total_scans for all profiles
+    await supabase.from('profiles').update({ total_scans: 0, points: 0 });
+    // Clear scan history
+    await supabase.from('scan_history').delete().neq('id', 0); // Delete all records
+
     await fetchCommunityStats();
+    await refetchProfile(); // Also refetch current user's profile
   };
 
   const resetAnonymousPoints = () => {

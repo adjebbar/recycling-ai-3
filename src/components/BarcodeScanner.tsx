@@ -16,7 +16,7 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure }: BarcodeScannerProps) =
     const html5QrcodeScanner = new Html5QrcodeScanner(
       'reader',
       {
-        fps: 10,
+        fps: 20, // Increased FPS for faster scanning
         qrbox: { width: 250, height: 150 },
         supportedScanTypes: [0], // 0 for camera
       },

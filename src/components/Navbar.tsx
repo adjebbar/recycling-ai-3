@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Recycle, ScanLine, Trophy, LogOut, Shield, BarChart, User as UserIcon, Globe, Target, Settings, Gift, Nfc } from 'lucide-react';
+import { Recycle, ScanLine, Trophy, LogOut, Shield, BarChart, User as UserIcon, Globe, Settings, Gift, Nfc } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { ThemeToggle } from './theme-toggle';
 import { useAnimatedCounter } from '@/hooks/useAnimatedCounter';
@@ -48,7 +48,6 @@ export const Navbar = () => {
   ];
 
   const privateLinks = [
-    { href: '/challenges', label: t('nav.challenges'), icon: Target },
     { href: '/rewards', label: 'Rewards', icon: Gift },
     { href: '/leaderboard', label: t('nav.leaderboard'), icon: BarChart },
   ];

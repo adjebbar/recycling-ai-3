@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
 import { showError, showSuccess, showInfo } from '@/utils/toast';
-import { Nfc, Leaf, Zap, Star, Scan, DollarSign, Smartphone } from 'lucide-react';
+import { Nfc, Leaf, Zap, Star, Scan, DollarSign } from 'lucide-react';
 
 const NfcPage = () => {
   const { user, points, totalScans } = useAuth();
@@ -113,28 +113,6 @@ const NfcPage = () => {
                 Note: This feature requires a browser that supports Web NFC, such as Chrome on Android.
               </p>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/70 backdrop-blur-lg border">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Smartphone className="w-5 h-5 mr-2" />
-              Companion Mobile App
-            </CardTitle>
-            <CardDescription>
-              Use our partner mobile app to manage your rewards on the go.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              Install the Clevent app to redeem points and find partner locations near you.
-            </p>
-            <Button asChild className="w-full">
-              <a href="https://github.com/scavazzini/clevent" target="_blank" rel="noopener noreferrer">
-                Download the App
-              </a>
-            </Button>
           </CardContent>
         </Card>
       </div>

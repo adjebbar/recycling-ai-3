@@ -51,15 +51,8 @@ const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps
 const LandingPage = () => {
   const { totalBottlesRecycled, activeRecyclers } = useAuth();
 
-  // Add base values to make the stats look more established and logical
-  const BASE_RECYCLERS = 142;
-  const BASE_BOTTLES = 7832;
-
-  const displayBottles = BASE_BOTTLES + totalBottlesRecycled;
-  const displayRecyclers = BASE_RECYCLERS + activeRecyclers;
-
-  const animatedBottles = useAnimatedCounter(displayBottles, 1000);
-  const animatedRecyclers = useAnimatedCounter(displayRecyclers, 1000);
+  const animatedBottles = useAnimatedCounter(totalBottlesRecycled, 1000);
+  const animatedRecyclers = useAnimatedCounter(activeRecyclers, 1000);
 
   return (
     <div className="min-h-screen w-full text-foreground overflow-x-hidden relative">

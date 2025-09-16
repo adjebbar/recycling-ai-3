@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useRef } from 'react'; // Import useRef
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
 import { showError, showSuccess, showInfo } from '@/utils/toast';
-import { Nfc, Leaf, Zap, Star, Scan, DollarSign, Info, BookOpenText } from 'lucide-react'; // Changed 'Read' to 'BookOpenText'
+import { Nfc, Leaf, Zap, Star, Scan, DollarSign, Info, BookOpenText } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface GiftCardData {
@@ -30,7 +30,7 @@ const NfcPage = () => {
   const [isWriting, setIsWriting] = useState(false);
   const [isReading, setIsReading] = useState(false);
   const [readData, setReadData] = useState<GiftCardData | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null); // Changed useState to useRef
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Constants for impact calculation
   const CO2_SAVED_PER_BOTTLE_KG = 0.03;
@@ -117,7 +117,7 @@ const NfcPage = () => {
     try {
       const ndef = new NDEFReader();
       const ac = new AbortController();
-      abortControllerRef.current = ac; // Corrected assignment
+      abortControllerRef.current = ac;
 
       ndef.onreading = (event) => {
         const decoder = new TextDecoder();
@@ -136,9 +136,9 @@ const NfcPage = () => {
           }
         }
         setIsReading(false);
-        if (abortControllerRef.current) { // Check before aborting
+        if (abortControllerRef.current) {
           abortControllerRef.current.abort(); // Stop scanning after successful read
-          abortControllerRef.current = null; // Clear the ref
+          abortControllerRef.current = null;
         }
       };
 
@@ -154,9 +154,9 @@ const NfcPage = () => {
         }
         showError(errorMessage);
         setIsReading(false);
-        if (abortControllerRef.current) { // Check before aborting
+        if (abortControllerRef.current) {
           abortControllerRef.current.abort();
-          abortControllerRef.current = null; // Clear the ref
+          abortControllerRef.current = null;
         }
       };
 
@@ -169,10 +169,11 @@ const NfcPage = () => {
   };
 
   const handleStopReading = () => {
-    if (abortControllerRef.current) { // Corrected access
-      abortControllerRef.current.abort(); // Corrected access
-      abortControllerRef.current = null; // Corrected assignment
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
       setIsReading(false);
+      setReadData(null); // Clear read data when stopping
       showInfo("NFC reading stopped.");
     }
   };
@@ -266,7 +267,14 @@ const NfcPage = () => {
             </Alert>
             <div className="text-center">
               <div className="mb-4">
-                <BookOpenText className={`h-24 w-24 mx-auto text-secondary-foreground ${isReading ? 'animate-pulse' : ''}`} />
+                {isReading ? (
+                  <div className="flex flex-col items-center">
+                    <Nfc className="h-24 w-24 mx-auto text-secondary-foreground animate-pulse" />
+                    <p className="mt-2 text-sm text-muted-foreground">Tap your NFC card now...</p>
+                  </div>
+                ) : (
+                  <BookOpenText className="h-24 w-24 mx-auto text-secondary-foreground" />
+                )}
               </div>
               {isReading ? (
                 <Button size="lg" onClick={handleStopReading} variant="outline">

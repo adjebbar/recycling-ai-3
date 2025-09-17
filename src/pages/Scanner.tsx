@@ -88,21 +88,6 @@ const ScannerPage = () => {
   const [scanResult, setScanResult] = useState<{ type: 'success' | 'error'; message: string; imageUrl?: string } | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null); // New state for camera errors
 
-  useEffect(() => {
-    const hasShownPrompt = sessionStorage.getItem('resetPromptShown');
-    if (!user && points > 0 && !hasShownPrompt) {
-      toast.info(t('scanner.welcomeBackTitle'), {
-        description: t('scanner.welcomeBackDescription'),
-        action: {
-          label: t('scanner.resetScore'),
-          onClick: () => resetAnonymousPoints(),
-        },
-        duration: 10000,
-      });
-      sessionStorage.setItem('resetPromptShown', 'true');
-    }
-  }, [user, points, resetAnonymousPoints, t]);
-
   const processBarcode = async (barcode: string) => {
     if (!barcode || barcode === lastScanned) {
       return;

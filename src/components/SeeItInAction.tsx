@@ -3,8 +3,9 @@
 import { useState, useEffect, ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, ScanLine, CheckCircle, Loader2 } from "lucide-react";
+import { ScanLine, CheckCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import RecyclingBin from "./RecyclingBin"; // Import the new component
 
 // A more detailed component to represent a water bottle
 const PlasticBottle = ({ className }: { className?: string }) => (
@@ -135,10 +136,7 @@ const SeeItInAction = () => {
 
           {/* Recycling Bin on the right */}
           <div className="z-10">
-            <Trash2 className={cn(
-              "h-28 w-28 text-primary transition-all duration-300",
-              binEffect && "animate-bin-shake scale-110 animate-glow-pulse"
-            )} />
+            <RecyclingBin isShaking={binEffect} /> {/* Using the new component */}
           </div>
         </div>
         <div className="text-center mt-4">

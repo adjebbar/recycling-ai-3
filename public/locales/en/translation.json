@@ -46,7 +46,9 @@
     "cameraErrorTitle": "Camera Access Denied",
     "cameraErrorMessage": "It looks like camera access is blocked or unavailable. Please ensure your browser has camera permissions and try again.",
     "retryCamera": "Retry Camera",
-    "noBarcodeDetected": "No barcode detected yet. Adjust bottle position."
+    "noBarcodeDetected": "No barcode detected yet. Adjust bottle position.",
+    "leveledUp": "Leveled Up to {{levelName}}!",
+    "achievementsUnlocked": "Achievement Unlocked: {{achievements}}!"
   },
   "profile": {
     "title": "My Profile",

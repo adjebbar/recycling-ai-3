@@ -17,6 +17,7 @@ import { useAnimatedCounter } from '@/hooks/useAnimatedCounter';
 import { supabase } from '@/lib/supabaseClient';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { RewardTicketDialog } from '@/components/RewardTicketDialog';
+import { achievementsList } from '@/lib/achievements'; // Import achievementsList
 
 const POINTS_PER_BOTTLE = 10;
 
@@ -140,9 +141,21 @@ const ScannerPage = () => {
       if (data.status === 1 && data.product) {
         const imageUrl = data.product.image_front_url || data.product.image_url;
         if (isPlasticBottle(data.product)) {
-          await addPoints(POINTS_PER_BOTTLE, barcode);
-          const successMessage = t('scanner.success', { points: POINTS_PER_BOTTLE });
-          showSuccess(successMessage);
+          const addPointsResult = await addPoints(POINTS_PER_BOTTLE, barcode); // Get the consolidated result
+
+          let successMessage = t('scanner.success', { points: addPointsResult.pointsEarned });
+          if (addPointsResult.leveledUpTo) {
+            successMessage += ` 🎉 ${t('scanner.leveledUp', { levelName: addPointsResult.leveledUpTo.name })}`;
+          }
+          if (addPointsResult.unlockedAchievements.length > 0) {
+            const achievementNames = addPointsResult.unlockedAchievements.map(id => {
+              const achievement = achievementsList.find(a => a.id === id);
+              return achievement ? t(`achievements.${id}Name`) : '';
+            }).filter(Boolean).join(', ');
+            successMessage += ` 🏆 ${t('scanner.achievementsUnlocked', { achievements: achievementNames })}`;
+          }
+
+          showSuccess(successMessage); // Show one consolidated success toast
           setScanResult({ type: 'success', message: successMessage, imageUrl: imageUrl });
           triggerPiConveyor('accepted');
           

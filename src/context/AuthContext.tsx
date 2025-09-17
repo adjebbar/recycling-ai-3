@@ -18,7 +18,7 @@ interface AuthContextType {
   lastName: string | null;
   totalBottlesRecycled: number;
   activeRecyclers: number;
-  addPoints: (amount: number, barcode?: string) => Promise<void>;
+  addPoints: (amount: number, barcode?: string) => Promise<AddPointsResult>; // Changed return type
   addBonusPoints: (amount: number) => Promise<void>;
   deductPoints: (amount: number) => Promise<void>;
   resetCommunityStats: () => Promise<void>;
@@ -26,6 +26,15 @@ interface AuthContextType {
   resetAnonymousPoints: () => void;
   refetchProfile: () => Promise<void>;
   loading: boolean;
+}
+
+interface AddPointsResult {
+  pointsEarned: number;
+  newTotalPoints: number;
+  newTotalScans: number; // Only relevant for logged-in users
+  leveledUpTo?: Level; // Only relevant for logged-in users
+  unlockedAchievements: string[]; // List of achievement IDs
+  isAnonymous: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -232,8 +241,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [fetchCommunityStats, fetchAndSetData, resetInactivityTimer]);
 
-  const addPoints = async (amount: number, barcode?: string) => {
+  const addPoints = async (amount: number, barcode?: string): Promise<AddPointsResult> => {
     console.log("AuthContext: addPoints called. User:", user?.email || "anonymous", "Amount:", amount);
+    let result: AddPointsResult = {
+      pointsEarned: amount,
+      newTotalPoints: points, // Will be updated
+      newTotalScans: totalScans, // Will be updated
+      unlockedAchievements: [],
+      isAnonymous: !user,
+    };
+
     if (user) {
       const oldStats = { points, totalScans };
       const oldLevel = getLevelFromPoints(points);
@@ -249,7 +266,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (newLevel.level > oldLevel.level) {
         fireConfetti();
-        showSuccess(`🎉 Leveled Up to ${newLevel.name}! 🎉`);
+        result.leveledUpTo = newLevel;
         console.log("AuthContext: Leveled up!");
       }
 
@@ -264,7 +281,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLevel(oldLevel);
         showError("Failed to update your points and scan count.");
         console.error("AuthContext: Failed to update profile:", profileUpdateError.message);
-        return;
+        throw profileUpdateError; // Re-throw to be caught by scanner page
       }
       
       const { error: scanHistoryError } = await supabase.from('scan_history').insert({ user_id: user.id, points_earned: amount, product_barcode: barcode });
@@ -274,25 +291,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLevel(oldLevel);
         console.error("AuthContext: Failed to record scan history:", scanHistoryError.message);
         showError("Failed to record scan history.");
-        return;
+        throw scanHistoryError; // Re-throw to be caught by scanner page
       }
       console.log("AuthContext: Profile and scan history updated in DB.");
 
-      await refetchProfile();
+      await refetchProfile(); // Ensure state is fully consistent after DB updates
       
       const newStats = { points: newPoints, totalScans: newTotalScans };
       achievementsList.forEach(achievement => {
         if (!achievement.condition(oldStats) && achievement.condition(newStats)) {
           fireConfetti();
-          showSuccess("🎉 Achievement Unlocked! 🎉");
+          result.unlockedAchievements.push(achievement.id);
           console.log("AuthContext: Achievement unlocked!");
         }
       });
+      result.newTotalPoints = newPoints;
+      result.newTotalScans = newTotalScans;
+
     } else {
       const newAnonymousPoints = anonymousPoints + amount;
       setAnonymousPoints(newAnonymousPoints);
       localStorage.setItem('anonymousPoints', String(newAnonymousPoints));
       console.log("AuthContext: Anonymous points updated:", newAnonymousPoints);
+      result.newTotalPoints = newAnonymousPoints;
+      result.newTotalScans = 0; // Anonymous users don't track total scans in profile
     }
 
     try {
@@ -309,6 +331,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       showError("Error updating global recycling count.");
     }
     resetInactivityTimer();
+    return result;
   };
 
   const deductPoints = async (amount: number) => {

@@ -28,7 +28,9 @@ const isPlasticBottle = (product: any): boolean => {
     product.categories,
     product.packaging,
     ...(product.packaging_tags || []),
-  ].join(' ').toLowerCase();
+  ].filter(Boolean).join(' ').toLowerCase(); // Filter out null/undefined/empty strings
+
+  console.log("isPlasticBottle: searchText:", searchText);
 
   // Define keywords
   const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene'];
@@ -37,27 +39,43 @@ const isPlasticBottle = (product: any): boolean => {
   const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak'];
 
   // 1. Strict Exclusion: If any exclusion keyword is found, it's definitely not a plastic bottle.
-  if (exclusionKeywords.some(keyword => searchText.includes(keyword))) {
+  const isExcluded = exclusionKeywords.some(keyword => searchText.includes(keyword));
+  console.log("isPlasticBottle: isExcluded:", isExcluded);
+  if (isExcluded) {
     return false;
   }
 
   // 2. Primary Inclusion: Check for a combination of plastic and bottle keywords.
   const hasPlasticKeyword = plasticKeywords.some(keyword => searchText.includes(keyword));
   const hasBottleKeyword = bottleKeywords.some(keyword => searchText.includes(keyword));
+  console.log("isPlasticBottle: hasPlasticKeyword:", hasPlasticKeyword, "hasBottleKeyword:", hasBottleKeyword);
 
   if (hasPlasticKeyword && hasBottleKeyword) {
     return true;
   }
 
-  // 3. Fallback Heuristic: If it's a drink in a bottle, it's very likely a plastic bottle,
-  // since glass, metal, and cartons have already been excluded.
+  // 3. Enhanced Fallback Heuristic: If it's a drink and contains "bottle" in its name/categories,
+  // it's very likely a plastic bottle, since glass, metal, and cartons have already been excluded.
   const hasDrinkKeyword = drinkKeywords.some(keyword => searchText.includes(keyword));
   
+  // For water bottles, "eau" is a strong indicator, and they are almost always plastic if not excluded.
+  const isWaterProduct = searchText.includes('eau') || searchText.includes('water');
+
+  console.log("isPlasticBottle: hasDrinkKeyword:", hasDrinkKeyword, "isWaterProduct:", isWaterProduct);
+
   if (hasDrinkKeyword && hasBottleKeyword) {
     return true;
   }
 
+  // Specific heuristic for water bottles if previous checks didn't catch it
+  if (isWaterProduct && !isExcluded) {
+    // If it's a water product and not explicitly excluded, assume it's a plastic bottle.
+    // This helps catch cases where "plastic" or "bouteille" might be missing from packaging info.
+    return true;
+  }
+
   // If none of the above conditions are met, assume it's not a recyclable plastic bottle.
+  console.log("isPlasticBottle: No plastic bottle criteria met, returning false.");
   return false;
 };
 
@@ -70,8 +88,8 @@ const ScannerPage = () => {
   const [manualBarcode, setManualBarcode] = useState('');
   const navigate = useNavigate();
   const [scanResult, setScanResult] = useState<{ type: 'success' | 'error'; message: string; imageUrl?: string } | null>(null);
-  const [cameraInitializationError, setCameraInitializationError] = useState<string | null>(null); // Renamed state
-  const [scanFailureMessage, setScanFailureMessage] = useState<string | null>(null); // New state for scan failures
+  const [cameraInitializationError, setCameraInitializationError] = useState<string | null>(null);
+  const [scanFailureMessage, setScanFailureMessage] = useState<string | null>(null);
   const [showTicket, setShowTicket] = useState(false);
   const [qrCodeValue, setQrCodeValue] = useState<string | null>(null);
   const [isRedeeming, setIsRedeeming] = useState(false);
@@ -97,7 +115,7 @@ const ScannerPage = () => {
     if (!barcode || barcode === lastScanned) return;
     
     setLastScanned(barcode);
-    setScanFailureMessage(null); // Clear any previous scan failure message
+    setScanFailureMessage(null);
     const loadingToast = showLoading(t('scanner.verifying'));
 
     try {
@@ -126,7 +144,7 @@ const ScannerPage = () => {
           const successMessage = t('scanner.success', { points: POINTS_PER_BOTTLE });
           showSuccess(successMessage);
           setScanResult({ type: 'success', message: successMessage, imageUrl: imageUrl });
-          triggerPiConveyor('accepted'); // Trigger Pi for accepted
+          triggerPiConveyor('accepted');
           
           if (!user) {
             const hasShownToast = sessionStorage.getItem('signupToastShown');
@@ -145,20 +163,20 @@ const ScannerPage = () => {
           const errorMessage = t('scanner.notPlastic');
           showError(errorMessage);
           setScanResult({ type: 'error', message: errorMessage });
-          triggerPiConveyor('rejected'); // Trigger Pi for rejected
+          triggerPiConveyor('rejected');
         }
       } else {
         const errorMessage = t('scanner.notFound');
         showError(errorMessage);
         setScanResult({ type: 'error', message: errorMessage });
-        triggerPiConveyor('rejected'); // Trigger Pi for not found (rejected)
+        triggerPiConveyor('rejected');
       }
     } catch (err: any) {
       dismissToast(loadingToast);
       const errorMessage = err.message || t('scanner.connectionError');
       showError(errorMessage);
       setScanResult({ type: 'error', message: errorMessage });
-      triggerPiConveyor('rejected'); // Trigger Pi for any error (rejected)
+      triggerPiConveyor('rejected');
       console.error(err);
     } finally {
       setTimeout(() => {
@@ -217,16 +235,15 @@ const ScannerPage = () => {
     setManualBarcode('');
   };
 
-  const handleCameraInitializationError = (error: string) => { // Renamed handler
+  const handleCameraInitializationError = (error: string) => {
     console.error("Camera initialization error:", error);
-    setCameraInitializationError(error); // Set the specific init error state
+    setCameraInitializationError(error);
     showError(t('scanner.cameraInitError'));
   };
 
-  const handleScanFailure = (error: string) => { // New handler for scan failures
+  const handleScanFailure = (error: string) => {
     console.warn("Barcode scan failure:", error);
-    setScanFailureMessage(t('scanner.noBarcodeDetected')); // Set a user-friendly message
-    // No need for a toast here, as it might be too frequent.
+    setScanFailureMessage(t('scanner.noBarcodeDetected'));
   };
 
   const renderScanResult = () => {
@@ -269,25 +286,25 @@ const ScannerPage = () => {
           <TabsContent value="camera">
             <Card className="overflow-hidden bg-card/70 backdrop-blur-lg border">
               <CardContent className="p-4 relative">
-                {cameraInitializationError ? ( // Use cameraInitializationError here
+                {cameraInitializationError ? (
                   <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
                     <AlertTriangle className="h-8 w-8 mb-4" />
                     <AlertTitle className="text-xl font-bold">{t('scanner.cameraErrorTitle')}</AlertTitle>
                     <AlertDescription className="mt-2 text-base">
                       {t('scanner.cameraErrorMessage')}
-                      <p className="mt-2 text-sm text-muted-foreground">({cameraInitializationError})</p> {/* Display init error */}
+                      <p className="mt-2 text-sm text-muted-foreground">({cameraInitializationError})</p>
                       <Button onClick={() => setCameraInitializationError(null)} className="mt-6">{t('scanner.retryCamera')}</Button>
                     </AlertDescription>
                   </Alert>
                 ) : (
                   <BarcodeScanner 
                     onScanSuccess={processBarcode} 
-                    onScanFailure={handleScanFailure} // Pass new handler for scan failures
-                    onCameraInitError={handleCameraInitializationError} // Pass new handler for camera init errors
+                    onScanFailure={handleScanFailure}
+                    onCameraInitError={handleCameraInitializationError}
                   />
                 )}
                 {renderScanResult()}
-                {scanFailureMessage && !scanResult && ( // Show subtle message if scan failed but no product result
+                {scanFailureMessage && !scanResult && (
                   <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
                     {scanFailureMessage}
                   </p>

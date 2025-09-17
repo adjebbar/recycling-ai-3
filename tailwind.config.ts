@@ -107,6 +107,10 @@ export default {
         "subtle-pulse": {
           '0%, 100%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.05)' },
+        },
+        "color-pulse": {
+          "0%, 100%": { backgroundColor: "hsl(var(--primary))" },
+          "50%": { backgroundColor: "hsl(var(--primary) / 0.8)" },
         }
       },
       animation: {
@@ -116,6 +120,7 @@ export default {
         "point-burst": "point-burst 0.5s ease-out forwards",
         "pulse-once": "pulse-once 0.5s ease-in-out",
         "subtle-pulse": "subtle-pulse 2s ease-in-out infinite",
+        "color-pulse": "color-pulse 3s ease-in-out infinite",
       },
     },
   },

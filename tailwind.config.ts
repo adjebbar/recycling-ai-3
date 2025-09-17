@@ -62,6 +62,11 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Added new orange color
+        orange: {
+          DEFAULT: "hsl(27 87% 67%)", // A vibrant orange
+          foreground: "hsl(24 9.8% 10%)", // Dark text for contrast
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -110,7 +115,7 @@ export default {
         },
         "color-pulse": {
           "0%, 100%": { backgroundColor: "hsl(var(--primary))" },
-          "50%": { backgroundColor: "hsl(var(--primary) / 0.8)" },
+          "50%": { backgroundColor: "hsl(var(--orange))" }, // Changed to transition to orange
         }
       },
       animation: {

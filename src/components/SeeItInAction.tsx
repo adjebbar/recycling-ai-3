@@ -66,7 +66,7 @@ const SeeItInAction = () => {
     }
 
     return () => timers.forEach(clearTimeout);
-  }, [phase, binShake]); // Added binShake to dependencies
+  }, [phase]);
 
   const statusText = {
     idle: "Ready to scan...",

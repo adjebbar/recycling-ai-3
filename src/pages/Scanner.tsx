@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Camera, CameraOff, Keyboard, CheckCircle2, XCircle, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Camera, CameraOff, Keyboard, CheckCircle2, XCircle, RefreshCw, AlertTriangle, Trophy } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { useAnimatedCounter } from '@/hooks/useAnimatedCounter';
 import { supabase } from '@/lib/supabaseClient';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { RewardTicketDialog } from '@/components/RewardTicketDialog';
 
 const POINTS_PER_BOTTLE = 10;
 
@@ -86,7 +87,8 @@ const ScannerPage = () => {
   const [manualBarcode, setManualBarcode] = useState('');
   const navigate = useNavigate();
   const [scanResult, setScanResult] = useState<{ type: 'success' | 'error'; message: string; imageUrl?: string } | null>(null);
-  const [cameraError, setCameraError] = useState<string | null>(null); // New state for camera errors
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [showTicket, setShowTicket] = useState(false);
 
   const processBarcode = async (barcode: string) => {
     if (!barcode || barcode === lastScanned) {
@@ -275,13 +277,26 @@ const ScannerPage = () => {
                 <p className="text-sm font-medium">{t('scanner.sessionScore')}</p>
                 <p className="text-2xl font-bold text-primary">{animatedPoints}</p>
               </div>
-              <Button variant="ghost" size="sm" onClick={resetAnonymousPoints} disabled={points === 0}>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                {t('scanner.resetScore')}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={() => setShowTicket(true)} 
+                  disabled={points === 0}
+                >
+                  <Trophy className="mr-2 h-4 w-4" />
+                  Redeem
+                </Button>
+                <Button variant="ghost" size="sm" onClick={resetAnonymousPoints} disabled={points === 0}>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  {t('scanner.resetScore')}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
+
+        <RewardTicketDialog open={showTicket} onOpenChange={setShowTicket} />
 
         <div className="text-center mt-6 max-w-lg w-full">
           <p className="text-sm text-gray-300 flex items-center justify-center">

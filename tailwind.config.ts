@@ -103,6 +103,10 @@ export default {
         "pulse-once": {
           '0%, 100%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.15)' },
+        },
+        "subtle-pulse": {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
         }
       },
       animation: {
@@ -111,6 +115,7 @@ export default {
         "fade-in-up": "fade-in-up 0.5s ease-out forwards",
         "point-burst": "point-burst 0.5s ease-out forwards",
         "pulse-once": "pulse-once 0.5s ease-in-out",
+        "subtle-pulse": "subtle-pulse 2s ease-in-out infinite",
       },
     },
   },

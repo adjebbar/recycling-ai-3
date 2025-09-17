@@ -45,8 +45,8 @@ const Index = () => {
           </p>
           <div className="flex justify-center gap-4">
             <Link to="/scanner">
-              <Button size="lg">
-                <ScanLine className="mr-2 h-5 w-5" />
+              <Button size="lg" className="text-lg px-10 py-7 rounded-full animate-subtle-pulse shadow-lg shadow-primary/50">
+                <ScanLine className="mr-3 h-6 w-6" />
                 {t('home.startScanning')}
               </Button>
             </Link>

@@ -21,22 +21,34 @@ serve(async (req) => {
   }
 
   try {
+    console.log("generate-voucher function invoked.");
     const { points } = await req.json();
+    console.log(`Received points: ${points}`);
+
     if (!points || typeof points !== 'number' || points <= 0) {
+      console.error("Invalid points provided.");
       return new Response(JSON.stringify({ error: 'Invalid points provided' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
       });
     }
 
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!supabaseUrl || !serviceRoleKey) {
+        console.error("Supabase environment variables are not set.");
+        throw new Error("Supabase environment variables are not set.");
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+    console.log("Supabase admin client created.");
 
     const amount = (points * VIRTUAL_CASH_PER_POINT).toFixed(2);
+    console.log(`Calculated amount: ${amount}`);
 
     // 1. Create a voucher record in the database
+    console.log("Inserting voucher into database...");
     const { data: voucher, error: dbError } = await supabaseAdmin
       .from('vouchers')
       .insert({
@@ -48,14 +60,17 @@ serve(async (req) => {
 
     if (dbError) {
       console.error('Database error creating voucher:', dbError);
-      throw new Error('Could not create voucher record.');
+      throw new Error(`Could not create voucher record: ${dbError.message}`);
     }
+    console.log(`Voucher created with ID: ${voucher.id}`);
 
     // 2. Create a signed JWT for the voucher
     const jwtSecret = Deno.env.get('VOUCHER_JWT_SECRET');
     if (!jwtSecret) {
+      console.error("VOUCHER_JWT_SECRET is not set in environment variables.");
       throw new Error('VOUCHER_JWT_SECRET is not set in environment variables.');
     }
+    console.log("VOUCHER_JWT_SECRET found.");
     
     const key = await crypto.subtle.importKey(
       "raw",
@@ -64,6 +79,7 @@ serve(async (req) => {
       false,
       ["sign", "verify"]
     );
+    console.log("JWT key imported.");
 
     const payload = {
       voucher_id: voucher.id,
@@ -72,6 +88,7 @@ serve(async (req) => {
     };
 
     const jwt = await create({ alg: "HS256", typ: "JWT" }, payload, key);
+    console.log("JWT created successfully.");
 
     return new Response(JSON.stringify({ voucherToken: jwt }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

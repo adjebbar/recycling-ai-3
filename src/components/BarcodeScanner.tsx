@@ -25,8 +25,6 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure, onCameraInitError }: Bar
         fps: 20,
         qrbox: { width: 250, height: 150 },
         supportedScanTypes: [0], // 0 for camera
-        // Pass onInitError here, as per html5-qrcode documentation for constructor config
-        onInitError: initErrorCallback 
       },
       /* verbose= */ false
     );
@@ -44,7 +42,8 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure, onCameraInitError }: Bar
       }
     };
 
-    html5QrcodeScanner.render(successCallback, scanErrorCallback); // No third argument needed here
+    // @ts-ignore: The html5-qrcode library's render method actually accepts 3 arguments, but TypeScript definitions might be outdated.
+    html5QrcodeScanner.render(successCallback, scanErrorCallback, initErrorCallback);
 
     // Cleanup function to stop the scanner when the component unmounts
     return () => {

@@ -14,9 +14,11 @@ export const ScanFAB = () => {
       className="fixed bottom-6 right-6 z-50 animate-fade-in-up"
       aria-label={t('home.startScanning')}
     >
-      <Button size="icon" className="rounded-full h-16 w-16 shadow-lg bg-primary hover:bg-primary/90">
-        <ScanLine className="h-8 w-8 text-primary-foreground" />
-        <span className="sr-only">{t('home.startScanning')}</span>
+      <Button 
+        className="rounded-full h-20 w-20 sm:h-24 sm:w-24 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-subtle-pulse"
+      >
+        <ScanLine className="h-10 w-10 text-primary-foreground mb-1" />
+        <span className="text-sm font-bold text-primary-foreground">{t('nav.scan')}</span>
       </Button>
     </Link>
   );

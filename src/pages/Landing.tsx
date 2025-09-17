@@ -17,14 +17,7 @@ const LandingHeader = () => (
         <Recycle className="h-8 w-8 text-primary" />
         <span className="text-2xl font-bold text-white">EcoScan AI</span>
       </Link>
-      <div className="space-x-2">
-        <Button asChild variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
-          <Link to="/login">Login</Link>
-        </Button>
-        <Button asChild>
-          <Link to="/signup">Sign Up</Link>
-        </Button>
-      </div>
+      {/* Removed explicit Login/Sign Up buttons from header to streamline CTA */}
     </div>
   </header>
 );

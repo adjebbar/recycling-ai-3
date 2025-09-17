@@ -20,54 +20,57 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 const POINTS_PER_BOTTLE = 10;
 
 const isPlasticBottle = (product: any): boolean => {
-  const bottleKeywords = ['bottle', 'bouteille', 'botella'];
+  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
   const plasticKeywords = ['plastic', 'plastique', 'plastico', 'pet', 'hdpe', 'polyethylene'];
+  
+  // More robust exclusion keywords
   const glassKeywords = ['glass', 'verre', 'vidrio'];
+  const metalKeywords = ['metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier'];
+  const cartonKeywords = ['carton', 'brick', 'brique', 'tetrapak'];
 
-  const checkKeywords = (text: string, keywords: string[]): boolean => {
-    if (!text) return false;
-    const normalizedText = text.split(':').pop()?.toLowerCase() || '';
-    return keywords.some(keyword => normalizedText.includes(keyword));
-  };
+  const allExclusionMaterials = [...glassKeywords, ...metalKeywords, ...cartonKeywords];
 
-  // --- Stratégie 1: Vérification des champs d'emballage explicites (la plus fiable) ---
-  if (product.packaging_tags && product.packaging_tags.length > 0) {
-    const tags = product.packaging_tags.map(tag => (tag.split(':').pop() || '').toLowerCase());
-    const isBottle = tags.some(tag => bottleKeywords.includes(tag));
-    const isPlastic = tags.some(tag => plasticKeywords.includes(tag));
-    const isGlass = tags.some(tag => glassKeywords.includes(tag));
-    if (isBottle && isPlastic && !isGlass) {
-      return true;
-    }
+  const packagingInfo: string[] = [
+    ...(product.packaging_tags || []),
+    ...(product.packagings || []).flatMap((p: any) => [p.material, p.shape]),
+    ...(product.packaging || '').split(',').map((s: string) => s.trim())
+  ].filter(Boolean).map((tag: string) => (tag.split(':').pop() || '').toLowerCase());
+
+  // --- Step 1: Hard Exclusions ---
+  // If any packaging info indicates it's definitely not plastic, reject it.
+  if (packagingInfo.some(tag => allExclusionMaterials.includes(tag))) {
+    return false;
   }
 
-  if (product.packagings && product.packagings.length > 0) {
-    for (const pkg of product.packagings) {
-      const material = pkg.material || '';
-      const shape = pkg.shape || '';
-      if (checkKeywords(shape, bottleKeywords) && checkKeywords(material, plasticKeywords) && !checkKeywords(material, glassKeywords)) {
-        return true;
-      }
-    }
+  // --- Step 2: Hard Inclusions ---
+  // If packaging info confirms it's a plastic bottle, accept it.
+  const isPlastic = packagingInfo.some(tag => plasticKeywords.includes(tag));
+  const isBottle = packagingInfo.some(tag => bottleKeywords.includes(tag));
+  if (isPlastic && isBottle) {
+    return true;
   }
 
-  // --- Stratégie 2: Déduction à partir du nom, des catégories, etc. (fallback) ---
+  // --- Step 3: Fallback to text analysis (more conservative) ---
+  // This runs only if packaging info was inconclusive.
   const name = (product.product_name || '').toLowerCase();
   const genericName = (product.generic_name || '').toLowerCase();
   const categories = (product.categories || '').toLowerCase();
   const combinedText = `${name} ${genericName} ${categories}`;
 
-  // Mots-clés d'exclusion pour éviter les faux positifs
-  const exclusionKeywords = ['verre', 'glass', 'bocal', 'jar', 'conserve', 'can', 'canette', 'carton', 'brick'];
-  if (exclusionKeywords.some(keyword => combinedText.includes(keyword))) {
-    return false;
+  // Check for exclusion keywords in text as a safety net
+  if (allExclusionMaterials.some(keyword => combinedText.includes(keyword))) {
+      return false;
   }
 
-  // Mots-clés d'inclusion qui suggèrent fortement une bouteille en plastique
-  const inclusionNameKeywords = ['bouteille', 'bottle', 'eau', 'water', 'soda', 'jus', 'juice', 'boisson', 'beverage', 'drink', 'limonade', 'cola'];
-  const inclusionCategoryKeywords = ['boissons', 'beverages', 'sodas', 'eaux', 'waters', 'jus-de-fruits', 'fruit-juices'];
-  
-  if (inclusionNameKeywords.some(keyword => combinedText.includes(keyword)) || inclusionCategoryKeywords.some(keyword => combinedText.includes(keyword))) {
+  // Check for strong indicators of a plastic bottle in text
+  const isDrink = [
+    'boisson', 'beverage', 'drink', 'soda', 'eau', 'water', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk'
+  ].some(kw => combinedText.includes(kw));
+
+  const textHasBottle = bottleKeywords.some(kw => combinedText.includes(kw));
+
+  // Only return true if it's a drink AND the word "bottle" is present.
+  if (isDrink && textHasBottle) {
     return true;
   }
 

@@ -29,8 +29,12 @@ serve(async (req) => {
 
     let response;
     try {
+      const userAgent = 'EcoScanAI/1.0 - Supabase Edge Function';
       response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`, {
-        signal: controller.signal
+        signal: controller.signal,
+        headers: {
+          'User-Agent': userAgent,
+        }
       });
     } catch (fetchError: any) {
       clearTimeout(timeoutId);

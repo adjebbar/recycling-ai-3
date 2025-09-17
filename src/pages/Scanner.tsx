@@ -149,13 +149,20 @@ const ScannerPage = () => {
         body: { points },
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      if (error) {
+        // The Supabase client wraps HTTP errors; we need to parse the response body to get the real message.
+        const errorBody = await error.context.json();
+        throw new Error(errorBody.error || 'Edge function returned a non-2xx status code');
+      }
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
 
       setQrCodeValue(data.voucherToken);
     } catch (err: any) {
       const errorMessage = err.message || "An unknown error occurred.";
-      console.error("Failed to generate voucher:", errorMessage);
+      console.error("Failed to generate voucher:", err);
       showError(`Voucher Error: ${errorMessage}`);
       setShowTicket(false);
     } finally {

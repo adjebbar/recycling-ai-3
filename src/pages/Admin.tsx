@@ -6,10 +6,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AlertTriangle, QrCode } from 'lucide-react';
-import { showSuccess, showError } from '@/utils/toast';
+import { AlertTriangle, QrCode, Trash2 } from 'lucide-react';
+import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import { supabase } from '@/lib/supabaseClient';
 import { Link } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const AdminPage = () => {
   const { 
@@ -22,6 +33,8 @@ const AdminPage = () => {
   const [bottles, setBottles] = useState(totalBottlesRecycled);
   const [recyclers, setRecyclers] = useState(activeRecyclers);
   const [loading, setLoading] = useState(false);
+  const [userIdToDelete, setUserIdToDelete] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     setBottles(totalBottlesRecycled);
@@ -52,6 +65,49 @@ const AdminPage = () => {
   const handleReset = async () => {
     await resetCommunityStats();
     showSuccess("Community stats have been reset.");
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userIdToDelete) {
+      showError("Please enter a User ID to delete.");
+      return;
+    }
+    setDeleteLoading(true);
+    const loadingToast = showLoading(`Deleting user ${userIdToDelete}...`);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { userId: userIdToDelete },
+      });
+
+      dismissToast(loadingToast);
+
+      if (error) {
+        let errorMessage = "Failed to delete user.";
+        try {
+          const errorBody = await error.context.json();
+          if (errorBody && errorBody.error) {
+            errorMessage = errorBody.error;
+          }
+        } catch (e) {
+          console.error("Could not parse error response from edge function:", e);
+        }
+        throw new Error(errorMessage);
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      showSuccess(data.message);
+      setUserIdToDelete('');
+      await fetchCommunityStats(); // Refresh community stats as active recyclers might change
+    } catch (err: any) {
+      dismissToast(loadingToast);
+      showError(err.message || "An unknown error occurred during user deletion.");
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   return (
@@ -107,6 +163,51 @@ const AdminPage = () => {
                 {loading ? 'Updating...' : 'Update Stats'}
               </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/70 backdrop-blur-lg border">
+          <CardHeader>
+            <CardTitle>Gestion des Utilisateurs</CardTitle>
+            <CardDescription>
+              Supprimer un compte utilisateur. Cette action est irréversible.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid gap-2">
+                <Label htmlFor="userIdToDelete">ID de l'utilisateur à supprimer</Label>
+                <Input
+                  id="userIdToDelete"
+                  type="text"
+                  placeholder="Entrez l'ID de l'utilisateur (UUID)"
+                  value={userIdToDelete}
+                  onChange={(e) => setUserIdToDelete(e.target.value)}
+                />
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" disabled={!userIdToDelete || deleteLoading}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    {deleteLoading ? 'Suppression...' : 'Supprimer l\'utilisateur'}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Cette action est irréversible. Cela supprimera définitivement le compte de l'utilisateur et toutes ses données associées.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteUser} disabled={deleteLoading}>
+                      Oui, supprimer le compte
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </CardContent>
         </Card>
 

@@ -50,21 +50,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logoutDueToInactivity = useCallback(async () => {
     if (user) {
+      console.log("AuthContext: Logging out due to inactivity for user:", user.email);
       await supabase.auth.signOut();
       showInfo("Vous avez été déconnecté en raison de l'inactivité.");
+      // Clear the timer immediately after signing out to prevent it from firing again
+      if (inactivityTimeoutRef.current) {
+        clearTimeout(inactivityTimeoutRef.current);
+        inactivityTimeoutRef.current = null;
+      }
     }
   }, [user]);
 
   const resetInactivityTimer = useCallback(() => {
+    console.log("AuthContext: resetInactivityTimer called. Current user:", user?.email || "null");
     if (inactivityTimeoutRef.current) {
       clearTimeout(inactivityTimeoutRef.current);
+      inactivityTimeoutRef.current = null; // Clear it explicitly
     }
     if (user) { // Only set timer if a user is logged in
       inactivityTimeoutRef.current = setTimeout(logoutDueToInactivity, INACTIVITY_TIMEOUT_MS);
+      console.log("AuthContext: Inactivity timer set for user:", user.email);
+    } else {
+      console.log("AuthContext: No user logged in, not setting inactivity timer.");
     }
   }, [user, logoutDueToInactivity]);
 
   const fetchCommunityStats = useCallback(async () => {
+    console.log("AuthContext: Fetching community stats...");
     const { data: communityData, error: communityError } = await supabase
       .from('community_stats')
       .select('active_recyclers, total_bottles_recycled') // Fetch both
@@ -72,16 +84,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .single();
 
     if (communityError) {
-      console.error('Error fetching community stats:', communityError.message);
+      console.error('AuthContext: Error fetching community stats:', communityError.message);
       setActiveRecyclers(0);
       setTotalBottlesRecycled(0);
     } else if (communityData) {
       setActiveRecyclers(communityData.active_recyclers);
       setTotalBottlesRecycled(communityData.total_bottles_recycled || 0);
+      console.log("AuthContext: Community stats fetched:", communityData);
     }
   }, []);
 
   const fetchUserProfile = useCallback(async (currentUser: User) => {
+    console.log("AuthContext: Fetching profile for user:", currentUser.email);
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('points, first_name, last_name, total_scans') // Also fetch total_scans from profile
@@ -89,15 +103,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .single();
 
     if (profileError) {
-      console.error('Error fetching user profile:', profileError);
+      console.error('AuthContext: Error fetching user profile:', profileError);
       return null;
     }
-    
+    console.log("AuthContext: Profile fetched:", profile);
     // totalScans is now directly from the profile table
     return { ...profile, totalScans: profile?.total_scans ?? 0 };
   }, []);
 
   const refetchProfile = useCallback(async () => {
+    console.log("AuthContext: refetchProfile called.");
     if (user) {
       const profileAndStats = await fetchUserProfile(user);
       if (profileAndStats) {
@@ -106,13 +121,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLastName(profileAndStats.last_name || null);
         setTotalScans(profileAndStats.totalScans || 0);
         setLevel(getLevelFromPoints(profileAndStats.points || 0));
+        console.log("AuthContext: Profile refetched and state updated.");
       } else {
-        console.warn("Refetch profile failed, keeping current state.");
+        console.warn("AuthContext: Refetch profile failed, keeping current state.");
       }
     }
   }, [user, fetchUserProfile]);
 
   const fetchAndSetData = useCallback(async (userToFetch: User | null) => {
+    console.log("AuthContext: fetchAndSetData called with user:", userToFetch?.email || "null");
     if (userToFetch) {
       const profileAndStats = await fetchUserProfile(userToFetch);
       let currentPoints = profileAndStats?.points || 0;
@@ -127,6 +144,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await supabase.from('profiles').update({ points: currentPoints }).eq('id', userToFetch.id);
         localStorage.removeItem('anonymousPoints');
         setAnonymousPoints(0);
+        console.log("AuthContext: Merged anonymous points.");
       }
 
       setPoints(currentPoints);
@@ -134,6 +152,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLastName(profileAndStats?.last_name || null);
       setTotalScans(currentTotalScans);
       setLevel(getLevelFromPoints(currentPoints));
+      console.log("AuthContext: User data set for logged-in user.");
     } else {
       // User is logged out
       setPoints(0);
@@ -143,10 +162,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLastName(null);
       const localPoints = Number(localStorage.getItem('anonymousPoints') || '0');
       setAnonymousPoints(localPoints);
+      console.log("AuthContext: User data set for logged-out state.");
     }
   }, [fetchUserProfile]);
 
   useEffect(() => {
+    console.log("AuthContext useEffect: Initializing...");
     setLoading(true);
     fetchCommunityStats();
 
@@ -160,12 +181,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (newStats) {
             setActiveRecyclers(newStats.active_recyclers);
             setTotalBottlesRecycled(newStats.total_bottles_recycled);
+            console.log("AuthContext: Community stats updated via real-time:", newStats);
           }
         }
       )
       .subscribe();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log("AuthContext: Auth State Change Event:", _event, "Session:", session);
       const currentUser = session?.user ?? null;
       setSession(session);
       setUser(currentUser);
@@ -176,20 +199,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Setup activity listeners
     const events = ['mousemove', 'keydown', 'click', 'scroll'];
-    events.forEach(event => window.addEventListener(event, resetInactivityTimer));
+    const activityListener = () => {
+      console.log("AuthContext: Activity detected, resetting inactivity timer.");
+      resetInactivityTimer();
+    };
+    events.forEach(event => window.addEventListener(event, activityListener));
     resetInactivityTimer(); // Initial setup of the timer
 
     return () => {
+      console.log("AuthContext useEffect: Cleaning up...");
       subscription.unsubscribe();
       supabase.removeChannel(channel);
       if (inactivityTimeoutRef.current) {
         clearTimeout(inactivityTimeoutRef.current);
+        inactivityTimeoutRef.current = null;
       }
-      events.forEach(event => window.removeEventListener(event, resetInactivityTimer));
+      events.forEach(event => window.removeEventListener(event, activityListener));
     };
   }, [fetchCommunityStats, fetchAndSetData, resetInactivityTimer]);
 
   const addPoints = async (amount: number, barcode?: string) => {
+    console.log("AuthContext: addPoints called. User:", user?.email || "anonymous", "Amount:", amount);
     if (user) {
       const oldStats = { points, totalScans };
       const oldLevel = getLevelFromPoints(points);
@@ -202,10 +232,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setPoints(newPoints);
       setTotalScans(newTotalScans);
       setLevel(newLevel);
+      console.log("AuthContext: Optimistically updated points and scans for user.");
 
       if (newLevel.level > oldLevel.level) {
         fireConfetti();
         showSuccess(`🎉 Leveled Up to ${newLevel.name}! 🎉`);
+        console.log("AuthContext: Leveled up!");
       }
 
       const { error: profileUpdateError } = await supabase
@@ -219,6 +251,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setTotalScans(totalScans);
         setLevel(oldLevel);
         showError("Failed to update your points and scan count.");
+        console.error("AuthContext: Failed to update profile:", profileUpdateError.message);
         return;
       }
       
@@ -228,10 +261,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setPoints(points);
         setTotalScans(totalScans);
         setLevel(oldLevel);
-        console.error("Failed to record scan history:", scanHistoryError.message);
+        console.error("AuthContext: Failed to record scan history:", scanHistoryError.message);
         showError("Failed to record scan history.");
         return;
       }
+      console.log("AuthContext: Profile and scan history updated in DB.");
 
       // After successful database updates, re-fetch profile to ensure full consistency
       await refetchProfile();
@@ -242,32 +276,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (!achievement.condition(oldStats) && achievement.condition(newStats)) {
           fireConfetti();
           showSuccess("🎉 Achievement Unlocked! 🎉");
+          console.log("AuthContext: Achievement unlocked!");
         }
       });
     } else {
       const newAnonymousPoints = anonymousPoints + amount;
       setAnonymousPoints(newAnonymousPoints);
       localStorage.setItem('anonymousPoints', String(newAnonymousPoints));
+      console.log("AuthContext: Anonymous points updated:", newAnonymousPoints);
     }
 
     // Increment global total bottles recycled via Edge Function for all scans
     try {
       const { error: edgeFunctionError } = await supabase.functions.invoke('increment-community-bottles');
       if (edgeFunctionError) {
-        console.error("Failed to increment community bottles via edge function:", edgeFunctionError.message);
+        console.error("AuthContext: Failed to increment community bottles via edge function:", edgeFunctionError.message);
         showError("Failed to update global recycling count.");
       } else {
         // Optimistically update local state for community total
         setTotalBottlesRecycled(prev => prev + 1);
+        console.log("AuthContext: Community bottles incremented.");
       }
     } catch (err) {
-      console.error("Error invoking increment-community-bottles edge function:", err);
+      console.error("AuthContext: Error invoking increment-community-bottles edge function:", err);
       showError("Error updating global recycling count.");
     }
     resetInactivityTimer(); // Reset timer on activity
   };
 
   const addBonusPoints = async (amount: number) => {
+    console.log("AuthContext: addBonusPoints called. User:", user?.email, "Amount:", amount);
     if (!user) return;
     const oldLevel = getLevelFromPoints(points);
     const newPoints = points + amount;
@@ -275,10 +313,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     setPoints(newPoints);
     setLevel(newLevel);
+    console.log("AuthContext: Optimistically updated bonus points for user.");
 
     if (newLevel.level > oldLevel.level) {
       fireConfetti();
       showSuccess(`🎉 Leveled Up to ${newLevel.name}! 🎉`);
+      console.log("AuthContext: Leveled up with bonus points!");
     }
 
     const { error } = await supabase.from('profiles').update({ points: newPoints }).eq('id', user.id);
@@ -286,12 +326,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setPoints(points);
       setLevel(oldLevel);
       showError("Failed to claim bonus points.");
+      console.error("AuthContext: Failed to update profile with bonus points:", error.message);
       throw error;
     }
+    console.log("AuthContext: Bonus points updated in DB.");
     resetInactivityTimer(); // Reset timer on activity
   };
 
   const resetCommunityStats = async () => {
+    console.log("AuthContext: resetCommunityStats called.");
     // Reset active recyclers and total_bottles_recycled in community_stats
     await supabase.from('community_stats').update({ active_recyclers: 0, total_bottles_recycled: 0 }).eq('id', 1);
     // Reset total_scans for all profiles
@@ -301,10 +344,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     await fetchCommunityStats();
     await refetchProfile(); // Also refetch current user's profile
+    showSuccess("Community stats have been reset.");
+    console.log("AuthContext: Community stats reset complete.");
     resetInactivityTimer(); // Reset timer on activity
   };
 
   const resetAnonymousPoints = () => {
+    console.log("AuthContext: resetAnonymousPoints called.");
     localStorage.removeItem('anonymousPoints');
     setAnonymousPoints(0);
     showSuccess("Your session score has been reset.");

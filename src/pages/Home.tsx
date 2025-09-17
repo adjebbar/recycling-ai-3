@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const HomePage = () => {
   const { user, loading } = useAuth();
+  console.log("HomePage rendering. User:", user?.email || "null", "Loading:", loading);
 
   if (loading) {
     return (

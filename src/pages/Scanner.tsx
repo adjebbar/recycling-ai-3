@@ -182,9 +182,26 @@ const ScannerPage = () => {
   };
 
   const handleCameraError = (error: string) => {
-    console.error("Camera error:", error);
-    setCameraError(error);
-    showError(t('scanner.cameraInitError'));
+    // These are critical errors that mean the camera cannot be used.
+    const criticalErrors = [
+        'NotAllowedError', // Permission denied
+        'NotFoundError', // No camera found
+        'NotReadableError', // Camera is already in use
+        'OverconstrainedError', // Camera does not meet constraints
+        'TypeError', // getUserMedia is not supported
+        'Permission denied', // Another way it can be phrased
+        'Could not start video source'
+    ];
+
+    // Check if the error message contains any of the critical keywords.
+    const isCritical = criticalErrors.some(keyword => error.includes(keyword));
+
+    if (isCritical) {
+        console.error("Critical camera error:", error);
+        setCameraError(error); // Set the state to show the big error message
+        showError(t('scanner.cameraInitError'));
+    }
+    // Non-critical errors (like barcode not found) are ignored to allow scanning to continue.
   };
 
   const renderScanResult = () => {

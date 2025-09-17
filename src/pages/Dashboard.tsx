@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from '@/context/AuthContext';
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import { ScanLine } from "lucide-react";
 import { useMemo } from "react";
@@ -98,7 +98,33 @@ const Index = () => {
       <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
         <CommunityImpact />
       </div>
-      <div className="animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+
+      {/* New section for images */}
+      <section className="mt-16 text-center animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+        <h2 className="text-3xl font-bold mb-6">Our Recycling Stations</h2>
+        <div className="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto">
+          <Card className="bg-card/70 backdrop-blur-lg border overflow-hidden">
+            <CardContent className="p-0">
+              <img 
+                src="/recycling-machine-1.png" 
+                alt="Recycling Machine 1" 
+                className="w-full h-auto object-cover animate-subtle-pulse"
+              />
+            </CardContent>
+          </Card>
+          <Card className="bg-card/70 backdrop-blur-lg border overflow-hidden">
+            <CardContent className="p-0">
+              <img 
+                src="/recycling-machine-2.png" 
+                alt="Recycling Machine 2" 
+                className="w-full h-auto object-cover animate-subtle-pulse"
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <div className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
         <RecyclingBenefits />
       </div>
     </div>

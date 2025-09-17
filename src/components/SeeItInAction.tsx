@@ -3,7 +3,7 @@
 import { useState, useEffect, ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Recycle, ScanLine, CheckCircle, Loader2 } from "lucide-react";
+import { Trash2, ScanLine, CheckCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // A more detailed component to represent a water bottle
@@ -135,7 +135,7 @@ const SeeItInAction = () => {
 
           {/* Recycling Bin on the right */}
           <div className="z-10">
-            <Recycle className={cn(
+            <Trash2 className={cn(
               "h-28 w-28 text-primary transition-all duration-300",
               binEffect && "animate-bin-shake scale-110 animate-glow-pulse"
             )} />

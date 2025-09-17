@@ -44,7 +44,7 @@ const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes in milliseconds
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Start as true to indicate initial auth check
 
   const [points, setPoints] = useState(0);
   const [totalScans, setTotalScouns] = useState(0);
@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     console.log("AuthContext useEffect: Initializing...");
-    setLoading(true);
+    // `loading` is already true by default.
     fetchCommunityStats();
 
     const channel = supabase
@@ -160,7 +160,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log("AuthContext: Auth State Change Event:", _event, "Session:", session);
-      setLoading(true); // Start loading for any auth state change
+      setLoading(true); // Ensure loading is true at the start of any auth state change processing
 
       const newCurrentUser = session?.user ?? null;
       const hasUserIdChanged = userRef.current?.id !== newCurrentUser?.id;
@@ -232,7 +232,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       events.forEach(event => window.removeEventListener(event, activityListener));
     };
-  }, [fetchCommunityStats, fetchUserProfile, resetInactivityTimer]); // Added fetchUserProfile to dependencies
+  }, [fetchCommunityStats, fetchUserProfile, resetInactivityTimer]);
 
   const addPoints = async (amount: number, barcode?: string): Promise<AddPointsResult> => {
     console.log("AuthContext: addPoints called. User:", user?.email || "anonymous", "Amount:", amount);

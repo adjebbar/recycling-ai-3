@@ -14,33 +14,58 @@
   "home": {
     "hero": {
       "recycle": "Recycle.",
-      "earnRepeat": "Earn. Repeat."
+      "earnRepeat": " Earn. Repeat."
     },
     "subtitle": "Scan plastic bottles, earn points, and contribute to a cleaner planet.",
-    "startScanning": "Start Scanning"
+    "startScanning": "Start Scanning",
+    "yourPoints": "Your Points"
+  },
+  "scanner": {
+    "title": "Scan & Recycle",
+    "subtitle": "Scan plastic bottle barcodes to earn points and track your impact.",
+    "verifying": "Verifying product...",
+    "success": "Scanned! You earned {{points}} points!",
+    "notPlastic": "This doesn't seem to be a plastic bottle we can recycle.",
+    "notFound": "Product not found. Please try another barcode.",
+    "connectionError": "Could not connect to product database. Please try again.",
+    "signupPromptTitle": "Want to save your points?",
+    "signupPromptDescription": "Sign up or log in to keep your points and track your recycling history!",
+    "cameraTab": "Camera",
+    "manualTab": "Manual",
+    "manualTitle": "Enter Barcode Manually",
+    "manualDescription": "If your camera isn't working, you can enter the barcode here.",
+    "manualPlaceholder": "Enter barcode number",
+    "manualButton": "Submit",
+    "sessionScore": "Session Score",
+    "resetScore": "Reset Session",
+    "cameraPermission": "Camera access is required for scanning. Please grant permissions in your browser settings.",
+    "cameraErrorTitle": "Camera Error",
+    "cameraErrorMessage": "Could not access the camera. Please ensure camera permissions are granted for this site and no other application is using the camera.",
+    "retryCamera": "Retry Camera",
+    "noBarcodeDetected": "No barcode detected. Try adjusting the camera or lighting."
   },
   "profile": {
     "title": "My Profile",
     "totalPoints": "Total Points",
     "bottlesRecycled": "Bottles Recycled",
+    "achievements": "Achievements",
     "recentActivity": "Recent Activity",
-    "recentActivityDescription": "Your last 20 scans",
+    "recentActivityDescription": "Your last 20 scans.",
     "date": "Date",
     "barcode": "Barcode",
-    "points": "Points",
-    "achievements": "Achievements"
+    "points": "Points"
   },
   "achievements": {
     "firstScanName": "First Scan!",
-    "firstScanDescription": "Scanned your first bottle.",
+    "firstScanDescription": "You've made your first recycling scan.",
     "noviceRecyclerName": "Novice Recycler",
     "noviceRecyclerDescription": "Scanned 10 bottles.",
     "pointCollectorName": "Point Collector",
-    "pointCollectorDescription": "Collected 100 points.",
+    "pointCollectorDescription": "Accumulated 100 points.",
     "dedicatedRecyclerName": "Dedicated Recycler",
     "dedicatedRecyclerDescription": "Scanned 50 bottles.",
     "pointsHoarderName": "Points Hoarder",
-    "pointsHoarderDescription": "Collected 500 points."
+    "pointsHoarderNameDescription": "Accumulated 500 points."
   },
   "rewards": {
     "title": "Rewards",
@@ -50,31 +75,5 @@
     "notEnoughPoints": "Not Enough Points",
     "redeem": "Redeem",
     "loginToRedeem": "Login to Redeem"
-  },
-  "scanner": {
-    "title": "Scan & Recycle",
-    "subtitle": "Scan plastic bottle barcodes to earn points and help the planet.",
-    "verifying": "Verifying barcode...",
-    "success": "Plastic bottle recycled! You earned {{points}} points!",
-    "notPlastic": "This doesn't seem to be a plastic bottle we can recycle.",
-    "notFound": "Product not found. Please try another barcode.",
-    "connectionError": "Could not connect to product database. Please try again.",
-    "cameraTab": "Camera",
-    "manualTab": "Manual",
-    "manualTitle": "Manual Entry",
-    "manualDescription": "Enter the barcode manually if the camera isn't working.",
-    "manualPlaceholder": "Enter barcode number",
-    "manualButton": "Submit",
-    "sessionScore": "Session Score",
-    "resetScore": "Reset Score",
-    "cameraPermission": "Camera permission is required for scanning.",
-    "welcomeBackTitle": "Welcome back!",
-    "welcomeBackDescription": "You have points from your last anonymous session. Would you like to add them to your account?",
-    "signupPromptTitle": "Want to save your points?",
-    "signupPromptDescription": "Sign up or log in to keep track of your recycling progress and earn rewards!",
-    "cameraInitError": "Failed to initialize camera.",
-    "cameraErrorTitle": "Camera Error",
-    "cameraErrorMessage": "Could not access the camera. Please ensure camera permissions are granted for this site and no other application is using the camera.",
-    "retryCamera": "Retry Camera"
   }
 }

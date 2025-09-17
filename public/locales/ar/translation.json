@@ -1,7 +1,7 @@
 {
   "nav": {
     "scan": "مسح",
-    "leaderboard": "لوحة المتصدرين",
+    "leaderboard": "لوحة الصدارة",
     "appName": "إيكو سكان الذكاء الاصطناعي",
     "points": "{{count}} نقطة",
     "myAccount": "حسابي",
@@ -14,33 +14,58 @@
   "home": {
     "hero": {
       "recycle": "إعادة تدوير.",
-      "earnRepeat": "اكسب. كرر."
+      "earnRepeat": " اكسب. كرر."
     },
     "subtitle": "امسح الزجاجات البلاستيكية، واكسب النقاط، وساهم في كوكب أنظف.",
-    "startScanning": "بدء المسح"
+    "startScanning": "بدء المسح",
+    "yourPoints": "نقاطك"
+  },
+  "scanner": {
+    "title": "مسح وإعادة تدوير",
+    "subtitle": "امسح الباركود الخاص بالزجاجات البلاستيكية لكسب النقاط وتتبع تأثيرك.",
+    "verifying": "التحقق من المنتج...",
+    "success": "تم المسح! لقد ربحت {{points}} نقطة!",
+    "notPlastic": "لا يبدو أن هذه زجاجة بلاستيكية يمكننا إعادة تدويرها.",
+    "notFound": "المنتج غير موجود. يرجى تجربة باركود آخر.",
+    "connectionError": "تعذر الاتصال بقاعدة بيانات المنتج. يرجى المحاولة مرة أخرى.",
+    "signupPromptTitle": "هل تريد حفظ نقاطك؟",
+    "signupPromptDescription": "سجل أو قم بتسجيل الدخول للاحتفاظ بنقاطك وتتبع سجل إعادة التدوير الخاص بك!",
+    "cameraTab": "الكاميرا",
+    "manualTab": "يدوي",
+    "manualTitle": "إدخال الباركود يدوياً",
+    "manualDescription": "إذا كانت الكاميرا لا تعمل، يمكنك إدخال الباركود هنا.",
+    "manualPlaceholder": "أدخل رقم الباركود",
+    "manualButton": "إرسال",
+    "sessionScore": "نقاط الجلسة",
+    "resetScore": "إعادة تعيين الجلسة",
+    "cameraPermission": "مطلوب الوصول إلى الكاميرا للمسح الضوئي. يرجى منح الأذونات في إعدادات المتصفح الخاص بك.",
+    "cameraErrorTitle": "خطأ في الكاميرا",
+    "cameraErrorMessage": "تعذر الوصول إلى الكاميرا. يرجى التأكد من منح أذونات الكاميرا لهذا الموقع وعدم استخدام أي تطبيق آخر للكاميرا.",
+    "retryCamera": "إعادة محاولة الكاميرا",
+    "noBarcodeDetected": "لم يتم الكشف عن باركود. حاول تعديل الكاميرا أو الإضاءة."
   },
   "profile": {
     "title": "ملفي الشخصي",
     "totalPoints": "إجمالي النقاط",
     "bottlesRecycled": "الزجاجات المعاد تدويرها",
+    "achievements": "الإنجازات",
     "recentActivity": "النشاط الأخير",
-    "recentActivityDescription": "آخر 20 عملية مسح لك",
+    "recentActivityDescription": "آخر 20 عملية مسح لك.",
     "date": "التاريخ",
     "barcode": "الباركود",
-    "points": "النقاط",
-    "achievements": "الإنجازات"
+    "points": "النقاط"
   },
   "achievements": {
     "firstScanName": "أول مسح!",
-    "firstScanDescription": "تم مسح أول زجاجة لك.",
+    "firstScanDescription": "لقد قمت بأول عملية مسح لإعادة التدوير.",
     "noviceRecyclerName": "مبتدئ إعادة التدوير",
     "noviceRecyclerDescription": "تم مسح 10 زجاجات.",
     "pointCollectorName": "جامع النقاط",
-    "pointCollectorDescription": "تم جمع 100 نقطة.",
-    "dedicatedRecyclerName": "مُعيد تدوير مخلص",
+    "pointCollectorDescription": "جمعت 100 نقطة.",
+    "dedicatedRecyclerName": "معيد تدوير مخلص",
     "dedicatedRecyclerDescription": "تم مسح 50 زجاجة.",
     "pointsHoarderName": "مخزن النقاط",
-    "pointsHoarderDescription": "تم جمع 500 نقطة."
+    "pointsHoarderNameDescription": "جمعت 500 نقطة."
   },
   "rewards": {
     "title": "المكافآت",
@@ -50,31 +75,5 @@
     "notEnoughPoints": "نقاط غير كافية",
     "redeem": "استبدال",
     "loginToRedeem": "تسجيل الدخول للاستبدال"
-  },
-  "scanner": {
-    "title": "مسح وإعادة تدوير",
-    "subtitle": "امسح الباركود الخاص بالزجاجات البلاستيكية لكسب النقاط ومساعدة الكوكب.",
-    "verifying": "جارٍ التحقق من الباركود...",
-    "success": "تم إعادة تدوير الزجاجة البلاستيكية! لقد ربحت {{points}} نقطة!",
-    "notPlastic": "لا يبدو أن هذه زجاجة بلاستيكية يمكننا إعادة تدويرها.",
-    "notFound": "المنتج غير موجود. يرجى محاولة باركود آخر.",
-    "connectionError": "تعذر الاتصال بقاعدة بيانات المنتج. يرجى المحاولة مرة أخرى.",
-    "cameraTab": "الكاميرا",
-    "manualTab": "يدوي",
-    "manualTitle": "إدخال يدوي",
-    "manualDescription": "أدخل الباركود يدويًا إذا كانت الكاميرا لا تعمل.",
-    "manualPlaceholder": "أدخل رقم الباركود",
-    "manualButton": "إرسال",
-    "sessionScore": "نقاط الجلسة",
-    "resetScore": "إعادة تعيين النقاط",
-    "cameraPermission": "إذن الكاميرا مطلوب للمسح الضوئي.",
-    "welcomeBackTitle": "مرحبًا بعودتك!",
-    "welcomeBackDescription": "لديك نقاط من جلستك المجهولة الأخيرة. هل ترغب في إضافتها إلى حسابك؟",
-    "signupPromptTitle": "هل تريد حفظ نقاطك؟",
-    "signupPromptDescription": "سجل أو قم بتسجيل الدخول لتتبع تقدمك في إعادة التدوير وكسب المكافآت!",
-    "cameraInitError": "فشل تهيئة الكاميرا.",
-    "cameraErrorTitle": "خطأ في الكاميرا",
-    "cameraErrorMessage": "تعذر الوصول إلى الكاميرا. يرجى التأكد من منح أذونات الكاميرا لهذا الموقع وعدم استخدام أي تطبيق آخر للكاميرا.",
-    "retryCamera": "إعادة محاولة الكاميرا"
   }
 }

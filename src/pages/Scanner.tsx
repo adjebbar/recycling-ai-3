@@ -41,7 +41,7 @@ const isPlasticBottle = (product: any): boolean => {
   }
 
   const isPlastic = packagingInfo.some(tag => plasticKeywords.includes(tag));
-  const isBottle = packagingInfo.some(tag => bottleKeywords.includes(tag));
+  const isBottle = packagingInfo.some(tag => bottleKeywords.some(kw => tag.includes(kw)));
   if (isPlastic && isBottle) {
     return true;
   }
@@ -77,7 +77,8 @@ const ScannerPage = () => {
   const [manualBarcode, setManualBarcode] = useState('');
   const navigate = useNavigate();
   const [scanResult, setScanResult] = useState<{ type: 'success' | 'error'; message: string; imageUrl?: string } | null>(null);
-  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [cameraInitializationError, setCameraInitializationError] = useState<string | null>(null); // Renamed state
+  const [scanFailureMessage, setScanFailureMessage] = useState<string | null>(null); // New state for scan failures
   const [showTicket, setShowTicket] = useState(false);
   const [qrCodeValue, setQrCodeValue] = useState<string | null>(null);
   const [isRedeeming, setIsRedeeming] = useState(false);
@@ -86,6 +87,7 @@ const ScannerPage = () => {
     if (!barcode || barcode === lastScanned) return;
     
     setLastScanned(barcode);
+    setScanFailureMessage(null); // Clear any previous scan failure message
     const loadingToast = showLoading(t('scanner.verifying'));
 
     try {
@@ -181,46 +183,35 @@ const ScannerPage = () => {
     setManualBarcode('');
   };
 
-  const handleCameraError = (error: string) => {
-    // These are critical errors that mean the camera cannot be used.
-    const criticalErrors = [
-        'NotAllowedError', // Permission denied
-        'NotFoundError', // No camera found
-        'NotReadableError', // Camera is already in use
-        'OverconstrainedError', // Camera does not meet constraints
-        'TypeError', // getUserMedia is not supported
-        'Permission denied', // Another way it can be phrased
-        'Could not start video source'
-    ];
+  const handleCameraInitializationError = (error: string) => { // Renamed handler
+    console.error("Camera initialization error:", error);
+    setCameraInitializationError(error); // Set the specific init error state
+    showError(t('scanner.cameraInitError'));
+  };
 
-    // Check if the error message contains any of the critical keywords.
-    const isCritical = criticalErrors.some(keyword => error.includes(keyword));
-
-    if (isCritical) {
-        console.error("Critical camera error:", error);
-        setCameraError(error); // Set the state to show the big error message
-        showError(t('scanner.cameraInitError'));
-    }
-    // Non-critical errors (like barcode not found) are ignored to allow scanning to continue.
+  const handleScanFailure = (error: string) => { // New handler for scan failures
+    console.warn("Barcode scan failure:", error);
+    setScanFailureMessage(t('scanner.noBarcodeDetected')); // Set a user-friendly message
+    // No need for a toast here, as it might be too frequent.
   };
 
   const renderScanResult = () => {
     if (!scanResult) return null;
+
     return (
-      <div
-        className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4 animate-fade-in-up"
-        style={{ animationDuration: '0.3s' }}
-      >
-        <div className="w-32 h-32 mb-4 flex items-center justify-center">
-          {scanResult.imageUrl ? (
-            <img src={scanResult.imageUrl} alt="Scanned product" className="max-w-full max-h-full object-contain rounded-md" />
-          ) : (
-            scanResult.type === 'success' ? <CheckCircle2 className="w-16 h-16 text-green-500" /> : <XCircle className="w-16 h-16 text-destructive" />
-          )}
-        </div>
-        <p className={cn('text-xl font-semibold', scanResult.type === 'success' ? 'text-green-500' : 'text-destructive')}>
-          {scanResult.message}
-        </p>
+      <div className={cn(
+        "absolute inset-0 flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm z-20 transition-opacity duration-300",
+        scanResult ? "opacity-100" : "opacity-0 pointer-events-none"
+      )}>
+        {scanResult.type === 'success' ? (
+          <CheckCircle2 className="h-16 w-16 text-green-500 mb-4 animate-pulse-once" />
+        ) : (
+          <XCircle className="h-16 w-16 text-destructive mb-4 animate-pulse-once" />
+        )}
+        <p className="text-xl font-semibold text-foreground text-center mb-2">{scanResult.message}</p>
+        {scanResult.imageUrl && (
+          <img src={scanResult.imageUrl} alt="Scanned Product" className="h-24 w-24 object-contain rounded-md shadow-md" />
+        )}
       </div>
     );
   };
@@ -244,20 +235,29 @@ const ScannerPage = () => {
           <TabsContent value="camera">
             <Card className="overflow-hidden bg-card/70 backdrop-blur-lg border">
               <CardContent className="p-4 relative">
-                {cameraError ? (
+                {cameraInitializationError ? ( // Use cameraInitializationError here
                   <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
                     <AlertTriangle className="h-8 w-8 mb-4" />
                     <AlertTitle className="text-xl font-bold">{t('scanner.cameraErrorTitle')}</AlertTitle>
                     <AlertDescription className="mt-2 text-base">
                       {t('scanner.cameraErrorMessage')}
-                      <p className="mt-2 text-sm text-muted-foreground">({cameraError})</p>
-                      <Button onClick={() => setCameraError(null)} className="mt-6">{t('scanner.retryCamera')}</Button>
+                      <p className="mt-2 text-sm text-muted-foreground">({cameraInitializationError})</p> {/* Display init error */}
+                      <Button onClick={() => setCameraInitializationError(null)} className="mt-6">{t('scanner.retryCamera')}</Button>
                     </AlertDescription>
                   </Alert>
                 ) : (
-                  <BarcodeScanner onScanSuccess={processBarcode} onScanFailure={handleCameraError} />
+                  <BarcodeScanner 
+                    onScanSuccess={processBarcode} 
+                    onScanFailure={handleScanFailure} // Pass new handler for scan failures
+                    onCameraInitError={handleCameraInitializationError} // Pass new handler for camera init errors
+                  />
                 )}
                 {renderScanResult()}
+                {scanFailureMessage && !scanResult && ( // Show subtle message if scan failed but no product result
+                  <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
+                    {scanFailureMessage}
+                  </p>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

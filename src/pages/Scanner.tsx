@@ -21,50 +21,43 @@ import { RewardTicketDialog } from '@/components/RewardTicketDialog';
 const POINTS_PER_BOTTLE = 10;
 
 const isPlasticBottle = (product: any): boolean => {
-  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
-  const plasticKeywords = ['plastic', 'plastique', 'plastico', 'pet', 'hdpe', 'polyethylene'];
-  
-  const glassKeywords = ['glass', 'verre', 'vidrio'];
-  const metalKeywords = ['metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier'];
-  const cartonKeywords = ['carton', 'brick', 'brique', 'tetrapak'];
-
-  const allExclusionMaterials = [...glassKeywords, ...metalKeywords, ...cartonKeywords];
-
-  const packagingInfo: string[] = [
+  // Combine all relevant text fields into a single, lowercased string for easier searching.
+  const searchText = [
+    product.product_name,
+    product.generic_name,
+    product.categories,
+    product.packaging,
     ...(product.packaging_tags || []),
-    ...(product.packagings || []).flatMap((p: any) => [p.material, p.shape]),
-    ...(product.packaging || '').split(',').map((s: string) => s.trim())
-  ].filter(Boolean).map((tag: string) => (tag.split(':').pop() || '').toLowerCase());
+  ].join(' ').toLowerCase();
 
-  if (packagingInfo.some(tag => allExclusionMaterials.includes(tag))) {
+  // Define keywords
+  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene'];
+  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
+  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'eau', 'water', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk'];
+  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak'];
+
+  // 1. Strict Exclusion: If any exclusion keyword is found, it's definitely not a plastic bottle.
+  if (exclusionKeywords.some(keyword => searchText.includes(keyword))) {
     return false;
   }
 
-  const isPlastic = packagingInfo.some(tag => plasticKeywords.includes(tag));
-  const isBottle = packagingInfo.some(tag => bottleKeywords.some(kw => tag.includes(kw)));
-  if (isPlastic && isBottle) {
+  // 2. Primary Inclusion: Check for a combination of plastic and bottle keywords.
+  const hasPlasticKeyword = plasticKeywords.some(keyword => searchText.includes(keyword));
+  const hasBottleKeyword = bottleKeywords.some(keyword => searchText.includes(keyword));
+
+  if (hasPlasticKeyword && hasBottleKeyword) {
     return true;
   }
 
-  const name = (product.product_name || '').toLowerCase();
-  const genericName = (product.generic_name || '').toLowerCase();
-  const categories = (product.categories || '').toLowerCase();
-  const combinedText = `${name} ${genericName} ${categories}`;
-
-  if (allExclusionMaterials.some(keyword => combinedText.includes(keyword))) {
-      return false;
-  }
-
-  const isDrink = [
-    'boisson', 'beverage', 'drink', 'soda', 'eau', 'water', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk'
-  ].some(kw => combinedText.includes(kw));
-
-  const textHasBottle = bottleKeywords.some(kw => combinedText.includes(kw));
-
-  if (isDrink && textHasBottle) {
+  // 3. Fallback Heuristic: If it's a drink in a bottle, it's very likely a plastic bottle,
+  // since glass, metal, and cartons have already been excluded.
+  const hasDrinkKeyword = drinkKeywords.some(keyword => searchText.includes(keyword));
+  
+  if (hasDrinkKeyword && hasBottleKeyword) {
     return true;
   }
 
+  // If none of the above conditions are met, assume it's not a recyclable plastic bottle.
   return false;
 };
 

@@ -2,8 +2,7 @@
 
 import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
-import { Printer } from "lucide-react";
+import { Printer, Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -17,30 +16,20 @@ import {
 interface RewardTicketDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  qrCodeValue: string | null;
+  isLoading: boolean;
+  points: number;
+  onRedeemAndClose: () => void;
 }
 
-const VIRTUAL_CASH_PER_POINT = 0.01; // $0.01 per point
+const VIRTUAL_CASH_PER_POINT = 0.01;
 const SHOPPING_CENTER_ID = "SC-12345";
 
-export const RewardTicketDialog = ({ open, onOpenChange }: RewardTicketDialogProps) => {
-  const { points, resetAnonymousPoints } = useAuth();
+export const RewardTicketDialog = ({ open, onOpenChange, qrCodeValue, isLoading, points, onRedeemAndClose }: RewardTicketDialogProps) => {
   const cashValue = (points * VIRTUAL_CASH_PER_POINT).toFixed(2);
-
-  const qrCodeValue = JSON.stringify({
-    shoppingCenterId: SHOPPING_CENTER_ID,
-    amount: parseFloat(cashValue),
-    currency: "USD",
-    points: points,
-    issuedAt: new Date().toISOString(),
-  });
 
   const handlePrint = () => {
     window.print();
-  };
-
-  const handleRedeemAndClose = () => {
-    resetAnonymousPoints();
-    onOpenChange(false);
   };
 
   return (
@@ -54,8 +43,14 @@ export const RewardTicketDialog = ({ open, onOpenChange }: RewardTicketDialogPro
             </AlertDialogDescription>
           </AlertDialogHeader>
           
-          <div className="bg-white p-4 rounded-md flex justify-center my-4">
-            <QRCode value={qrCodeValue} size={200} />
+          <div className="bg-white p-4 rounded-md flex justify-center items-center my-4 h-[216px]">
+            {isLoading ? (
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            ) : qrCodeValue ? (
+              <QRCode value={qrCodeValue} size={200} />
+            ) : (
+              <p className="text-destructive text-center">Failed to generate voucher. Please try again.</p>
+            )}
           </div>
 
           <div className="text-center my-4">
@@ -71,11 +66,11 @@ export const RewardTicketDialog = ({ open, onOpenChange }: RewardTicketDialogPro
         </div>
         
         <AlertDialogFooter className="print:hidden">
-          <Button variant="outline" onClick={handlePrint}>
+          <Button variant="outline" onClick={handlePrint} disabled={isLoading || !qrCodeValue}>
             <Printer className="mr-2 h-4 w-4" />
             Print
           </Button>
-          <AlertDialogAction onClick={handleRedeemAndClose}>
+          <AlertDialogAction onClick={onRedeemAndClose} disabled={isLoading}>
             Close & Redeem
           </AlertDialogAction>
         </AlertDialogFooter>

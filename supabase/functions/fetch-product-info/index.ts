@@ -7,8 +7,10 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log(`fetch-product-info function invoked. Method: ${req.method}`);
   // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
+    console.log("Responding to OPTIONS request.");
     return new Response(null, { headers: corsHeaders })
   }
 

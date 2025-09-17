@@ -16,7 +16,9 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log(`generate-voucher function invoked. Method: ${req.method}`);
   if (req.method === 'OPTIONS') {
+    console.log("Responding to OPTIONS request.");
     return new Response(null, { headers: corsHeaders });
   }
 

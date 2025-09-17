@@ -153,9 +153,10 @@ const ScannerPage = () => {
       if (data.error) throw new Error(data.error);
 
       setQrCodeValue(data.voucherToken);
-    } catch (err) {
-      console.error("Failed to generate voucher:", err);
-      showError("Could not generate your voucher. Please try again.");
+    } catch (err: any) {
+      const errorMessage = err.message || "An unknown error occurred.";
+      console.error("Failed to generate voucher:", errorMessage);
+      showError(`Voucher Error: ${errorMessage}`);
       setShowTicket(false);
     } finally {
       setIsRedeeming(false);

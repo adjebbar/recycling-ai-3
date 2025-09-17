@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+import sys # Import sys to access command-line arguments
 
 # Define GPIO pins using BCM numbering
 CONVEYOR_FORWARD_PIN = 17  # Corresponds to physical pin 11
@@ -45,17 +46,23 @@ def handleRecyclingResult(result: str):
         print("GPIO cleanup complete.")
 
 if __name__ == "__main__":
-    print("--- Testing handleRecyclingResult function ---")
-    
-    # Test with "accepted"
-    handleRecyclingResult("accepted")
-    time.sleep(3) # Wait a bit before the next test
+    # Check if a command-line argument was provided
+    if len(sys.argv) > 1:
+        result_arg = sys.argv[1]
+        handleRecyclingResult(result_arg)
+    else:
+        print("No result argument provided. Running test sequence.")
+        print("--- Testing handleRecyclingResult function ---")
+        
+        # Test with "accepted"
+        handleRecyclingResult("accepted")
+        time.sleep(3) # Wait a bit before the next test
 
-    # Test with "rejected"
-    handleRecyclingResult("rejected")
-    time.sleep(3) # Wait a bit before the next test
+        # Test with "rejected"
+        handleRecyclingResult("rejected")
+        time.sleep(3) # Wait a bit before the next test
 
-    # Test with an unknown result
-    handleRecyclingResult("unknown")
+        # Test with an unknown result
+        handleRecyclingResult("unknown")
 
-    print("--- Testing complete ---")
+        print("--- Testing complete ---")

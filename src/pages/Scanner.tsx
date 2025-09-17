@@ -76,6 +76,23 @@ const ScannerPage = () => {
   const [qrCodeValue, setQrCodeValue] = useState<string | null>(null);
   const [isRedeeming, setIsRedeeming] = useState(false);
 
+  const triggerPiConveyor = async (result: 'accepted' | 'rejected') => {
+    try {
+      const { error } = await supabase.functions.invoke('trigger-pi-conveyor', {
+        body: { result },
+      });
+      if (error) {
+        console.error("Failed to trigger Pi conveyor:", error.message);
+        showError("Failed to communicate with recycling machine.");
+      } else {
+        console.log(`Successfully sent '${result}' to Pi conveyor.`);
+      }
+    } catch (err) {
+      console.error("Error invoking trigger-pi-conveyor edge function:", err);
+      showError("Error communicating with recycling machine.");
+    }
+  };
+
   const processBarcode = async (barcode: string) => {
     if (!barcode || barcode === lastScanned) return;
     
@@ -109,6 +126,7 @@ const ScannerPage = () => {
           const successMessage = t('scanner.success', { points: POINTS_PER_BOTTLE });
           showSuccess(successMessage);
           setScanResult({ type: 'success', message: successMessage, imageUrl: imageUrl });
+          triggerPiConveyor('accepted'); // Trigger Pi for accepted
           
           if (!user) {
             const hasShownToast = sessionStorage.getItem('signupToastShown');
@@ -127,17 +145,20 @@ const ScannerPage = () => {
           const errorMessage = t('scanner.notPlastic');
           showError(errorMessage);
           setScanResult({ type: 'error', message: errorMessage });
+          triggerPiConveyor('rejected'); // Trigger Pi for rejected
         }
       } else {
         const errorMessage = t('scanner.notFound');
         showError(errorMessage);
         setScanResult({ type: 'error', message: errorMessage });
+        triggerPiConveyor('rejected'); // Trigger Pi for not found (rejected)
       }
     } catch (err: any) {
       dismissToast(loadingToast);
       const errorMessage = err.message || t('scanner.connectionError');
       showError(errorMessage);
       setScanResult({ type: 'error', message: errorMessage });
+      triggerPiConveyor('rejected'); // Trigger Pi for any error (rejected)
       console.error(err);
     } finally {
       setTimeout(() => {

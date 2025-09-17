@@ -1,9 +1,9 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
-import { showError, showSuccess } from '@/utils/toast';
+import { showError, showSuccess, showInfo } from '@/utils/toast'; // Added showInfo
 import { useConfetti } from '@/components/ConfettiProvider';
 import { achievementsList } from '@/lib/achievements';
 import { getLevelFromPoints, Level } from '@/lib/levels';
@@ -29,6 +29,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes in milliseconds
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -43,6 +45,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [totalBottlesRecycled, setTotalBottlesRecycled] = useState(0);
   const [activeRecyclers, setActiveRecyclers] = useState(0);
   const { fire: fireConfetti } = useConfetti();
+
+  const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const logoutDueToInactivity = useCallback(async () => {
+    if (user) {
+      await supabase.auth.signOut();
+      showInfo("Vous avez été déconnecté en raison de l'inactivité.");
+    }
+  }, [user]);
+
+  const resetInactivityTimer = useCallback(() => {
+    if (inactivityTimeoutRef.current) {
+      clearTimeout(inactivityTimeoutRef.current);
+    }
+    if (user) { // Only set timer if a user is logged in
+      inactivityTimeoutRef.current = setTimeout(logoutDueToInactivity, INACTIVITY_TIMEOUT_MS);
+    }
+  }, [user, logoutDueToInactivity]);
 
   const fetchCommunityStats = useCallback(async () => {
     const { data: communityData, error: communityError } = await supabase
@@ -151,13 +171,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(currentUser);
       await fetchAndSetData(currentUser);
       setLoading(false);
+      resetInactivityTimer(); // Reset timer on auth state change
     });
+
+    // Setup activity listeners
+    const events = ['mousemove', 'keydown', 'click', 'scroll'];
+    events.forEach(event => window.addEventListener(event, resetInactivityTimer));
+    resetInactivityTimer(); // Initial setup of the timer
 
     return () => {
       subscription.unsubscribe();
       supabase.removeChannel(channel);
+      if (inactivityTimeoutRef.current) {
+        clearTimeout(inactivityTimeoutRef.current);
+      }
+      events.forEach(event => window.removeEventListener(event, resetInactivityTimer));
     };
-  }, [fetchCommunityStats, fetchAndSetData]);
+  }, [fetchCommunityStats, fetchAndSetData, resetInactivityTimer]);
 
   const addPoints = async (amount: number, barcode?: string) => {
     if (user) {
@@ -234,6 +264,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error invoking increment-community-bottles edge function:", err);
       showError("Error updating global recycling count.");
     }
+    resetInactivityTimer(); // Reset timer on activity
   };
 
   const addBonusPoints = async (amount: number) => {
@@ -257,6 +288,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       showError("Failed to claim bonus points.");
       throw error;
     }
+    resetInactivityTimer(); // Reset timer on activity
   };
 
   const resetCommunityStats = async () => {
@@ -269,12 +301,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     await fetchCommunityStats();
     await refetchProfile(); // Also refetch current user's profile
+    resetInactivityTimer(); // Reset timer on activity
   };
 
   const resetAnonymousPoints = () => {
     localStorage.removeItem('anonymousPoints');
     setAnonymousPoints(0);
     showSuccess("Your session score has been reset.");
+    resetInactivityTimer(); // Reset timer on activity
   };
 
   const value = {

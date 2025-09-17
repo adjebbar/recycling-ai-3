@@ -15,10 +15,10 @@ export const ScanFAB = () => {
       aria-label={t('home.startScanning')}
     >
       <Button 
-        className="rounded-full h-20 w-20 sm:h-24 sm:w-24 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-subtle-pulse"
+        className="rounded-full h-24 w-24 md:h-28 md:w-28 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-subtle-pulse"
       >
-        <ScanLine className="h-10 w-10 text-primary-foreground mb-1" />
-        <span className="text-sm font-bold text-primary-foreground">{t('nav.scan')}</span>
+        <ScanLine className="h-12 w-12 text-primary-foreground mb-1" />
+        <span className="text-base font-bold text-primary-foreground">{t('nav.scan')}</span>
       </Button>
     </Link>
   );

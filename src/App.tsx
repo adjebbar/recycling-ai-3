@@ -23,6 +23,7 @@ import SettingsPage from "./pages/Settings";
 import { ScanFAB } from "./components/ScanFAB";
 import { MadeWithDyad } from "./components/made-with-dyad"; // Import MadeWithDyad
 import NfcPage from "./pages/NfcPage";
+import AdminValidateTicketPage from "./pages/AdminValidateTicket"; // Importer la nouvelle page
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const AppContent = () => {
           
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/validate-ticket" element={<AdminValidateTicketPage />} /> {/* Ajouter la nouvelle route */}
           </Route>
 
           <Route path="*" element={<NotFound />} />

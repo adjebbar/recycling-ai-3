@@ -92,7 +92,20 @@ const ScannerPage = () => {
 
     try {
       const { data, error: invokeError } = await supabase.functions.invoke('fetch-product-info', { body: { barcode } });
-      if (invokeError) throw invokeError;
+      
+      if (invokeError) {
+        let errorMessage = 'Product verification failed.';
+        try {
+          const errorBody = await invokeError.context.json();
+          if (errorBody && errorBody.error) {
+            errorMessage = errorBody.error;
+          }
+        } catch (e) {
+          console.error("Could not parse error response from edge function:", e);
+        }
+        throw new Error(errorMessage);
+      }
+
       if (data.error) throw new Error(data.error);
       dismissToast(loadingToast);
 
@@ -127,9 +140,9 @@ const ScannerPage = () => {
         showError(errorMessage);
         setScanResult({ type: 'error', message: errorMessage });
       }
-    } catch (err) {
+    } catch (err: any) {
       dismissToast(loadingToast);
-      const errorMessage = t('scanner.connectionError');
+      const errorMessage = err.message || t('scanner.connectionError');
       showError(errorMessage);
       setScanResult({ type: 'error', message: errorMessage });
       console.error(err);
@@ -152,9 +165,16 @@ const ScannerPage = () => {
       });
 
       if (error) {
-        // The Supabase client wraps HTTP errors; we need to parse the response body to get the real message.
-        const errorBody = await error.context.json();
-        throw new Error(errorBody.error || 'Edge function returned a non-2xx status code');
+        let errorMessage = 'Voucher generation failed. Please try again.';
+        try {
+          const errorBody = await error.context.json();
+          if (errorBody && errorBody.error) {
+            errorMessage = errorBody.error;
+          }
+        } catch (e) {
+          console.error("Could not parse error response from edge function:", e);
+        }
+        throw new Error(errorMessage);
       }
       
       if (data.error) {

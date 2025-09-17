@@ -18,7 +18,7 @@ interface AuthContextType {
   lastName: string | null;
   totalBottlesRecycled: number;
   activeRecyclers: number;
-  addPoints: (amount: number, barcode?: string) => Promise<AddPointsResult>; // Changed return type
+  addPoints: (amount: number, barcode?: string) => Promise<AddPointsResult>;
   addBonusPoints: (amount: number) => Promise<void>;
   deductPoints: (amount: number) => Promise<void>;
   resetCommunityStats: () => Promise<void>;
@@ -31,9 +31,9 @@ interface AuthContextType {
 interface AddPointsResult {
   pointsEarned: number;
   newTotalPoints: number;
-  newTotalScans: number; // Only relevant for logged-in users
-  leveledUpTo?: Level; // Only relevant for logged-in users
-  unlockedAchievements: string[]; // List of achievement IDs
+  newTotalScans: number;
+  leveledUpTo?: Level;
+  unlockedAchievements: string[];
   isAnonymous: boolean;
 }
 
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const [points, setPoints] = useState(0);
-  const [totalScans, setTotalScans] = useState(0);
+  const [totalScans, setTotalScouns] = useState(0);
   const [level, setLevel] = useState<Level | null>(null);
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setPoints(profileAndStats.points || 0);
         setFirstName(profileAndStats.first_name || null);
         setLastName(profileAndStats.last_name || null);
-        setTotalScans(profileAndStats.totalScans || 0);
+        setTotalScouns(profileAndStats.totalScans || 0);
         setLevel(getLevelFromPoints(profileAndStats.points || 0));
         console.log("AuthContext: Profile refetched and state updated.");
       } else {
@@ -136,41 +136,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }, [user, fetchUserProfile]);
-
-  const fetchAndSetData = useCallback(async (userToFetch: User | null) => {
-    console.log("AuthContext: fetchAndSetData called with user:", userToFetch?.email || "null");
-    if (userToFetch) {
-      const profileAndStats = await fetchUserProfile(userToFetch);
-      let currentPoints = profileAndStats?.points || 0;
-      let currentTotalScans = profileAndStats?.totalScans || 0;
-      
-      const localPoints = Number(localStorage.getItem('anonymousPoints') || '0');
-      if (localPoints > 0) {
-        showSuccess(`Merging ${localPoints} saved points to your account!`);
-        currentPoints += localPoints;
-        await supabase.from('profiles').update({ points: currentPoints }).eq('id', userToFetch.id);
-        localStorage.removeItem('anonymousPoints');
-        setAnonymousPoints(0);
-        console.log("AuthContext: Merged anonymous points.");
-      }
-
-      setPoints(currentPoints);
-      setFirstName(profileAndStats?.first_name || null);
-      setLastName(profileAndStats?.last_name || null);
-      setTotalScans(currentTotalScans);
-      setLevel(getLevelFromPoints(currentPoints));
-      console.log("AuthContext: User data set for logged-in user.");
-    } else {
-      setPoints(0);
-      setTotalScans(0);
-      setLevel(null);
-      setFirstName(null);
-      setLastName(null);
-      const localPoints = Number(localStorage.getItem('anonymousPoints') || '0');
-      setAnonymousPoints(localPoints);
-      console.log("AuthContext: User data set for logged-out state.");
-    }
-  }, [fetchUserProfile]);
 
   useEffect(() => {
     console.log("AuthContext useEffect: Initializing...");
@@ -195,28 +160,56 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log("AuthContext: Auth State Change Event:", _event, "Session:", session);
-      const newCurrentUser = session?.user ?? null;
+      setLoading(true); // Start loading for any auth state change
 
-      // Check if the user ID has actually changed or if it's a specific update event
+      const newCurrentUser = session?.user ?? null;
       const hasUserIdChanged = userRef.current?.id !== newCurrentUser?.id;
 
-      // Always update session and user state
-      setSession(session);
-      setUser(newCurrentUser); // This will trigger re-renders
+      let currentPoints = 0;
+      let currentTotalScans = 0;
+      let currentFirstName: string | null = null;
+      let currentLastName: string | null = null;
+      let currentLevel: Level | null = null;
 
-      if (hasUserIdChanged || _event === 'USER_UPDATED') {
-        console.log("AuthContext: User ID changed or USER_UPDATED event, fetching new data.");
-        await fetchAndSetData(newCurrentUser);
-      } else if (_event === 'SIGNED_OUT' && userRef.current) {
-        // Explicitly handle sign out if user was previously logged in
-        console.log("AuthContext: SIGNED_OUT event, clearing user data.");
-        await fetchAndSetData(null);
+      if (newCurrentUser) {
+        const profileAndStats = await fetchUserProfile(newCurrentUser);
+        currentPoints = profileAndStats?.points || 0;
+        currentTotalScans = profileAndStats?.totalScans || 0;
+        currentFirstName = profileAndStats?.first_name || null;
+        currentLastName = profileAndStats?.last_name || null;
+        currentLevel = getLevelFromPoints(currentPoints);
+
+        // Handle anonymous points merge if a user just signed in or user ID changed
+        if (hasUserIdChanged || _event === 'SIGNED_IN') {
+          const localPoints = Number(localStorage.getItem('anonymousPoints') || '0');
+          if (localPoints > 0) {
+            showSuccess(`Merging ${localPoints} saved points to your account!`);
+            currentPoints += localPoints;
+            await supabase.from('profiles').update({ points: currentPoints }).eq('id', newCurrentUser.id);
+            localStorage.removeItem('anonymousPoints');
+            setAnonymousPoints(0); // Clear anonymous points
+            currentLevel = getLevelFromPoints(currentPoints); // Recalculate level
+            console.log("AuthContext: Merged anonymous points.");
+          }
+        }
       } else {
-        console.log("AuthContext: User ID is the same, no data fetch needed.");
+        // User is logged out, retrieve anonymous points if any
+        currentPoints = Number(localStorage.getItem('anonymousPoints') || '0');
+        setAnonymousPoints(currentPoints); // Ensure anonymousPoints state is updated
       }
+
+      // Update all states at once after all async operations
+      setSession(session);
+      setUser(newCurrentUser);
+      userRef.current = newCurrentUser; // Update the ref
+
+      setPoints(currentPoints);
+      setTotalScouns(currentTotalScans);
+      setFirstName(currentFirstName);
+      setLastName(currentLastName);
+      setLevel(currentLevel);
       
-      userRef.current = newCurrentUser; // Update the ref with the current user
-      setLoading(false); // Ensure loading is false after all processing
+      setLoading(false); // End loading state after all processing
       resetInactivityTimer(); // Reset timer on any auth state change
     });
 
@@ -239,7 +232,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       events.forEach(event => window.removeEventListener(event, activityListener));
     };
-  }, [fetchCommunityStats, fetchAndSetData, resetInactivityTimer]);
+  }, [fetchCommunityStats, fetchUserProfile, resetInactivityTimer]); // Added fetchUserProfile to dependencies
 
   const addPoints = async (amount: number, barcode?: string): Promise<AddPointsResult> => {
     console.log("AuthContext: addPoints called. User:", user?.email || "anonymous", "Amount:", amount);
@@ -260,7 +253,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const newLevel = getLevelFromPoints(newPoints);
 
       setPoints(newPoints);
-      setTotalScans(newTotalScans);
+      setTotalScouns(newTotalScans);
       setLevel(newLevel);
       console.log("AuthContext: Optimistically updated points and scans for user.");
 
@@ -277,25 +270,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (profileUpdateError) {
         setPoints(points);
-        setTotalScans(totalScans);
+        setTotalScouns(totalScans);
         setLevel(oldLevel);
         showError("Failed to update your points and scan count.");
         console.error("AuthContext: Failed to update profile:", profileUpdateError.message);
-        throw profileUpdateError; // Re-throw to be caught by scanner page
+        throw profileUpdateError;
       }
       
       const { error: scanHistoryError } = await supabase.from('scan_history').insert({ user_id: user.id, points_earned: amount, product_barcode: barcode });
       if (scanHistoryError) {
         setPoints(points);
-        setTotalScans(totalScans);
+        setTotalScouns(totalScans);
         setLevel(oldLevel);
         console.error("AuthContext: Failed to record scan history:", scanHistoryError.message);
         showError("Failed to record scan history.");
-        throw scanHistoryError; // Re-throw to be caught by scanner page
+        throw scanHistoryError;
       }
       console.log("AuthContext: Profile and scan history updated in DB.");
 
-      await refetchProfile(); // Ensure state is fully consistent after DB updates
+      await refetchProfile();
       
       const newStats = { points: newPoints, totalScans: newTotalScans };
       achievementsList.forEach(achievement => {
@@ -314,7 +307,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('anonymousPoints', String(newAnonymousPoints));
       console.log("AuthContext: Anonymous points updated:", newAnonymousPoints);
       result.newTotalPoints = newAnonymousPoints;
-      result.newTotalScans = 0; // Anonymous users don't track total scans in profile
+      result.newTotalScans = 0;
     }
 
     try {

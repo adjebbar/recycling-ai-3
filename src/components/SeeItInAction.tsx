@@ -111,15 +111,15 @@ const SeeItInAction = () => {
             {/* Bottle */}
             <div
               className={cn(
-                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
+                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-700 ease-in-out",
                 // Initial state & reset: hidden and small
-                (phase === 'idle' || phase === 'reset' || phase === 'scanning') && "opacity-0 scale-75 transition-opacity duration-300",
+                (phase === 'idle' || phase === 'reset' || phase === 'scanning') && "opacity-0 scale-75",
                 // Visible and normal size during verification and points awarded
-                (phase === 'verifying' || phase === 'points_awarded') && "opacity-100 scale-100 transition-all duration-500 ease-out",
-                // Moving to bin
-                phase === 'moving_to_bin' && "opacity-100 scale-100 translate-x-[120%] transition-all duration-700 ease-in",
-                // Disintegrating
-                phase === 'disintegrating' && "animate-disintegrate-bottle",
+                (phase === 'verifying' || phase === 'points_awarded') && "opacity-100 scale-100",
+                // Moving to bin and during disintegration
+                (phase === 'moving_to_bin' || phase === 'disintegrating') && "translate-x-[120%]",
+                // Disintegrating: shrink and fade
+                phase === 'disintegrating' && "opacity-0 scale-0"
               )}
             >
               <PlasticBottle className="scale-125" />

@@ -117,10 +117,6 @@ export default {
           "0%, 100%": { backgroundColor: "hsl(var(--primary))" },
           "50%": { backgroundColor: "hsl(var(--orange))" }, // Changed to transition to orange
         },
-        "disintegrate-bottle": {
-          "0%": { transform: "scale(1) translateX(0)", opacity: "1" },
-          "100%": { transform: "scale(0) translateX(100px)", opacity: "0" },
-        },
         "bin-shake": {
           "0%, 100%": { transform: "translateX(0)" },
           "25%": { transform: "translateX(-5px)" },
@@ -140,7 +136,6 @@ export default {
         "pulse-once": "pulse-once 0.5s ease-in-out",
         "subtle-pulse": "subtle-pulse 2s ease-in-out infinite",
         "color-pulse": "color-pulse 3s ease-in-out infinite",
-        "disintegrate-bottle": "disintegrate-bottle 0.7s ease-in forwards",
         "bin-shake": "bin-shake 0.3s ease-in-out",
         "scan-beam-active": "scan-beam-active 1.5s ease-in-out",
       },

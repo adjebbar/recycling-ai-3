@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
-import { showError, showSuccess, showInfo } from '@/utils/toast'; // Added showInfo
+import { showError, showSuccess, showInfo } from '@/utils/toast';
 import { useConfetti } from '@/components/ConfettiProvider';
 import { achievementsList } from '@/lib/achievements';
 import { getLevelFromPoints, Level } from '@/lib/levels';
@@ -20,7 +20,7 @@ interface AuthContextType {
   activeRecyclers: number;
   addPoints: (amount: number, barcode?: string) => Promise<void>;
   addBonusPoints: (amount: number) => Promise<void>;
-  deductPoints: (amount: number) => Promise<void>; // New function
+  deductPoints: (amount: number) => Promise<void>;
   resetCommunityStats: () => Promise<void>;
   fetchCommunityStats: () => Promise<void>;
   resetAnonymousPoints: () => void;
@@ -48,13 +48,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { fire: fireConfetti } = useConfetti();
 
   const inactivityTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const userRef = useRef<User | null>(null); // To keep track of the *actual* user object processed
 
   const logoutDueToInactivity = useCallback(async () => {
     if (user) {
       console.log("AuthContext: Logging out due to inactivity for user:", user.email);
       await supabase.auth.signOut();
       showInfo("Vous avez été déconnecté en raison de l'inactivité.");
-      // Clear the timer immediately after signing out to prevent it from firing again
       if (inactivityTimeoutRef.current) {
         clearTimeout(inactivityTimeoutRef.current);
         inactivityTimeoutRef.current = null;
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log("AuthContext: resetInactivityTimer called. Current user:", user?.email || "null");
     if (inactivityTimeoutRef.current) {
       clearTimeout(inactivityTimeoutRef.current);
-      inactivityTimeoutRef.current = null; // Clear it explicitly
+      inactivityTimeoutRef.current = null;
     }
     if (user) { // Only set timer if a user is logged in
       inactivityTimeoutRef.current = setTimeout(logoutDueToInactivity, INACTIVITY_TIMEOUT_MS);
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log("AuthContext: Fetching community stats...");
     const { data: communityData, error: communityError } = await supabase
       .from('community_stats')
-      .select('active_recyclers, total_bottles_recycled') // Fetch both
+      .select('active_recyclers, total_bottles_recycled')
       .eq('id', 1)
       .single();
 
@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.log("AuthContext: Fetching profile for user:", currentUser.email);
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('points, first_name, last_name, total_scans') // Also fetch total_scans from profile
+      .select('points, first_name, last_name, total_scans')
       .eq('id', currentUser.id)
       .single();
 
@@ -108,7 +108,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return null;
     }
     console.log("AuthContext: Profile fetched:", profile);
-    // totalScans is now directly from the profile table
     return { ...profile, totalScans: profile?.total_scans ?? 0 };
   }, []);
 
@@ -140,8 +139,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (localPoints > 0) {
         showSuccess(`Merging ${localPoints} saved points to your account!`);
         currentPoints += localPoints;
-        // Note: We are not merging anonymous scans into total_scans here, only points.
-        // If anonymous scans should also merge, additional logic would be needed.
         await supabase.from('profiles').update({ points: currentPoints }).eq('id', userToFetch.id);
         localStorage.removeItem('anonymousPoints');
         setAnonymousPoints(0);
@@ -155,7 +152,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLevel(getLevelFromPoints(currentPoints));
       console.log("AuthContext: User data set for logged-in user.");
     } else {
-      // User is logged out
       setPoints(0);
       setTotalScans(0);
       setLevel(null);
@@ -190,12 +186,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log("AuthContext: Auth State Change Event:", _event, "Session:", session);
-      const currentUser = session?.user ?? null;
+      const newCurrentUser = session?.user ?? null;
+
+      // Check if the user ID has actually changed or if it's a specific update event
+      const hasUserIdChanged = userRef.current?.id !== newCurrentUser?.id;
+
+      // Always update session and user state
       setSession(session);
-      setUser(currentUser);
-      await fetchAndSetData(currentUser);
-      setLoading(false);
-      resetInactivityTimer(); // Reset timer on auth state change
+      setUser(newCurrentUser); // This will trigger re-renders
+
+      if (hasUserIdChanged || _event === 'USER_UPDATED') {
+        console.log("AuthContext: User ID changed or USER_UPDATED event, fetching new data.");
+        await fetchAndSetData(newCurrentUser);
+      } else if (_event === 'SIGNED_OUT' && userRef.current) {
+        // Explicitly handle sign out if user was previously logged in
+        console.log("AuthContext: SIGNED_OUT event, clearing user data.");
+        await fetchAndSetData(null);
+      } else {
+        console.log("AuthContext: User ID is the same, no data fetch needed.");
+      }
+      
+      userRef.current = newCurrentUser; // Update the ref with the current user
+      setLoading(false); // Ensure loading is false after all processing
+      resetInactivityTimer(); // Reset timer on any auth state change
     });
 
     // Setup activity listeners
@@ -225,7 +238,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const oldStats = { points, totalScans };
       const oldLevel = getLevelFromPoints(points);
       
-      // Optimistically update local state for immediate feedback
       const newPoints = points + amount;
       const newTotalScans = totalScans + 1;
       const newLevel = getLevelFromPoints(newPoints);
@@ -243,11 +255,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const { error: profileUpdateError } = await supabase
         .from('profiles')
-        .update({ points: newPoints, total_scans: newTotalScans }) // Update total_scans in profile
+        .update({ points: newPoints, total_scans: newTotalScans })
         .eq('id', user.id);
       
       if (profileUpdateError) {
-        // Revert local state if profile update fails
         setPoints(points);
         setTotalScans(totalScans);
         setLevel(oldLevel);
@@ -258,7 +269,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       const { error: scanHistoryError } = await supabase.from('scan_history').insert({ user_id: user.id, points_earned: amount, product_barcode: barcode });
       if (scanHistoryError) {
-        // Revert local state if scan history fails
         setPoints(points);
         setTotalScans(totalScans);
         setLevel(oldLevel);
@@ -268,9 +278,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       console.log("AuthContext: Profile and scan history updated in DB.");
 
-      // After successful database updates, re-fetch profile to ensure full consistency
       await refetchProfile();
-      // await fetchCommunityStats(); // Re-fetch community stats to update total bottles recycled - now handled by edge function
       
       const newStats = { points: newPoints, totalScans: newTotalScans };
       achievementsList.forEach(achievement => {
@@ -287,14 +295,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log("AuthContext: Anonymous points updated:", newAnonymousPoints);
     }
 
-    // Increment global total bottles recycled via Edge Function for all scans
     try {
       const { error: edgeFunctionError } = await supabase.functions.invoke('increment-community-bottles');
       if (edgeFunctionError) {
         console.error("AuthContext: Failed to increment community bottles via edge function:", edgeFunctionError.message);
         showError("Failed to update global recycling count.");
       } else {
-        // Optimistically update local state for community total
         setTotalBottlesRecycled(prev => prev + 1);
         console.log("AuthContext: Community bottles incremented.");
       }
@@ -302,7 +308,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("AuthContext: Error invoking increment-community-bottles edge function:", err);
       showError("Error updating global recycling count.");
     }
-    resetInactivityTimer(); // Reset timer on activity
+    resetInactivityTimer();
   };
 
   const deductPoints = async (amount: number) => {
@@ -327,14 +333,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const { error } = await supabase.from('profiles').update({ points: newPoints }).eq('id', user.id);
     if (error) {
-      setPoints(points); // Revert if DB update fails
+      setPoints(points);
       setLevel(oldLevel);
       showError("Failed to deduct points.");
       console.error("AuthContext: Failed to update profile with deducted points:", error.message);
       throw error;
     }
     console.log("AuthContext: Points deducted in DB.");
-    resetInactivityTimer(); // Reset timer on activity
+    resetInactivityTimer();
   };
 
   const addBonusPoints = async (amount: number) => {
@@ -363,23 +369,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw error;
     }
     console.log("AuthContext: Bonus points updated in DB.");
-    resetInactivityTimer(); // Reset timer on activity
+    resetInactivityTimer();
   };
 
   const resetCommunityStats = async () => {
     console.log("AuthContext: resetCommunityStats called.");
-    // Reset active recyclers and total_bottles_recycled in community_stats
     await supabase.from('community_stats').update({ active_recyclers: 0, total_bottles_recycled: 0 }).eq('id', 1);
-    // Reset total_scans for all profiles
     await supabase.from('profiles').update({ total_scans: 0, points: 0 });
-    // Clear scan history
-    await supabase.from('scan_history').delete().neq('id', 0); // Delete all records
+    await supabase.from('scan_history').delete().neq('id', 0);
 
     await fetchCommunityStats();
-    await refetchProfile(); // Also refetch current user's profile
+    await refetchProfile();
     showSuccess("Community stats have been reset.");
     console.log("AuthContext: Community stats reset complete.");
-    resetInactivityTimer(); // Reset timer on activity
+    resetInactivityTimer();
   };
 
   const resetAnonymousPoints = () => {
@@ -387,7 +390,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('anonymousPoints');
     setAnonymousPoints(0);
     showSuccess("Your session score has been reset.");
-    resetInactivityTimer(); // Reset timer on activity
+    resetInactivityTimer();
   };
 
   const value = {
@@ -402,7 +405,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     activeRecyclers,
     addPoints,
     addBonusPoints,
-    deductPoints, // New function
+    deductPoints,
     resetCommunityStats,
     fetchCommunityStats,
     resetAnonymousPoints,

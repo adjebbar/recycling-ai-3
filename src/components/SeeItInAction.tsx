@@ -46,19 +46,19 @@ const SeeItInAction = () => {
     let timers: NodeJS.Timeout[] = [];
 
     const runSequence = () => {
-      setPhase('idle');
+      // Start from scanning, assuming phase is already 'idle' or 'reset'
+      setPhase('scanning'); // Start the first actual animation phase
       setBinShake(false);
 
-      timers.push(setTimeout(() => setPhase('scanning'), 500)); // Start scanning
-      timers.push(setTimeout(() => setPhase('verifying'), 2000)); // Scan complete, show verification
-      timers.push(setTimeout(() => setPhase('points_awarded'), 3000)); // Show points
-      timers.push(setTimeout(() => setPhase('moving_to_bin'), 4000)); // Bottle moves to bin
+      timers.push(setTimeout(() => setPhase('verifying'), 1500)); // Scan complete, show verification
+      timers.push(setTimeout(() => setPhase('points_awarded'), 2500)); // Show points
+      timers.push(setTimeout(() => setPhase('moving_to_bin'), 3500)); // Bottle moves to bin
       timers.push(setTimeout(() => {
         setPhase('disintegrating'); // Bottle disintegrates
         setBinShake(true); // Bin shakes
-      }, 4700));
-      timers.push(setTimeout(() => setBinShake(false), 5000)); // Stop bin shake
-      timers.push(setTimeout(() => setPhase('reset'), 5500)); // Reset for next loop
+      }, 4200)); // Start disintegration slightly before bin shake
+      timers.push(setTimeout(() => setBinShake(false), 4500)); // Stop bin shake
+      timers.push(setTimeout(() => setPhase('reset'), 5000)); // Reset for next loop
     };
 
     if (phase === 'idle' || phase === 'reset') {
@@ -108,13 +108,15 @@ const SeeItInAction = () => {
             {/* Bottle */}
             <div
               className={cn(
-                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out",
-                (phase === 'idle' || phase === 'scanning') && "opacity-0 scale-75",
-                phase === 'verifying' && "opacity-100 scale-100",
-                phase === 'points_awarded' && "opacity-100 scale-100 shadow-lg shadow-primary/60 rounded-full",
-                phase === 'moving_to_bin' && "opacity-100 scale-100 translate-x-[120%]",
+                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
+                // Initial state: hidden and small
+                (phase === 'idle' || phase === 'scanning' || phase === 'reset') && "opacity-0 scale-75",
+                // Visible and normal size during verification and points awarded
+                (phase === 'verifying' || phase === 'points_awarded') && "opacity-100 scale-100 transition-all duration-500 ease-out",
+                // Moving to bin
+                phase === 'moving_to_bin' && "opacity-100 scale-100 translate-x-[120%] transition-all duration-700 ease-in",
+                // Disintegrating
                 phase === 'disintegrating' && "animate-disintegrate-bottle",
-                phase === 'reset' && "opacity-0 scale-0"
               )}
             >
               <PlasticBottle className="scale-125" />

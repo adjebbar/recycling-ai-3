@@ -39,34 +39,45 @@ const PhoneMockup = ({ screenContent }: { screenContent: ReactNode }) => (
   </div>
 );
 
-type AnimationPhase = 'idle' | 'bottleIn' | 'scanning' | 'verifying' | 'reward' | 'recycling' | 'recycled' | 'reset';
+type AnimationPhase = 'idle' | 'bottleIn' | 'scanning' | 'verifying' | 'reward' | 'recycling' | 'recycled';
 
 const SeeItInAction = () => {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   const [binEffect, setBinEffect] = useState(false);
 
   useEffect(() => {
-    let timers: NodeJS.Timeout[] = [];
+    const timers: NodeJS.Timeout[] = [];
+    let isMounted = true;
+
     const runSequence = () => {
+      if (!isMounted) return;
+
       setPhase('bottleIn');
-      timers.push(setTimeout(() => setPhase('scanning'), 500));
-      timers.push(setTimeout(() => setPhase('verifying'), 2500));
-      timers.push(setTimeout(() => setPhase('reward'), 3500));
-      timers.push(setTimeout(() => setPhase('recycling'), 4500));
+      timers.push(setTimeout(() => { if (isMounted) setPhase('scanning'); }, 500));
+      timers.push(setTimeout(() => { if (isMounted) setPhase('verifying'); }, 2500));
+      timers.push(setTimeout(() => { if (isMounted) setPhase('reward'); }, 3500));
+      timers.push(setTimeout(() => { if (isMounted) setPhase('recycling'); }, 4500));
       timers.push(setTimeout(() => {
-        setPhase('recycled');
-        setBinEffect(true);
+        if (isMounted) {
+          setPhase('recycled');
+          setBinEffect(true);
+        }
       }, 5200));
-      timers.push(setTimeout(() => setBinEffect(false), 5700));
-      timers.push(setTimeout(() => setPhase('reset'), 6000));
+      timers.push(setTimeout(() => { if (isMounted) setBinEffect(false); }, 5700));
+      
+      // Schedule the next full sequence
+      timers.push(setTimeout(runSequence, 8000)); // Full sequence + 2s pause
     };
 
-    if (phase === 'idle' || phase === 'reset') {
-      const startTimer = setTimeout(runSequence, phase === 'idle' ? 500 : 2000);
-      timers.push(startTimer);
-    }
-    return () => timers.forEach(clearTimeout);
-  }, [phase]);
+    // Initial start with a delay
+    const initialTimeout = setTimeout(runSequence, 500);
+    timers.push(initialTimeout);
+
+    return () => {
+      isMounted = false;
+      timers.forEach(clearTimeout);
+    };
+  }, []); // Empty dependency array ensures this runs only once on mount.
 
   const getScreenContent = () => {
     switch (phase) {
@@ -89,7 +100,6 @@ const SeeItInAction = () => {
     reward: "Plastic bottle verified!",
     recycling: "Recycling...",
     recycled: "Success!",
-    reset: "Ready for next scan...",
   }[phase];
 
   return (
@@ -110,7 +120,7 @@ const SeeItInAction = () => {
             {/* Bottle */}
             <div className={cn(
               "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-700 ease-in-out",
-              (phase === 'idle' || phase === 'reset' || phase === 'recycled') && 'opacity-0 scale-75',
+              (phase === 'idle' || phase === 'recycled') && 'opacity-0 scale-75',
               (phase === 'bottleIn' || phase === 'scanning' || phase === 'verifying' || phase === 'reward') && 'opacity-100 scale-100',
               phase === 'recycling' && 'opacity-100 scale-100 translate-x-[110%]',
             )}>

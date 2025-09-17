@@ -1,7 +1,7 @@
 "use client";
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Recycle, ScanLine, Trophy, LogOut, Shield, BarChart, User as UserIcon, Globe, Settings, Gift, Nfc } from 'lucide-react';
+import { Recycle, ScanLine, Trophy, LogOut, Shield, BarChart, User as UserIcon, Globe, Settings, Gift, Nfc, History } from 'lucide-react'; // Added History icon
 import { useAuth } from '@/context/AuthContext';
 import { ThemeToggle } from './theme-toggle';
 import { useAnimatedCounter } from '@/hooks/useAnimatedCounter';
@@ -115,6 +115,12 @@ export const Navbar = () => {
                     <Link to="/profile">
                       <UserIcon className="mr-2 h-4 w-4" />
                       <span>{t('nav.profile')}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/reward-history"> {/* New link */}
+                      <History className="mr-2 h-4 w-4" />
+                      <span>{t('nav.rewardHistory')}</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>

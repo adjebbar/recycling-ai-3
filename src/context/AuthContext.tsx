@@ -20,6 +20,7 @@ interface AuthContextType {
   activeRecyclers: number;
   addPoints: (amount: number, barcode?: string) => Promise<void>;
   addBonusPoints: (amount: number) => Promise<void>;
+  deductPoints: (amount: number) => Promise<void>; // New function
   resetCommunityStats: () => Promise<void>;
   fetchCommunityStats: () => Promise<void>;
   resetAnonymousPoints: () => void;
@@ -304,6 +305,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     resetInactivityTimer(); // Reset timer on activity
   };
 
+  const deductPoints = async (amount: number) => {
+    console.log("AuthContext: deductPoints called. User:", user?.email, "Amount:", amount);
+    if (!user) {
+      showError("You must be logged in to deduct points.");
+      return;
+    }
+
+    if (points < amount) {
+      showError("Not enough points to complete this action.");
+      return;
+    }
+
+    const oldLevel = getLevelFromPoints(points);
+    const newPoints = points - amount;
+    const newLevel = getLevelFromPoints(newPoints);
+
+    setPoints(newPoints);
+    setLevel(newLevel);
+    console.log("AuthContext: Optimistically updated points after deduction.");
+
+    const { error } = await supabase.from('profiles').update({ points: newPoints }).eq('id', user.id);
+    if (error) {
+      setPoints(points); // Revert if DB update fails
+      setLevel(oldLevel);
+      showError("Failed to deduct points.");
+      console.error("AuthContext: Failed to update profile with deducted points:", error.message);
+      throw error;
+    }
+    console.log("AuthContext: Points deducted in DB.");
+    resetInactivityTimer(); // Reset timer on activity
+  };
+
   const addBonusPoints = async (amount: number) => {
     console.log("AuthContext: addBonusPoints called. User:", user?.email, "Amount:", amount);
     if (!user) return;
@@ -369,6 +402,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     activeRecyclers,
     addPoints,
     addBonusPoints,
+    deductPoints, // New function
     resetCommunityStats,
     fetchCommunityStats,
     resetAnonymousPoints,

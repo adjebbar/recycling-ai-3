@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
-import { showInfo } from "@/utils/toast";
+import { showInfo, showError, showSuccess } from "@/utils/toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,23 +18,64 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from '@/lib/supabaseClient'; // Added this import
 
 const RewardsPage = () => {
   const { t } = useTranslation();
   const { data: rewards, isLoading } = useRewards();
-  const { points, user } = useAuth();
+  const { points, user, deductPoints, refetchProfile } = useAuth();
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [isRedeeming, setIsRedeeming] = useState(false);
+  const queryClient = useQueryClient();
 
-  const handleRedeem = (rewardName: string, cost: number) => {
-    if (rewardName.toLowerCase().includes('clevent')) {
-      // In a real app, you'd call a backend to generate and store a unique code.
-      // For now, we'll simulate it.
-      const code = `ECO-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
-      setGeneratedCode(code);
-      // Here you would also deduct points from the user's account.
-      showInfo(`You redeemed ${cost} points!`);
-    } else {
-      showInfo("This redeem functionality is coming soon!");
+  const handleRedeem = async (rewardName: string, cost: number, rewardId: number) => {
+    if (!user) {
+      showError("You must be logged in to redeem rewards.");
+      return;
+    }
+    if (points < cost) {
+      showError("Not enough points to redeem this reward.");
+      return;
+    }
+
+    setIsRedeeming(true);
+    setGeneratedCode(null);
+
+    try {
+      await deductPoints(cost);
+      showSuccess(`You redeemed ${cost} points for ${rewardName}!`);
+
+      const { data, error } = await supabase.functions.invoke('generate-voucher', {
+        body: { points: cost, userId: user.id, rewardId: rewardId },
+      });
+
+      if (error) {
+        let errorMessage = 'Voucher generation failed. Please try again.';
+        try {
+          const errorBody = await error.context.json();
+          if (errorBody && errorBody.error) {
+            errorMessage = errorBody.error;
+          }
+        } catch (e) {
+          console.error("Could not parse error response from edge function:", e);
+        }
+        throw new Error(errorMessage);
+      }
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setGeneratedCode(data.voucherToken);
+      await refetchProfile();
+      await queryClient.invalidateQueries({ queryKey: ['rewardHistory', user.id] });
+    } catch (err: any) {
+      const errorMessage = err.message || "An unknown error occurred.";
+      console.error("Failed to redeem reward or generate voucher:", err);
+      showError(`Redemption Error: ${errorMessage}`);
+    } finally {
+      setIsRedeeming(false);
     }
   };
 
@@ -82,9 +123,9 @@ const RewardsPage = () => {
                   <AlertDialogTrigger asChild>
                     <Button 
                       className="w-full" 
-                      disabled={!user || points < reward.cost}
+                      disabled={!user || points < reward.cost || isRedeeming}
                     >
-                      {user ? (points < reward.cost ? t('rewards.notEnoughPoints', 'Not Enough Points') : t('rewards.redeem', 'Redeem')) : t('rewards.loginToRedeem', 'Login to Redeem')}
+                      {isRedeeming ? "Redeeming..." : (user ? (points < reward.cost ? t('rewards.notEnoughPoints', 'Not Enough Points') : t('rewards.redeem', 'Redeem')) : t('rewards.loginToRedeem', 'Login to Redeem'))}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
@@ -98,7 +139,7 @@ const RewardsPage = () => {
                       <AlertDialogTrigger asChild>
                         <Button variant="outline">Cancel</Button>
                       </AlertDialogTrigger>
-                      <AlertDialogAction onClick={() => handleRedeem(reward.name, reward.cost)}>
+                      <AlertDialogAction onClick={() => handleRedeem(reward.name, reward.cost, reward.id)} disabled={isRedeeming}>
                         Confirm
                       </AlertDialogAction>
                     </AlertDialogFooter>

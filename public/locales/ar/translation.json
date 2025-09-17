@@ -1,48 +1,52 @@
 {
-  "nav": {
-    "scan": "مسح",
-    "leaderboard": "لوحة الصدارة",
-    "appName": "إيكو سكان الذكاء الاصطناعي",
-    "points": "{{count}} نقطة",
-    "myAccount": "حسابي",
-    "profile": "الملف الشخصي",
-    "admin": "المسؤول",
-    "logout": "تسجيل الخروج",
-    "login": "تسجيل الدخول",
-    "signup": "التسجيل"
-  },
   "home": {
     "hero": {
       "recycle": "إعادة تدوير.",
       "earnRepeat": " اكسب. كرر."
     },
-    "subtitle": "امسح الزجاجات البلاستيكية، واكسب النقاط، وساهم في كوكب أنظف.",
-    "startScanning": "بدء المسح",
+    "subtitle": "امسح الزجاجات البلاستيكية ضوئيًا، واكسب النقاط، واستبدل المكافآت لكوكب أنظف.",
+    "startScanning": "ابدأ المسح",
     "yourPoints": "نقاطك"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "scan": "مسح",
+    "rewards": "المكافآت",
+    "leaderboard": "لوحة المتصدرين",
+    "profile": "الملف الشخصي",
+    "admin": "المسؤول",
+    "appName": "إيكو سكان الذكاء الاصطناعي",
+    "points": "{{count}} نقطة",
+    "myAccount": "حسابي",
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول",
+    "signup": "التسجيل",
+    "rewardHistory": "سجل المكافآت"
   },
   "scanner": {
     "title": "مسح وإعادة تدوير",
-    "subtitle": "امسح الباركود الخاص بالزجاجات البلاستيكية لكسب النقاط وتتبع تأثيرك.",
-    "verifying": "التحقق من المنتج...",
-    "success": "تم المسح! لقد ربحت {{points}} نقطة!",
-    "notPlastic": "لا يبدو أن هذه زجاجة بلاستيكية يمكننا إعادة تدويرها.",
-    "notFound": "المنتج غير موجود. يرجى تجربة باركود آخر.",
-    "connectionError": "تعذر الاتصال بقاعدة بيانات المنتج. يرجى المحاولة مرة أخرى.",
-    "signupPromptTitle": "هل تريد حفظ نقاطك؟",
-    "signupPromptDescription": "سجل أو قم بتسجيل الدخول للاحتفاظ بنقاطك وتتبع سجل إعادة التدوير الخاص بك!",
+    "subtitle": "امسح الباركود الخاص بالزجاجات البلاستيكية لكسب النقاط والمساهمة في كوكب أكثر خضرة.",
+    "verifying": "جارٍ التحقق من المنتج...",
+    "success": "تم مسح الزجاجة! لقد ربحت {{points}} نقطة!",
+    "notPlastic": "هذا العنصر ليس زجاجة بلاستيكية قابلة لإعادة التدوير.",
+    "notFound": "المنتج غير موجود أو ليس زجاجة بلاستيكية.",
+    "connectionError": "فشل الاتصال بقاعدة بيانات المنتج. يرجى المحاولة مرة أخرى.",
+    "signupPromptTitle": "تتبع تقدمك!",
+    "signupPromptDescription": "أنشئ حسابًا لحفظ نقاطك، وفتح الإنجازات، واستبدال المكافآت الحصرية.",
     "cameraTab": "الكاميرا",
     "manualTab": "يدوي",
-    "manualTitle": "إدخال الباركود يدوياً",
-    "manualDescription": "إذا كانت الكاميرا لا تعمل، يمكنك إدخال الباركود هنا.",
+    "manualTitle": "إدخال الباركود يدويًا",
+    "manualDescription": "أدخل الباركود يدويًا إذا كانت الكاميرا لا تعمل.",
     "manualPlaceholder": "أدخل رقم الباركود",
     "manualButton": "إرسال",
     "sessionScore": "نقاط الجلسة",
-    "resetScore": "إعادة تعيين الجلسة",
-    "cameraPermission": "مطلوب الوصول إلى الكاميرا للمسح الضوئي. يرجى منح الأذونات في إعدادات المتصفح الخاص بك.",
-    "cameraErrorTitle": "خطأ في الكاميرا",
-    "cameraErrorMessage": "تعذر الوصول إلى الكاميرا. يرجى التأكد من منح أذونات الكاميرا لهذا الموقع وعدم استخدام أي تطبيق آخر للكاميرا.",
+    "resetScore": "إعادة تعيين النقاط",
+    "cameraPermission": "إذن الكاميرا مطلوب للمسح الضوئي.",
+    "cameraInitError": "فشل تهيئة الكاميرا. يرجى التحقق من الأذونات.",
+    "cameraErrorTitle": "تم رفض الوصول إلى الكاميرا",
+    "cameraErrorMessage": "يبدو أن الوصول إلى الكاميرا محظور أو غير متاح. يرجى التأكد من أن متصفحك لديه أذونات الكاميرا والمحاولة مرة أخرى.",
     "retryCamera": "إعادة محاولة الكاميرا",
-    "noBarcodeDetected": "لم يتم الكشف عن باركود. حاول تعديل الكاميرا أو الإضاءة."
+    "noBarcodeDetected": "لم يتم الكشف عن أي باركود بعد. اضبط موضع الزجاجة."
   },
   "profile": {
     "title": "ملفي الشخصي",
@@ -50,22 +54,22 @@
     "bottlesRecycled": "الزجاجات المعاد تدويرها",
     "achievements": "الإنجازات",
     "recentActivity": "النشاط الأخير",
-    "recentActivityDescription": "آخر 20 عملية مسح لك.",
+    "recentActivityDescription": "آخر 20 عملية مسح لإعادة التدوير.",
     "date": "التاريخ",
     "barcode": "الباركود",
     "points": "النقاط"
   },
   "achievements": {
-    "firstScanName": "أول مسح!",
-    "firstScanDescription": "لقد قمت بأول عملية مسح لإعادة التدوير.",
+    "firstScanName": "أول مسح",
+    "firstScanDescription": "أكمل أول مسح لك.",
     "noviceRecyclerName": "مبتدئ إعادة التدوير",
-    "noviceRecyclerDescription": "تم مسح 10 زجاجات.",
+    "noviceRecyclerDescription": "امسح 10 زجاجات.",
     "pointCollectorName": "جامع النقاط",
-    "pointCollectorDescription": "جمعت 100 نقطة.",
+    "pointCollectorDescription": "اجمع 100 نقطة.",
     "dedicatedRecyclerName": "معيد تدوير مخلص",
-    "dedicatedRecyclerDescription": "تم مسح 50 زجاجة.",
+    "dedicatedRecyclerDescription": "امسح 50 زجاجة.",
     "pointsHoarderName": "مخزن النقاط",
-    "pointsHoarderNameDescription": "جمعت 500 نقطة."
+    "pointsHoarderDescription": "اجمع 500 نقطة."
   },
   "rewards": {
     "title": "المكافآت",
@@ -75,5 +79,21 @@
     "notEnoughPoints": "نقاط غير كافية",
     "redeem": "استبدال",
     "loginToRedeem": "تسجيل الدخول للاستبدال"
+  },
+  "rewardHistory": {
+    "title": "سجل المكافآت",
+    "subtitle": "عرض جميع المكافآت التي استبدلتها.",
+    "cardTitle": "قسائمك المستبدلة",
+    "cardDescription": "قائمة بعمليات استبدال المكافآت السابقة.",
+    "reward": "المكافأة",
+    "cost": "التكلفة",
+    "value": "القيمة",
+    "status": "الحالة",
+    "date": "التاريخ",
+    "statusActive": "نشط",
+    "statusRedeemed": "تم الاستبدال",
+    "statusExpired": "منتهي الصلاحية",
+    "genericVoucher": "قسيمة تسوق",
+    "errorLoading": "فشل تحميل سجل المكافآت."
   }
 }

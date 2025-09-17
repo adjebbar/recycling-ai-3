@@ -25,6 +25,7 @@ import NfcPage from "./pages/NfcPage";
 import AdminValidateTicketPage from "./pages/AdminValidateTicket";
 import { MobileNav } from "./components/MobileNav"; // Import MobileNav
 import { useIsMobile } from "./hooks/use-mobile"; // Import useIsMobile
+import RewardHistoryPage from "./pages/RewardHistory"; // Import RewardHistoryPage
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const AppContent = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/nfc" element={<NfcPage />} />
+          <Route path="/reward-history" element={<RewardHistoryPage />} /> {/* New route */}
           
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminPage />} />

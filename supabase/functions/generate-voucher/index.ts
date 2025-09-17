@@ -24,8 +24,8 @@ serve(async (req) => {
 
   try {
     console.log("generate-voucher function invoked.");
-    const { points } = await req.json();
-    console.log(`Received points: ${points}`);
+    const { points, userId, rewardId } = await req.json(); // Now expecting userId and rewardId
+    console.log(`Received points: ${points}, userId: ${userId}, rewardId: ${rewardId}`);
 
     if (!points || typeof points !== 'number' || points <= 0) {
       console.error("Invalid points provided.");
@@ -56,6 +56,8 @@ serve(async (req) => {
       .insert({
         points_cost: points,
         amount: parseFloat(amount),
+        user_id: userId || null, // Store userId if provided
+        reward_id: rewardId || null, // Store rewardId if provided
       })
       .select('id')
       .single();

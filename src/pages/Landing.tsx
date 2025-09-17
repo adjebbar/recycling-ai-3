@@ -71,11 +71,14 @@ const LandingPage = () => {
                   Scan Today for a <span className="text-primary">Greener</span> Tomorrow
                 </h1>
                 <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto animate-fade-in-up drop-shadow-md" style={{ animationDelay: '0.4s' }}>
-                  EcoScan AI rewards you for recycling. Join our community and make a tangible impact on the planet, one bottle at a time.
+                  Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
                 </p>
-                <div className="animate-fade-in-up flex justify-center items-center gap-4" style={{ animationDelay: '0.6s' }}>
-                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full">
-                    <Link to="/signup">Get Started for Free</Link>
+                <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4" style={{ animationDelay: '0.6s' }}>
+                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90">
+                    <Link to="/scanner">Start Scanning Anonymously</Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="text-lg px-8 py-6 rounded-full text-white border-white hover:bg-white hover:text-primary">
+                    <Link to="/signup">Create Account & Track Progress</Link>
                   </Button>
                 </div>
               </div>
@@ -181,10 +184,15 @@ const LandingPage = () => {
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <h2 className="text-3xl md:text-4xl font-bold text-white">Ready to Make a Difference?</h2>
-              <p className="text-gray-300 mt-2 mb-6 max-w-xl mx-auto">Start your recycling journey today. Your first scan is just a click away.</p>
-              <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full">
-                <Link to="/signup">Sign Up Now & Get Rewards</Link>
-              </Button>
+              <p className="text-gray-300 mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90">
+                  <Link to="/scanner">Start Scanning Now</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="text-lg px-8 py-6 rounded-full text-white border-white hover:bg-white hover:text-primary">
+                  <Link to="/signup">Create Account</Link>
+                </Button>
+              </div>
             </div>
           </section>
         </main>

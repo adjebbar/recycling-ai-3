@@ -20,29 +20,32 @@ import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { ConfettiProvider } from "./components/ConfettiProvider";
 import SettingsPage from "./pages/Settings";
-import { ScanFAB } from "./components/ScanFAB";
-import { MadeWithDyad } from "./components/made-with-dyad"; // Import MadeWithDyad
+import { MadeWithDyad } from "./components/made-with-dyad";
 import NfcPage from "./pages/NfcPage";
-import AdminValidateTicketPage from "./pages/AdminValidateTicket"; // Importer la nouvelle page
+import AdminValidateTicketPage from "./pages/AdminValidateTicket";
+import { MobileNav } from "./components/MobileNav"; // Import MobileNav
+import { useIsMobile } from "./hooks/use-mobile"; // Import useIsMobile
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { i18n } = useTranslation();
   const location = useLocation();
+  const isMobile = useIsMobile(); // Use the hook
 
   useEffect(() => {
     document.documentElement.lang = i18n.language;
     document.documentElement.dir = i18n.dir(i18n.language);
   }, [i18n, i18n.language]);
 
-  const hideFABOnRoutes = ['/scanner', '/login', '/signup'];
-  const showFAB = !hideFABOnRoutes.includes(location.pathname);
+  // The ScanFAB is no longer needed as its functionality is integrated into MobileNav
+  // const hideFABOnRoutes = ['/scanner', '/login', '/signup'];
+  // const showFAB = !hideFABOnRoutes.includes(location.pathname);
 
   return (
     <>
       <Navbar />
-      <main>
+      <main className={isMobile ? "pb-16" : ""}> {/* Add padding-bottom for mobile nav */}
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/scanner" element={<ScannerPage />} />
@@ -56,13 +59,13 @@ const AppContent = () => {
           
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminPage />} />
-            <Route path="/admin/validate-ticket" element={<AdminValidateTicketPage />} /> {/* Ajouter la nouvelle route */}
+            <Route path="/admin/validate-ticket" element={<AdminValidateTicketPage />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {showFAB && <ScanFAB />}
+      {isMobile && <MobileNav />} {/* Conditionally render MobileNav */}
     </>
   );
 };
@@ -80,7 +83,7 @@ const App = () => {
                 <AppContent />
               </AuthProvider>
             </ConfettiProvider>
-            <MadeWithDyad /> {/* Added MadeWithDyad here */}
+            <MadeWithDyad />
           </BrowserRouter>
         </ThemeProvider>
       </TooltipProvider>

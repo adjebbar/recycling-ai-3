@@ -149,27 +149,13 @@ const ScannerPage = () => {
         body: { points },
       });
 
-      if (error) {
-        // Handle invocation errors (e.g., network, function not found)
-        console.error("Function invocation error:", error);
-        showError(`Error: ${error.message}`);
-        setShowTicket(false);
-        return;
-      }
-
-      if (data.error) {
-        // Handle errors returned by the function's logic
-        console.error("Function logic error:", data.error);
-        showError(`Error: ${data.error}`);
-        setShowTicket(false);
-        return;
-      }
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
       setQrCodeValue(data.voucherToken);
     } catch (err) {
-      // Catch any other unexpected errors
-      console.error("Unexpected error during redeem:", err);
-      showError("An unexpected error occurred. Please try again.");
+      console.error("Failed to generate voucher:", err);
+      showError("Could not generate your voucher. Please try again.");
       setShowTicket(false);
     } finally {
       setIsRedeeming(false);

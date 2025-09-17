@@ -148,7 +148,7 @@ const ScannerPage = () => {
         } else {
           const errorMessage = t('scanner.notPlastic');
           showError(errorMessage);
-          setScanResult({ type: 'error', message: errorMessage, imageUrl: imageUrl });
+          setScanResult({ type: 'error', message: errorMessage });
         }
       } else {
         const errorMessage = t('scanner.notFound');

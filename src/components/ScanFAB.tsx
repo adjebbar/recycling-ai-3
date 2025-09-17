@@ -2,7 +2,7 @@
 
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Recycle } from 'lucide-react'; // Changed from ScanLine to Recycle
+import { Recycle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export const ScanFAB = () => {
@@ -15,9 +15,9 @@ export const ScanFAB = () => {
       aria-label={t('home.startScanning')}
     >
       <Button 
-        className="rounded-full h-20 w-20 md:h-24 md:w-24 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-color-pulse"
+        className="rounded-full h-20 w-20 md:h-24 md:w-24 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-color-pulse animate-subtle-pulse"
       >
-        <Recycle className="h-10 w-10 text-primary-foreground mb-1" /> {/* Updated icon */}
+        <Recycle className="h-10 w-10 text-primary-foreground mb-1" />
         <span className="text-sm font-bold text-primary-foreground">{t('nav.scan')}</span>
       </Button>
     </Link>

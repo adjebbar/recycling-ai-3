@@ -181,6 +181,36 @@ const ScannerPage = () => {
     showError(t('scanner.cameraInitError'));
   };
 
+  const renderScanResult = () => {
+    if (!scanResult) return null;
+    return (
+      <div
+        className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4 animate-fade-in-up"
+        style={{ animationDuration: '0.3s' }}
+      >
+        <div className="w-32 h-32 mb-4 flex items-center justify-center">
+          {scanResult.imageUrl ? (
+            <img src={scanResult.imageUrl} alt="Scanned product" className="max-w-full max-h-full object-contain rounded-md" />
+          ) : (
+            scanResult.type === 'success' ? (
+              <CheckCircle2 className="w-16 h-16 text-green-500" />
+            ) : (
+              <XCircle className="w-16 h-16 text-destructive" />
+            )
+          )}
+        </div>
+        <p
+          className={cn(
+            'text-xl font-semibold',
+            scanResult.type === 'success' ? 'text-green-500' : 'text-destructive'
+          )}
+        >
+          {scanResult.message}
+        </p>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-[calc(100vh-4rem)] w-full text-foreground relative">
       <div
@@ -227,37 +257,12 @@ const ScannerPage = () => {
                 ) : (
                   <BarcodeScanner onScanSuccess={processBarcode} onScanFailure={handleCameraError} />
                 )}
-                {scanResult && (
-                  <div
-                    className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-4 animate-fade-in-up"
-                    style={{ animationDuration: '0.3s' }}
-                  >
-                    <div className="w-32 h-32 mb-4 flex items-center justify-center">
-                      {scanResult.imageUrl ? (
-                        <img src={scanResult.imageUrl} alt="Scanned product" className="max-w-full max-h-full object-contain rounded-md" />
-                      ) : (
-                        scanResult.type === 'success' ? (
-                          <CheckCircle2 className="w-16 h-16 text-green-500" />
-                        ) : (
-                          <XCircle className="w-16 h-16 text-destructive" />
-                        )
-                      )}
-                    </div>
-                    <p
-                      className={cn(
-                        'text-xl font-semibold',
-                        scanResult.type === 'success' ? 'text-green-500' : 'text-destructive'
-                      )}
-                    >
-                      {scanResult.message}
-                    </p>
-                  </div>
-                )}
+                {renderScanResult()}
               </CardContent>
             </Card>
           </TabsContent>
           <TabsContent value="manual">
-            <Card className="bg-card/70 backdrop-blur-lg border">
+            <Card className="bg-card/70 backdrop-blur-lg border relative overflow-hidden">
               <CardHeader>
                 <CardTitle>{t('scanner.manualTitle')}</CardTitle>
                 <CardDescription>{t('scanner.manualDescription')}</CardDescription>
@@ -273,6 +278,7 @@ const ScannerPage = () => {
                   <Button type="submit">{t('scanner.manualButton')}</Button>
                 </form>
               </CardContent>
+              {renderScanResult()}
             </Card>
           </TabsContent>
         </Tabs>

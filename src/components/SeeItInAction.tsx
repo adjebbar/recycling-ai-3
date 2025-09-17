@@ -36,32 +36,46 @@ const PhoneMockup = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+type AnimationPhase = 'idle' | 'scanning' | 'verifying' | 'points_awarded' | 'moving_to_bin' | 'disintegrating' | 'reset';
+
 const SeeItInAction = () => {
-  const [phase, setPhase] = useState<'idle' | 'scanning' | 'scanned' | 'recycling'>('idle');
+  const [phase, setPhase] = useState<AnimationPhase>('idle');
+  const [binShake, setBinShake] = useState(false);
 
   useEffect(() => {
-    const sequence = [
-      () => setPhase('scanning'),  // Start scanning
-      () => setPhase('scanned'),   // Scan complete, show verification
-      () => setPhase('recycling'), // Start recycling process
-      () => setPhase('idle'),      // Reset
-    ];
+    let timers: NodeJS.Timeout[] = [];
 
-    const timers = [
-      setTimeout(sequence[0], 500),
-      setTimeout(sequence[1], 2000),
-      setTimeout(sequence[2], 3500),
-      setTimeout(sequence[3], 5000),
-    ];
+    const runSequence = () => {
+      setPhase('idle');
+      setBinShake(false);
+
+      timers.push(setTimeout(() => setPhase('scanning'), 500)); // Start scanning
+      timers.push(setTimeout(() => setPhase('verifying'), 2000)); // Scan complete, show verification
+      timers.push(setTimeout(() => setPhase('points_awarded'), 3000)); // Show points
+      timers.push(setTimeout(() => setPhase('moving_to_bin'), 4000)); // Bottle moves to bin
+      timers.push(setTimeout(() => {
+        setPhase('disintegrating'); // Bottle disintegrates
+        setBinShake(true); // Bin shakes
+      }, 4700));
+      timers.push(setTimeout(() => setBinShake(false), 5000)); // Stop bin shake
+      timers.push(setTimeout(() => setPhase('reset'), 5500)); // Reset for next loop
+    };
+
+    if (phase === 'idle' || phase === 'reset') {
+      runSequence();
+    }
 
     return () => timers.forEach(clearTimeout);
-  }, [phase === 'idle']);
+  }, [phase]);
 
   const statusText = {
     idle: "Ready to scan...",
     scanning: "Scanning barcode...",
-    scanned: "Plastic bottle verified!",
-    recycling: "Points awarded & recycling...",
+    verifying: "Plastic bottle verified!",
+    points_awarded: "Points awarded!",
+    moving_to_bin: "Recycling bottle...",
+    disintegrating: "Recycling complete!",
+    reset: "Ready for next scan...",
   };
 
   return (
@@ -71,8 +85,14 @@ const SeeItInAction = () => {
           {/* Phone on the left */}
           <PhoneMockup>
             <div className="w-full h-full flex flex-col items-center justify-center text-center text-white p-2 relative">
-              <ScanLine className={cn("h-10 w-10 text-primary transition-all duration-300", phase !== 'scanned' ? 'opacity-100 scale-100' : 'opacity-0 scale-50')} />
-              <CheckCircle className={cn("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-12 w-12 text-green-500 transition-all duration-300", phase === 'scanned' ? 'opacity-100 scale-100' : 'opacity-0 scale-50')} />
+              <ScanLine className={cn(
+                "h-10 w-10 text-primary transition-all duration-300",
+                phase === 'scanning' ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+              )} />
+              <CheckCircle className={cn(
+                "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-12 w-12 text-green-500 transition-all duration-300",
+                phase === 'verifying' || phase === 'points_awarded' ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+              )} />
               <p className="absolute bottom-4 text-xs font-semibold">SCANNER</p>
             </div>
           </PhoneMockup>
@@ -81,21 +101,24 @@ const SeeItInAction = () => {
           <div className="absolute left-0 top-0 w-full h-full">
             {/* Scanning Beam */}
             <div className={cn(
-              "absolute left-[28%] top-1/2 -translate-y-1/2 h-1 bg-primary/80 rounded-full origin-left transition-transform duration-1000 ease-in-out",
-              phase === 'scanning' ? "scale-x-100" : "scale-x-0"
-            )} style={{ width: '44%' }} />
+              "absolute left-[28%] top-1/2 -translate-y-1/2 h-1 bg-primary/80 rounded-full origin-left",
+              phase === 'scanning' ? "w-[44%] animate-scan-beam-active" : "w-0"
+            )} />
 
             {/* Bottle */}
             <div
               className={cn(
-                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-1500 ease-in-out",
-                phase === 'idle' || phase === 'scanning' ? "opacity-0 scale-75" : "opacity-100 scale-100",
-                phase === 'scanned' && "shadow-lg shadow-primary/60 rounded-full",
-                phase === 'recycling' && "translate-x-[120%] scale-50 opacity-0",
+                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out",
+                (phase === 'idle' || phase === 'scanning') && "opacity-0 scale-75",
+                phase === 'verifying' && "opacity-100 scale-100",
+                phase === 'points_awarded' && "opacity-100 scale-100 shadow-lg shadow-primary/60 rounded-full",
+                phase === 'moving_to_bin' && "opacity-100 scale-100 translate-x-[120%]",
+                phase === 'disintegrating' && "animate-disintegrate-bottle",
+                phase === 'reset' && "opacity-0 scale-0"
               )}
             >
               <PlasticBottle className="scale-125" />
-              {phase === 'scanned' && (
+              {(phase === 'points_awarded' || phase === 'moving_to_bin') && (
                 <Badge
                   variant="secondary"
                   className="absolute -top-4 left-1/2 -translate-x-1/2 text-lg bg-primary/20 text-primary-foreground animate-point-burst"
@@ -111,7 +134,7 @@ const SeeItInAction = () => {
             <Recycle
               className={cn(
                 "h-24 w-24 text-primary transition-transform",
-                phase === 'recycling' && "animate-pulse-once"
+                binShake && "animate-bin-shake"
               )}
             />
           </div>

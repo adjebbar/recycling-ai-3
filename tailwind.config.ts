@@ -75,30 +75,16 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
         "fade-in-up": {
-          "from": {
-            opacity: "0",
-            transform: "translateY(10px)",
-          },
-          "to": {
-            opacity: "1",
-            transform: "translateY(0)",
-          },
+          "from": { opacity: "0", transform: "translateY(10px)" },
+          "to": { opacity: "1", transform: "translateY(0)" },
         },
         "point-burst": {
           "0%": { transform: "scale(0.5) translateY(10px)", opacity: "0" },
@@ -115,7 +101,7 @@ export default {
         },
         "color-pulse": {
           "0%, 100%": { backgroundColor: "hsl(var(--primary))" },
-          "50%": { backgroundColor: "hsl(var(--orange))" }, // Changed to transition to orange
+          "50%": { backgroundColor: "hsl(var(--orange))" },
         },
         "bin-shake": {
           "0%, 100%": { transform: "translateX(0)" },
@@ -126,6 +112,15 @@ export default {
           "0%": { transform: "scaleX(0)", opacity: "0" },
           "50%": { transform: "scaleX(1)", opacity: "1" },
           "100%": { transform: "scaleX(0)", opacity: "0" },
+        },
+        "scan-line-sweep": {
+          "0%": { top: '20%' },
+          "50%": { top: '80%' },
+          "100%": { top: '20%' },
+        },
+        "glow-pulse": {
+          "0%, 100%": { filter: "drop-shadow(0 0 5px hsl(var(--primary)))" },
+          "50%": { filter: "drop-shadow(0 0 15px hsl(var(--primary)))" },
         },
       },
       animation: {
@@ -138,6 +133,8 @@ export default {
         "color-pulse": "color-pulse 3s ease-in-out infinite",
         "bin-shake": "bin-shake 0.3s ease-in-out",
         "scan-beam-active": "scan-beam-active 1.5s ease-in-out",
+        "scan-line-sweep": "scan-line-sweep 2s ease-in-out infinite",
+        "glow-pulse": "glow-pulse 0.5s ease-in-out",
       },
     },
   },

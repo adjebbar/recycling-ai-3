@@ -45,31 +45,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { fire: fireConfetti } = useConfetti();
 
   const fetchCommunityStats = useCallback(async () => {
-    // Fetch active recyclers from community_stats
     const { data: communityData, error: communityError } = await supabase
       .from('community_stats')
-      .select('active_recyclers')
+      .select('active_recyclers, total_bottles_recycled') // Fetch both
       .eq('id', 1)
       .single();
 
     if (communityError) {
-      console.error('Error fetching active recyclers:', communityError.message);
-      setActiveRecyclers(0); // Default to 0 on error
+      console.error('Error fetching community stats:', communityError.message);
+      setActiveRecyclers(0);
+      setTotalBottlesRecycled(0);
     } else if (communityData) {
       setActiveRecyclers(communityData.active_recyclers);
-    }
-
-    // Calculate total bottles recycled by summing all profiles' total_scans
-    const { data: totalScansSum, error: sumError } = await supabase
-      .from('profiles')
-      .select('total_scans');
-
-    if (sumError) {
-      console.error('Error summing total scans from profiles:', sumError.message);
-      setTotalBottlesRecycled(0); // Default to 0 on error
-    } else if (totalScansSum) {
-      const sum = totalScansSum.reduce((acc, profile) => acc + (profile.total_scans || 0), 0);
-      setTotalBottlesRecycled(sum);
+      setTotalBottlesRecycled(communityData.total_bottles_recycled || 0);
     }
   }, []);
 
@@ -148,9 +136,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'community_stats', filter: 'id=eq.1' },
         (payload) => {
-          const newStats = payload.new as { active_recyclers: number }; // total_bottles_recycled is now calculated
+          const newStats = payload.new as { active_recyclers: number, total_bottles_recycled: number };
           if (newStats) {
             setActiveRecyclers(newStats.active_recyclers);
+            setTotalBottlesRecycled(newStats.total_bottles_recycled);
           }
         }
       )
@@ -216,7 +205,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // After successful database updates, re-fetch profile to ensure full consistency
       await refetchProfile();
-      await fetchCommunityStats(); // Re-fetch community stats to update total bottles recycled
+      // await fetchCommunityStats(); // Re-fetch community stats to update total bottles recycled - now handled by edge function
       
       const newStats = { points: newPoints, totalScans: newTotalScans };
       achievementsList.forEach(achievement => {
@@ -229,6 +218,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const newAnonymousPoints = anonymousPoints + amount;
       setAnonymousPoints(newAnonymousPoints);
       localStorage.setItem('anonymousPoints', String(newAnonymousPoints));
+    }
+
+    // Increment global total bottles recycled via Edge Function for all scans
+    try {
+      const { error: edgeFunctionError } = await supabase.functions.invoke('increment-community-bottles');
+      if (edgeFunctionError) {
+        console.error("Failed to increment community bottles via edge function:", edgeFunctionError.message);
+        showError("Failed to update global recycling count.");
+      } else {
+        // Optimistically update local state for community total
+        setTotalBottlesRecycled(prev => prev + 1);
+      }
+    } catch (err) {
+      console.error("Error invoking increment-community-bottles edge function:", err);
+      showError("Error updating global recycling count.");
     }
   };
 
@@ -256,8 +260,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const resetCommunityStats = async () => {
-    // Reset active recyclers in community_stats
-    await supabase.from('community_stats').update({ active_recyclers: 0 }).eq('id', 1);
+    // Reset active recyclers and total_bottles_recycled in community_stats
+    await supabase.from('community_stats').update({ active_recyclers: 0, total_bottles_recycled: 0 }).eq('id', 1);
     // Reset total_scans for all profiles
     await supabase.from('profiles').update({ total_scans: 0, points: 0 });
     // Clear scan history

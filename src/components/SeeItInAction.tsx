@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Recycle, ScanLine, CheckCircle, Loader2, Play, RefreshCw } from "lucide-react";
+import { Recycle, ScanLine, CheckCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "./ui/button";
 
 // A more detailed component to represent a water bottle
 const PlasticBottle = ({ className }: { className?: string }) => (
@@ -40,34 +39,34 @@ const PhoneMockup = ({ screenContent }: { screenContent: ReactNode }) => (
   </div>
 );
 
-type AnimationPhase = 'idle' | 'bottleIn' | 'scanning' | 'verifying' | 'reward' | 'recycling' | 'recycled';
+type AnimationPhase = 'idle' | 'bottleIn' | 'scanning' | 'verifying' | 'reward' | 'recycling' | 'recycled' | 'reset';
 
 const SeeItInAction = () => {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   const [binEffect, setBinEffect] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
 
-  const runAnimation = () => {
-    if (isPlaying) return;
+  useEffect(() => {
+    let timers: NodeJS.Timeout[] = [];
+    const runSequence = () => {
+      setPhase('bottleIn');
+      timers.push(setTimeout(() => setPhase('scanning'), 500));
+      timers.push(setTimeout(() => setPhase('verifying'), 2500));
+      timers.push(setTimeout(() => setPhase('reward'), 3500));
+      timers.push(setTimeout(() => setPhase('recycling'), 4500));
+      timers.push(setTimeout(() => {
+        setPhase('recycled');
+        setBinEffect(true);
+      }, 5200));
+      timers.push(setTimeout(() => setBinEffect(false), 5700));
+      timers.push(setTimeout(() => setPhase('reset'), 6000));
+    };
 
-    setIsPlaying(true);
-    setPhase('bottleIn');
-
-    const timers: NodeJS.Timeout[] = [];
-    timers.push(setTimeout(() => setPhase('scanning'), 500));
-    timers.push(setTimeout(() => setPhase('verifying'), 2500));
-    timers.push(setTimeout(() => setPhase('reward'), 3500));
-    timers.push(setTimeout(() => setPhase('recycling'), 4500));
-    timers.push(setTimeout(() => {
-      setPhase('recycled');
-      setBinEffect(true);
-    }, 5200));
-    timers.push(setTimeout(() => {
-      setBinEffect(false);
-      setPhase('idle');
-      setIsPlaying(false);
-    }, 6000));
-  };
+    if (phase === 'idle' || phase === 'reset') {
+      const startTimer = setTimeout(runSequence, phase === 'idle' ? 500 : 2000);
+      timers.push(startTimer);
+    }
+    return () => timers.forEach(clearTimeout);
+  }, [phase]);
 
   const getScreenContent = () => {
     switch (phase) {
@@ -83,29 +82,20 @@ const SeeItInAction = () => {
   };
 
   const statusText = {
-    idle: "Click play to see how it works!",
+    idle: "Ready to scan...",
     bottleIn: "Bottle detected...",
     scanning: "Scanning barcode...",
     verifying: "Verifying material...",
     reward: "Plastic bottle verified!",
     recycling: "Recycling...",
     recycled: "Success!",
+    reset: "Ready for next scan...",
   }[phase];
 
   return (
     <Card className="w-full max-w-3xl mx-auto bg-card/80 backdrop-blur-lg border shadow-xl rounded-2xl overflow-hidden">
       <CardContent className="p-6 md:p-8">
         <div className="relative h-64 w-full flex items-center justify-between">
-          {/* Play/Replay Button Overlay */}
-          {!isPlaying && (
-            <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-20 rounded-xl">
-              <Button size="lg" onClick={runAnimation} className="rounded-full h-20 w-20 animate-subtle-pulse">
-                {phase === 'idle' ? <Play className="h-8 w-8" /> : <RefreshCw className="h-8 w-8" />}
-                <span className="sr-only">{phase === 'idle' ? 'Play Animation' : 'Replay Animation'}</span>
-              </Button>
-            </div>
-          )}
-
           {/* Phone on the left */}
           <PhoneMockup screenContent={getScreenContent()} />
 
@@ -120,7 +110,7 @@ const SeeItInAction = () => {
             {/* Bottle */}
             <div className={cn(
               "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-700 ease-in-out",
-              (phase === 'idle' || phase === 'recycled') && 'opacity-0 scale-75',
+              (phase === 'idle' || phase === 'reset' || phase === 'recycled') && 'opacity-0 scale-75',
               (phase === 'bottleIn' || phase === 'scanning' || phase === 'verifying' || phase === 'reward') && 'opacity-100 scale-100',
               phase === 'recycling' && 'opacity-100 scale-100 translate-x-[110%]',
             )}>

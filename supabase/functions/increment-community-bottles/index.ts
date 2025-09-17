@@ -26,30 +26,19 @@ serve(async (req) => {
 
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
-    // Fetch current community stats
-    const { data: currentStats, error: fetchError } = await supabaseAdmin
+    // Use an atomic update to increment total_bottles_recycled
+    const { data, error: updateError } = await supabaseAdmin
       .from('community_stats')
-      .select('total_bottles_recycled')
+      .update({ total_bottles_recycled: (current_total_bottles_recycled: number) => current_total_bottles_recycled + 1 })
       .eq('id', 1)
+      .select('total_bottles_recycled')
       .single();
-
-    if (fetchError) {
-      throw new Error(`Failed to fetch community stats: ${fetchError.message}`);
-    }
-
-    const newTotalBottles = (currentStats?.total_bottles_recycled || 0) + 1;
-
-    // Update total_bottles_recycled
-    const { error: updateError } = await supabaseAdmin
-      .from('community_stats')
-      .update({ total_bottles_recycled: newTotalBottles })
-      .eq('id', 1);
 
     if (updateError) {
       throw new Error(`Failed to update community stats: ${updateError.message}`);
     }
 
-    return new Response(JSON.stringify({ success: true, newTotal: newTotalBottles }), {
+    return new Response(JSON.stringify({ success: true, newTotal: data.total_bottles_recycled }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });

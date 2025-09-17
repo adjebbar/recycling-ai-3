@@ -81,6 +81,16 @@ const SeeItInAction = () => {
     reset: "Ready for next scan...",
   };
 
+  const bottlePhaseClasses: Record<AnimationPhase, string> = {
+    idle: 'opacity-0 scale-75',
+    scanning: 'opacity-0 scale-75',
+    verifying: 'opacity-100 scale-100',
+    points_awarded: 'opacity-100 scale-100',
+    moving_to_bin: 'opacity-100 scale-100 translate-x-[120%]',
+    disintegrating: 'opacity-0 scale-0 translate-x-[120%]',
+    reset: 'opacity-0 scale-75',
+  };
+
   return (
     <Card className="w-full max-w-3xl mx-auto bg-card/80 backdrop-blur-lg border shadow-xl rounded-2xl overflow-hidden">
       <CardContent className="p-6 md:p-8">
@@ -111,15 +121,9 @@ const SeeItInAction = () => {
             {/* Bottle */}
             <div
               className={cn(
-                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-700 ease-in-out",
-                // Initial state & reset: hidden and small
-                (phase === 'idle' || phase === 'reset' || phase === 'scanning') && "opacity-0 scale-75",
-                // Visible and normal size during verification and points awarded
-                (phase === 'verifying' || phase === 'points_awarded') && "opacity-100 scale-100",
-                // Moving to bin and during disintegration
-                (phase === 'moving_to_bin' || phase === 'disintegrating') && "translate-x-[120%]",
-                // Disintegrating: shrink and fade
-                phase === 'disintegrating' && "opacity-0 scale-0"
+                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ease-in-out",
+                phase === 'reset' ? 'duration-0' : 'transition-all duration-700',
+                bottlePhaseClasses[phase]
               )}
             >
               <PlasticBottle className="scale-125" />

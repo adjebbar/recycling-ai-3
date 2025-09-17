@@ -122,7 +122,7 @@ const SeeItInAction = () => {
               "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-700 ease-in-out",
               (phase === 'idle' || phase === 'recycled') && 'opacity-0 scale-75',
               (phase === 'bottleIn' || phase === 'scanning' || phase === 'verifying' || phase === 'reward') && 'opacity-100 scale-100',
-              phase === 'recycling' && 'opacity-0 scale-50 translate-x-[110%]',
+              phase === 'recycling' && 'opacity-0 scale-0 rotate-90 translate-x-[400%] translate-y-1/4',
             )}>
               <PlasticBottle />
               {phase === 'reward' && (

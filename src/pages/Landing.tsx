@@ -126,6 +126,14 @@ const LandingPage = () => {
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">See It in Action</h2>
+              <div className="max-w-2xl mx-auto mb-8"> {/* Added mb-8 for spacing */}
+                <img 
+                  src="/recycling-machine-2.png" 
+                  alt="Recycling Demonstration" 
+                  className="w-full h-auto object-cover rounded-lg shadow-lg animate-fade-in-up"
+                  style={{ animationDelay: '0.4s' }}
+                />
+              </div>
               <div className="max-w-2xl mx-auto">
                 <SeeItInAction />
               </div>

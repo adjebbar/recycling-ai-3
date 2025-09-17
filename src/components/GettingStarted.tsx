@@ -6,18 +6,18 @@ import { UserPlus, ScanLine, Trophy } from "lucide-react";
 const steps = [
   {
     icon: UserPlus,
-    title: "1. Create an Account",
-    description: "Sign up for free to start tracking your recycling progress and earning points.",
+    title: "1. Choose Your Recycling Path",
+    description: "Scan bottles anonymously for instant points, or create an account to track your progress and unlock exclusive benefits.",
   },
   {
     icon: ScanLine,
     title: "2. Scan Plastic Bottles",
-    description: "Use your phone's camera to scan the barcode on plastic bottles you want to recycle.",
+    description: "Use your phone's camera to scan the barcode on plastic bottles you want to recycle and earn points.",
   },
   {
     icon: Trophy,
-    title: "3. Redeem Rewards",
-    description: "Exchange your accumulated points for exciting rewards like coupons and discounts.",
+    title: "3. Enjoy Your Rewards",
+    description: "Redeem your accumulated points for shopping vouchers (anonymous) or exclusive rewards and achievements (account holders).",
   },
 ];
 

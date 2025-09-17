@@ -6,22 +6,24 @@ import { Badge } from "@/components/ui/badge";
 import { Recycle, ScanLine, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// A component to represent a water bottle
+// A more detailed component to represent a water bottle
 const PlasticBottle = ({ className }: { className?: string }) => (
   <div className={cn("relative h-24 w-10", className)}>
     {/* Cap */}
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 h-3 w-5 bg-sky-500 rounded-t-sm z-10" />
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 h-3 w-5 bg-sky-500 rounded-t-sm z-10 border-x-2 border-t-2 border-sky-600" />
     
     {/* Bottle Body */}
     <div className="absolute top-2 left-0 w-full h-full bg-sky-300/60 rounded-t-lg rounded-b-md border-2 border-sky-400/80 overflow-hidden">
       {/* Water inside */}
       <div className="absolute bottom-0 left-0 w-full h-5/6 bg-sky-400/70" />
       
-      {/* Reflection Highlight 1 */}
-      <div className="absolute top-4 left-2 w-1 h-12 bg-white/50 rounded-full" />
-      
-      {/* Reflection Highlight 2 */}
-      <div className="absolute top-6 right-2 w-0.5 h-8 bg-white/40 rounded-full" />
+      {/* Label */}
+      <div className="absolute top-6 left-0 w-full h-8 bg-white/80 flex items-center justify-center">
+        <div className="w-4 h-4 bg-blue-500 rounded-full" />
+      </div>
+
+      {/* Reflection Highlight */}
+      <div className="absolute top-4 left-1.5 w-1 h-16 bg-white/50 rounded-full" />
     </div>
   </div>
 );
@@ -46,23 +48,24 @@ const SeeItInAction = () => {
     let timers: NodeJS.Timeout[] = [];
 
     const runSequence = () => {
-      // Start from scanning, assuming phase is already 'idle' or 'reset'
-      setPhase('scanning'); // Start the first actual animation phase
+      setPhase('scanning');
       setBinShake(false);
 
-      timers.push(setTimeout(() => setPhase('verifying'), 1500)); // Scan complete, show verification
-      timers.push(setTimeout(() => setPhase('points_awarded'), 2500)); // Show points
-      timers.push(setTimeout(() => setPhase('moving_to_bin'), 3500)); // Bottle moves to bin
+      timers.push(setTimeout(() => setPhase('verifying'), 1500));
+      timers.push(setTimeout(() => setPhase('points_awarded'), 2500));
+      timers.push(setTimeout(() => setPhase('moving_to_bin'), 3500));
       timers.push(setTimeout(() => {
-        setPhase('disintegrating'); // Bottle disintegrates
-        setBinShake(true); // Bin shakes
-      }, 4200)); // Start disintegration slightly before bin shake
-      timers.push(setTimeout(() => setBinShake(false), 4500)); // Stop bin shake
-      timers.push(setTimeout(() => setPhase('reset'), 5000)); // Reset for next loop
+        setPhase('disintegrating');
+        setBinShake(true);
+      }, 4200));
+      timers.push(setTimeout(() => setBinShake(false), 4500));
+      timers.push(setTimeout(() => setPhase('reset'), 5000));
     };
 
+    // Start the animation loop
     if (phase === 'idle' || phase === 'reset') {
-      runSequence();
+      const startTimer = setTimeout(runSequence, phase === 'idle' ? 500 : 1500);
+      timers.push(startTimer);
     }
 
     return () => timers.forEach(clearTimeout);
@@ -109,8 +112,8 @@ const SeeItInAction = () => {
             <div
               className={cn(
                 "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2",
-                // Initial state: hidden and small
-                (phase === 'idle' || phase === 'scanning' || phase === 'reset') && "opacity-0 scale-75",
+                // Initial state & reset: hidden and small
+                (phase === 'idle' || phase === 'reset' || phase === 'scanning') && "opacity-0 scale-75 transition-opacity duration-300",
                 // Visible and normal size during verification and points awarded
                 (phase === 'verifying' || phase === 'points_awarded') && "opacity-100 scale-100 transition-all duration-500 ease-out",
                 // Moving to bin

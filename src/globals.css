@@ -13,8 +13,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
 
-    --primary: 142.1 76.2% 36.3%;
-    --primary-foreground: 355.7 100% 97.3%;
+    --primary: 214 91% 48%; /* Vibrant Blue */
+    --primary-foreground: 0 0% 100%; /* White */
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 47% 11.2%;
@@ -30,18 +30,18 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 142.1 76.2% 36.3%;
+    --ring: 214 91% 48%; /* Vibrant Blue */
 
     --radius: 1rem; /* Changed from 0.75rem to 1rem for a friendlier look */
 
     --sidebar-background: 210 20% 98%;
     --sidebar-foreground: 224 71.4% 4.1%;
-    --sidebar-primary: 142.1 76.2% 36.3%;
-    --sidebar-primary-foreground: 355.7 100% 97.3%;
+    --sidebar-primary: 214 91% 48%; /* Vibrant Blue */
+    --sidebar-primary-foreground: 0 0% 100%; /* White */
     --sidebar-accent: 210 40% 96.1%;
     --sidebar-accent-foreground: 222 47% 11.2%;
     --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 142.1 76.2% 36.3%;
+    --sidebar-ring: 214 91% 48%; /* Vibrant Blue */
   }
 
   .dark {
@@ -54,8 +54,8 @@
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
 
-    --primary: 142.1 70.6% 45.3%;
-    --primary-foreground: 355.7 100% 97.3%;
+    --primary: 214 91% 60%; /* Vibrant Blue for Dark Mode */
+    --primary-foreground: 0 0% 100%; /* White */
 
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
@@ -71,16 +71,16 @@
 
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 142.1 70.6% 45.3%;
+    --ring: 214 91% 60%; /* Vibrant Blue for Dark Mode */
 
     --sidebar-background: 224 71.4% 4.1%;
     --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 142.1 70.6% 45.3%;
-    --sidebar-primary-foreground: 355.7 100% 97.3%;
+    --sidebar-primary: 214 91% 60%; /* Vibrant Blue for Dark Mode */
+    --sidebar-primary-foreground: 0 0% 100%; /* White */
     --sidebar-accent: 217 33% 17%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 142.1 70.6% 45.3%;
+    --sidebar-ring: 214 91% 60%; /* Vibrant Blue for Dark Mode */
   }
 }
 

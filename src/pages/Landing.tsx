@@ -89,11 +89,11 @@ const LandingPage = () => {
           </section>
 
           {/* Features Section */}
-          <section className="py-16 md:py-24 bg-gradient-to-b from-background/50 to-background/70">
+          <section className="py-16 md:py-24 bg-gradient-to-b from-transparent to-background/50">
               <div className="container mx-auto px-4">
                   <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                      <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2>
-                      <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
+                      <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2> {/* Corrected to text-foreground */}
+                      <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p> {/* Corrected to text-muted-foreground */}
                   </div>
                   <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                       <FeatureCard 
@@ -119,14 +119,14 @@ const LandingPage = () => {
           </section>
 
           {/* How It Works Section (Getting Started) */}
-          <section className="py-16 md:py-24 bg-background/70">
+          <section className="py-16 md:py-24 bg-background/50">
             <div className="container mx-auto px-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
               <GettingStarted />
             </div>
           </section>
 
           {/* Animation Section */}
-          <section className="py-16 md:py-24 bg-background/90">
+          <section className="py-16 md:py-24 bg-background/70">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">See It in Action</h2>
               <div className="max-w-2xl mx-auto">
@@ -136,7 +136,7 @@ const LandingPage = () => {
           </section>
 
           {/* Community Impact Section */}
-          <section className="py-16 md:py-24 bg-gradient-to-b from-background/90 to-background">
+          <section className="py-16 md:py-24 bg-background/90">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground">Our Collective Impact</h2>

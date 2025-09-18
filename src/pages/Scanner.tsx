@@ -345,7 +345,7 @@ const ScannerPage = () => {
           <Card className="w-full max-w-lg mt-4 bg-card/70 backdrop-blur-lg border">
             <CardContent className="p-4 flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium">{t('scanner.sessionScore')}</p>
+                <p className="text-sm font-medium text-foreground">{t('scanner.sessionScore')}</p> {/* Changed to text-foreground */}
                 <p className="text-2xl font-bold text-primary">{animatedPoints}</p>
               </div>
               <div className="flex items-center gap-2">

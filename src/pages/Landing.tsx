@@ -35,8 +35,8 @@ const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps
             <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit mb-4">
                 <Icon className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-white">{title}</h3>
-            <p className="text-gray-200">{description}</p>
+            <h3 className="text-xl font-semibold mb-2 text-foreground">{title}</h3> {/* Changed to text-foreground */}
+            <p className="text-muted-foreground">{description}</p> {/* Changed to text-muted-foreground */}
         </CardContent>
     </Card>
 );
@@ -68,7 +68,7 @@ const LandingPage = () => {
           >
             <div className="container mx-auto">
               <div className="max-w-3xl mx-auto">
-                <div className="bg-background/20 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                <div className="bg-black/40 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}> {/* Changed bg-background/20 to bg-black/40 */}
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white">
                     Scan Today for a <span className="text-primary">Greener</span> Tomorrow
                   </h1>
@@ -92,8 +92,8 @@ const LandingPage = () => {
           <section className="py-16 md:py-24 bg-gradient-to-b from-transparent to-background/50">
               <div className="container mx-auto px-4">
                   <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                      <h2 className="text-3xl md:text-4xl font-bold text-white">Revolutionize Your Recycling</h2>
-                      <p className="text-white mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
+                      <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2> {/* Changed to text-foreground */}
+                      <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p> {/* Changed to text-muted-foreground */}
                   </div>
                   <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                       <FeatureCard 
@@ -128,7 +128,7 @@ const LandingPage = () => {
           {/* Animation Section */}
           <section className="py-16 md:py-24 bg-background/70">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">See It in Action</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">See It in Action</h2> {/* Changed to text-foreground */}
               <div className="max-w-2xl mx-auto">
                 <SeeItInAction />
               </div>
@@ -139,8 +139,8 @@ const LandingPage = () => {
           <section className="py-16 md:py-24 bg-background/90">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <h2 className="text-3xl md:text-4xl font-bold text-white">Our Collective Impact</h2>
-                <p className="text-white mt-2">You're not just recycling; you're part of a global community making a difference.</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground">Our Collective Impact</h2> {/* Changed to text-foreground */}
+                <p className="text-muted-foreground mt-2">You're not just recycling; you're part of a global community making a difference.</p> {/* Changed to text-muted-foreground */}
               </div>
               <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>

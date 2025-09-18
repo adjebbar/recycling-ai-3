@@ -93,17 +93,17 @@ const SeeItInAction = () => {
   };
 
   const statusText = {
-    idle: "Prêt à scanner...",
-    bottleIn: "Bouteille détectée...",
-    scanning: "Scan du code-barres...",
-    verifying: "Vérification du matériau...",
-    reward: "Bouteille en plastique vérifiée !",
-    recycling: "Recyclage en cours...",
-    recycled: "Succès !",
+    idle: "Ready to scan...",
+    bottleIn: "Bottle detected...",
+    scanning: "Scanning barcode...",
+    verifying: "Verifying material...",
+    reward: "Plastic bottle verified!",
+    recycling: "Recycling in progress...",
+    recycled: "Success!",
   }[phase];
 
   return (
-    <Card className="w-full max-w-3xl mx-auto bg-card border shadow-xl rounded-2xl overflow-hidden">
+    <Card className="w-full max-w-3xl mx-auto bg-card/70 backdrop-blur-lg border shadow-xl rounded-2xl overflow-hidden">
       <CardContent className="p-6 md:p-8">
         <div className="relative h-64 w-full flex items-center justify-between">
           {/* Phone on the left */}

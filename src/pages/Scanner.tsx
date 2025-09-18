@@ -283,7 +283,8 @@ const ScannerPage = () => {
   return (
     <div className="min-h-[calc(100vh-4rem)] w-full text-foreground relative">
       <div className="absolute inset-0 w-full h-full bg-cover bg-fixed" style={{ backgroundImage: `url('/hero-background.jpg')`, backgroundPosition: 'center 75%' }} />
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-black/90 via-black/70 to-black/40 z-0" />
+      {/* Updated overlay to a green gradient */}
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-primary/80 via-primary/60 to-transparent z-0" />
       
       <div className="relative z-10 container mx-auto p-4 flex flex-col items-center animate-fade-in-up">
         <div className="text-center max-w-lg w-full">

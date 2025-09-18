@@ -56,7 +56,8 @@ const LandingPage = () => {
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
         style={{ backgroundImage: `url('/hero-background.jpg')` }}
       />
-      <div className="absolute inset-0 w-full h-full bg-black/50" />
+      {/* Updated overlay to a green gradient */}
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-primary/70 via-primary/50 to-transparent z-0" />
       
       <div className="relative z-10">
         <LandingHeader />

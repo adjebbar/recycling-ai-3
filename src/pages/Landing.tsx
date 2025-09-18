@@ -30,7 +30,7 @@ interface FeatureCardProps {
 }
 
 const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps) => (
-    <Card className="text-center bg-card/90 border shadow-lg animate-fade-in-up rounded-xl" style={{ animationDelay: delay }}>
+    <Card className="text-center bg-background/50 border shadow-lg animate-fade-in-up rounded-xl" style={{ animationDelay: delay }}>
         <CardContent className="p-8">
             <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit mb-4">
                 <Icon className="h-8 w-8 text-primary" />
@@ -143,7 +143,7 @@ const LandingPage = () => {
               </div>
               <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                  <Card className="bg-card/90 border">
+                  <Card className="bg-background/50 border">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium text-white">Total Bottles Recycled</CardTitle>
                       <Recycle className="h-4 w-4 text-muted-foreground" />
@@ -155,7 +155,7 @@ const LandingPage = () => {
                   </Card>
                 </div>
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-                  <Card className="bg-card/90 border">
+                  <Card className="bg-background/50 border">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium text-white">Active Recyclers</CardTitle>
                       <Users className="h-4 w-4 text-muted-foreground" />
@@ -167,7 +167,7 @@ const LandingPage = () => {
                   </Card>
                 </div>
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
-                  <Card className="bg-card/90 border">
+                  <Card className="bg-background/50 border">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium text-white">CO₂ Saved</CardTitle>
                       <Leaf className="h-4 w-4 text-muted-foreground" />

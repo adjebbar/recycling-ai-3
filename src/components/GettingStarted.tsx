@@ -29,7 +29,7 @@ const GettingStarted = () => {
         {steps.map((step, index) => {
           const Icon = step.icon;
           return (
-            <Card key={index} className="bg-card/90 backdrop-blur-md border text-left shadow-lg rounded-xl">
+            <Card key={index} className="bg-background/50 backdrop-blur-md border text-left shadow-lg rounded-xl">
               <CardHeader className="flex flex-row items-center space-x-4 pb-2">
                 <Icon className="h-8 w-8 text-primary" />
                 <CardTitle className="text-white">{step.title}</CardTitle>

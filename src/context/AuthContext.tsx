@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true); // Start as true to indicate initial auth check
+  const isInitialLoadRef = useRef(true); // New ref to track initial load
 
   const [points, setPoints] = useState(0);
   const [totalScans, setTotalScouns] = useState(0);
@@ -139,7 +140,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     console.log("AuthContext useEffect: Initializing...");
-    // `loading` is already true by default.
     fetchCommunityStats();
 
     const channel = supabase
@@ -160,7 +160,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log("AuthContext: Auth State Change Event:", _event, "Session:", session);
-      setLoading(true); // Ensure loading is true at the start of any auth state change processing
+
+      // Only set loading to true if it's the initial load or a significant auth state change
+      if (isInitialLoadRef.current || _event === 'SIGNED_IN' || _event === 'SIGNED_OUT') {
+        setLoading(true);
+      }
 
       const newCurrentUser = session?.user ?? null;
       const hasUserIdChanged = userRef.current?.id !== newCurrentUser?.id;
@@ -210,6 +214,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLevel(currentLevel);
       
       setLoading(false); // End loading state after all processing
+      isInitialLoadRef.current = false; // Mark initial load as complete
       resetInactivityTimer(); // Reset timer on any auth state change
     });
 

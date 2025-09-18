@@ -282,16 +282,17 @@ const ScannerPage = () => {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] w-full text-foreground relative bg-gradient-to-br from-gray-900 to-gray-700">
-      {/* Removed the old background image and green gradient overlay */}
+      {/* Background gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-background/20 z-0" />
       
       <div className="relative z-10 container mx-auto p-4 flex flex-col items-center animate-fade-in-up">
         <div className="text-center max-w-lg w-full">
-          <h1 className="text-3xl font-bold mb-4 text-white">{t('scanner.title')}</h1>
-          <p className="text-gray-200 mb-6">{t('scanner.subtitle')}</p>
+          <h1 className="text-3xl font-bold mb-4 text-foreground">{t('scanner.title')}</h1>
+          <p className="text-muted-foreground mb-6">{t('scanner.subtitle')}</p>
         </div>
         
         <Tabs defaultValue="camera" className="w-full max-w-lg">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-2 bg-card/70 backdrop-blur-lg border">
             <TabsTrigger value="camera"><Camera className="mr-2 h-4 w-4" />{t('scanner.cameraTab')}</TabsTrigger>
             <TabsTrigger value="manual"><Keyboard className="mr-2 h-4 w-4" />{t('scanner.manualTab')}</TabsTrigger>
           </TabsList>
@@ -371,7 +372,7 @@ const ScannerPage = () => {
         />
 
         <div className="text-center mt-6 max-w-lg w-full">
-          <p className="text-sm text-gray-300 flex items-center justify-center">
+          <p className="text-sm text-muted-foreground flex items-center justify-center">
             <CameraOff className="w-4 h-4 mr-2" />
             {t('scanner.cameraPermission')}
           </p>

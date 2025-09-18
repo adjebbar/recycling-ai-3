@@ -32,20 +32,20 @@ const Index = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <section className="text-center py-16 md:py-24">
+      <section className="text-center py-16 md:py-24 relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 to-background/50 shadow-lg mb-16">
         <div
           className="max-w-3xl mx-auto animate-fade-in-up"
           style={{ animationDelay: '0.1s' }}
         >
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-foreground drop-shadow-md">
             <span className="text-primary">{t('home.hero.recycle')}</span>{t('home.hero.earnRepeat')}
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto drop-shadow-sm">
             {t('home.subtitle')}
           </p>
           <div className="flex justify-center gap-4">
             <Link to="/scanner">
-              <Button size="lg" className="text-lg px-10 py-7 rounded-full animate-subtle-pulse shadow-lg shadow-primary/50">
+              <Button size="lg" className="text-lg px-10 py-7 rounded-full animate-subtle-pulse shadow-lg shadow-primary/50 bg-primary hover:bg-primary/90 text-primary-foreground">
                 <ScanLine className="mr-3 h-6 w-6" />
                 {t('home.startScanning')}
               </Button>
@@ -59,7 +59,7 @@ const Index = () => {
         style={{ animationDelay: '0.3s' }}
       >
         <div className="grid gap-6 sm:grid-cols-2">
-          <Card className="w-full bg-card/70 backdrop-blur-lg border">
+          <Card className="w-full bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
             <CardHeader>
               <CardTitle>{t('home.yourPoints')}</CardTitle>
               <CardDescription>Level {level?.level}: {level?.name}</CardDescription>
@@ -70,7 +70,7 @@ const Index = () => {
           </Card>
 
           {nextLevel ? (
-            <Card className="w-full bg-card/70 backdrop-blur-lg border">
+            <Card className="w-full bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
               <CardHeader>
                 <CardTitle>Next Level: {nextLevel.name}</CardTitle>
                 <CardDescription>Reach {nextLevel.minPoints} points to level up!</CardDescription>
@@ -83,7 +83,7 @@ const Index = () => {
               </CardContent>
             </Card>
           ) : (
-            <Card className="w-full bg-card/70 backdrop-blur-lg border">
+            <Card className="w-full bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
               <CardHeader>
                 <CardTitle>Max Level Reached!</CardTitle>
               </CardHeader>
@@ -98,8 +98,6 @@ const Index = () => {
       <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
         <CommunityImpact />
       </div>
-
-      {/* The section for images has been removed from here */}
 
       <div className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
         <RecyclingBenefits />

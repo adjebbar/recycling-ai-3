@@ -30,7 +30,7 @@ interface FeatureCardProps {
 }
 
 const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps) => (
-    <Card className="text-center bg-background/50 border shadow-lg animate-fade-in-up rounded-xl" style={{ animationDelay: delay }}>
+    <Card className="text-center bg-card/70 backdrop-blur-lg border shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl animate-fade-in-up rounded-xl" style={{ animationDelay: delay }}>
         <CardContent className="p-8">
             <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit mb-4">
                 <Icon className="h-8 w-8 text-primary" />
@@ -56,8 +56,8 @@ const LandingPage = () => {
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
         style={{ backgroundImage: `url('/backgrounds/ai-recycling-hero.png')` }}
       />
-      {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 w-full h-full bg-black/50 z-0" />
+      {/* Dark overlay for text readability, now a gradient */}
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-black/80 via-black/40 to-transparent z-0" />
       
       <div className="relative z-10">
         <LandingHeader />
@@ -68,8 +68,8 @@ const LandingPage = () => {
           >
             <div className="container mx-auto">
               <div className="max-w-3xl mx-auto">
-                <div className="bg-background/30 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-md text-white">
+                <div className="bg-background/20 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white">
                     Scan Today for a <span className="text-primary">Greener</span> Tomorrow
                   </h1>
                   <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-md">
@@ -77,10 +77,10 @@ const LandingPage = () => {
                   </p>
                 </div>
                 <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4 mt-8" style={{ animationDelay: '0.6s' }}>
-                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-primary-foreground">
+                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-orange-foreground shadow-lg shadow-orange/50">
                     <Link to="/scanner">Start Scanning Anonymously</Link>
                   </Button>
-                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-primary-foreground">
+                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/50">
                     <Link to="/signup">Create Account & Track Progress</Link>
                   </Button>
                 </div>
@@ -89,7 +89,7 @@ const LandingPage = () => {
           </section>
 
           {/* Features Section */}
-          <section className="py-16 md:py-24">
+          <section className="py-16 md:py-24 bg-gradient-to-b from-transparent to-background/50">
               <div className="container mx-auto px-4">
                   <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                       <h2 className="text-3xl md:text-4xl font-bold text-white">Revolutionize Your Recycling</h2>
@@ -119,17 +119,16 @@ const LandingPage = () => {
           </section>
 
           {/* How It Works Section (Getting Started) */}
-          <section className="py-16 md:py-24">
+          <section className="py-16 md:py-24 bg-background/50">
             <div className="container mx-auto px-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
               <GettingStarted />
             </div>
           </section>
 
           {/* Animation Section */}
-          <section className="py-16 md:py-24">
+          <section className="py-16 md:py-24 bg-background/70">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">See It in Action</h2>
-              {/* The section for the image has been removed from here */}
               <div className="max-w-2xl mx-auto">
                 <SeeItInAction />
               </div>
@@ -137,7 +136,7 @@ const LandingPage = () => {
           </section>
 
           {/* Community Impact Section */}
-          <section className="py-16 md:py-24">
+          <section className="py-16 md:py-24 bg-background/90">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <h2 className="text-3xl md:text-4xl font-bold text-white">Our Collective Impact</h2>
@@ -145,38 +144,38 @@ const LandingPage = () => {
               </div>
               <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                  <Card className="bg-background/50 border">
+                  <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-white">Total Bottles Recycled</CardTitle>
+                      <CardTitle className="text-sm font-medium text-foreground">Total Bottles Recycled</CardTitle>
                       <Recycle className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedBottles.toLocaleString()}</div>
-                      <p className="text-xs text-gray-200">and counting, thanks to our community.</p>
+                      <p className="text-xs text-muted-foreground">and counting, thanks to our community.</p>
                     </CardContent>
                   </Card>
                 </div>
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-                  <Card className="bg-background/50 border">
+                  <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-white">Active Recyclers</CardTitle>
+                      <CardTitle className="text-sm font-medium text-foreground">Active Recyclers</CardTitle>
                       <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedRecyclers.toLocaleString()}</div>
-                      <p className="text-xs text-gray-200">making a positive impact right now.</p>
+                      <p className="text-xs text-muted-foreground">making a positive impact right now.</p>
                     </CardContent>
                   </Card>
                 </div>
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
-                  <Card className="bg-background/50 border">
+                  <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-white">CO₂ Saved</CardTitle>
+                      <CardTitle className="text-sm font-medium text-foreground">CO₂ Saved</CardTitle>
                       <Leaf className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedCo2Saved} kg</div>
-                      <p className="text-xs text-gray-200">preventing harmful greenhouse gases.</p>
+                      <p className="text-xs text-muted-foreground">preventing harmful greenhouse gases.</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -185,15 +184,15 @@ const LandingPage = () => {
           </section>
 
           {/* Final CTA Section */}
-          <section className="py-16 md:py-24">
+          <section className="py-16 md:py-24 bg-background">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-white">Ready to Make a Difference?</h2>
-              <p className="text-white mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">Ready to Make a Difference?</h2>
+              <p className="text-muted-foreground mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-primary-foreground">
+                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-orange-foreground shadow-lg shadow-orange/50">
                   <Link to="/scanner">Start Scanning Now</Link>
                 </Button>
-                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-primary-foreground">
+                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/50">
                   <Link to="/signup">Create Account</Link>
                 </Button>
               </div>

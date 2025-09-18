@@ -4,16 +4,16 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 224 71.4% 4.1%;
+    --background: 220 14.3% 95.9%; /* Softer off-white */
+    --foreground: 224 71.4% 4.1%; /* Dark charcoal */
 
-    --card: 0 0% 100%;
+    --card: 0 0% 100%; /* Pure white for cards */
     --card-foreground: 224 71.4% 4.1%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
 
-    --primary: 142.1 76.2% 36.3%;
+    --primary: 142.1 76.2% 36.3%; /* Keep current green */
     --primary-foreground: 355.7 100% 97.3%;
 
     --secondary: 210 40% 96.1%;
@@ -22,7 +22,7 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 47.9 95.8% 53.1%;
+    --accent: 47.9 95.8% 53.1%; /* Keep current accent */
     --accent-foreground: 24 9.8% 10%;
 
     --destructive: 0 84.2% 60.2%;
@@ -32,9 +32,9 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 142.1 76.2% 36.3%;
 
-    --radius: 1rem; /* Changed from 0.75rem to 1rem for a friendlier look */
+    --radius: 1rem;
 
-    --sidebar-background: 210 20% 98%;
+    --sidebar-background: 220 14.3% 95.9%;
     --sidebar-foreground: 224 71.4% 4.1%;
     --sidebar-primary: 142.1 76.2% 36.3%;
     --sidebar-primary-foreground: 355.7 100% 97.3%;
@@ -45,16 +45,16 @@
   }
 
   .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
+    --background: 224 71.4% 4.1%; /* Deep charcoal */
+    --foreground: 210 20% 98%; /* Off-white */
 
-    --card: 224 71.4% 4.1%;
+    --card: 224 71.4% 4.1%; /* Dark charcoal for cards */
     --card-foreground: 210 20% 98%;
 
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
 
-    --primary: 142.1 70.6% 45.3%;
+    --primary: 142.1 70.6% 45.3%; /* Keep current green */
     --primary-foreground: 355.7 100% 97.3%;
 
     --secondary: 217 33% 17%;

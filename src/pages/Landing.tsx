@@ -54,7 +54,7 @@ const LandingPage = () => {
     <div className="min-h-screen w-full text-foreground overflow-x-hidden relative">
       <div
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: `url('/backgrounds/ai-recycling-hero.png')` }}
+        style={{ backgroundImage: `url('/backgrounds/recycling-illustration.jpg')` }}
       />
       {/* Dark overlay for text readability, now a gradient from top to bottom with blur */}
       <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/80 via-black/40 to-transparent z-0 backdrop-blur-sm" />

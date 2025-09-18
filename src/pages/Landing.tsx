@@ -40,31 +40,37 @@ const LandingPage = () => {
   const animatedCo2Saved = (animatedBottles * CO2_SAVED_PER_BOTTLE_KG).toFixed(1);
 
   return (
-    <div className="min-h-screen w-full text-foreground overflow-x-hidden relative bg-landing-hero bg-cover bg-center py-8">
+    <div className="min-h-screen w-full text-foreground overflow-x-hidden relative bg-templateGreen py-8">
       
       <div className="relative z-10 container mx-auto max-w-6xl">
-        {/* Hero Section */}
-        <section className="text-center py-16 md:py-24">
-          <div
-            className="max-w-3xl mx-auto animate-fade-in-up"
-            style={{ animationDelay: '0.1s' }}
-          >
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-white">
-              <span className="text-primary">Recyclez,</span> Gagnez, Impactez
-            </h1>
-            <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
-              Scannez vos bouteilles en plastique, gagnez des points et contribuez à un avenir plus vert.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-              <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-primary-foreground">
-                <Link to="/scanner">Commencer à Scanner</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="text-lg px-8 py-6 rounded-full border-primary text-primary hover:bg-primary/10">
-                <Link to="/signup">Créer un Compte</Link>
-              </Button>
+        {/* Hero Section - Now a white card with illustration and text */}
+        <Card className="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-16 animate-fade-in-up">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="md:w-1/2 text-center md:text-left">
+              <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-4 text-foreground">
+                Recyclez, Gagnez, <span className="text-primary">Impactez</span>
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground mb-8">
+                Scannez vos bouteilles en plastique, gagnez des points et contribuez à un avenir plus vert.
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center md:justify-start items-center gap-4">
+                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-primary-foreground">
+                  <Link to="/scanner">Commencer à Scanner</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="text-lg px-8 py-6 rounded-full border-primary text-primary hover:bg-primary/10">
+                  <Link to="/signup">Créer un Compte</Link>
+                </Button>
+              </div>
+            </div>
+            <div className="md:w-1/2 flex justify-center">
+              <img 
+                src="/backgrounds/recycling-template-illustration.jpg" 
+                alt="Recycling Illustration" 
+                className="max-w-full h-auto rounded-lg shadow-md"
+              />
             </div>
           </div>
-        </section>
+        </Card>
 
         {/* Features Section */}
         <section className="py-16 md:py-24">
@@ -77,7 +83,7 @@ const LandingPage = () => {
                     <FeatureCard 
                         icon={ScanLine}
                         title="Scan Facile"
-                        description="Notre scanner alimenté par l'AI reconnaît instantanément les codes-barres des bouteilles en plastique, rendant le recyclage rapide et simple."
+                        description="Notre scanner alimenté par l'IA reconnaît instantanément les codes-barres des bouteilles en plastique, rendant le recyclage rapide et simple."
                         delay="0.4s"
                     />
                     <FeatureCard 

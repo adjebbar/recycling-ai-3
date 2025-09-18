@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAllUsers } from '@/hooks/useAllUsers'; // Import the new hook
+import { useQueryClient } from '@tanstack/react-query'; // Import useQueryClient
 
 const AdminPage = () => {
   const { 
@@ -38,6 +39,7 @@ const AdminPage = () => {
     fetchCommunityStats
   } = useAuth();
 
+  const queryClient = useQueryClient(); // Initialize queryClient
   const { data: allUsers, isLoading: isUsersLoading, isError: isUsersError } = useAllUsers();
 
   const [bottles, setBottles] = useState(totalBottlesRecycled);
@@ -112,6 +114,7 @@ const AdminPage = () => {
       showSuccess(data.message);
       setUserIdToDelete('');
       await fetchCommunityStats(); // Refresh community stats as active recyclers might change
+      queryClient.invalidateQueries({ queryKey: ['allUsers'] }); // Invalidate the allUsers query
     } catch (err: any) {
       dismissToast(loadingToast);
       showError(err.message || "An unknown error occurred during user deletion.");

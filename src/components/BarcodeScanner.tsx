@@ -25,6 +25,10 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure, onCameraInitError }: Bar
         fps: 20,
         qrbox: { width: 250, height: 150 },
         supportedScanTypes: [0], // 0 for camera
+        // Explicitly request the back camera
+        videoConstraints: { // Renamed from cameraConfig to videoConstraints
+          facingMode: 'environment'
+        }
       },
       /* verbose= */ false
     );

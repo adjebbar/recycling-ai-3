@@ -25,6 +25,10 @@ const QrCodeScanner = ({ onScanSuccess, onScanFailure, onCameraInitError }: QrCo
         qrbox: { width: 250, height: 250 },
         supportedScanTypes: [0],
         formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+        // Explicitly request the back camera
+        videoConstraints: { // Renamed from cameraConfig to videoConstraints
+          facingMode: 'environment'
+        }
       },
       false
     );

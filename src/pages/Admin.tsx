@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { useAllUsers } from '@/hooks/useAllUsers'; // Import the new hook
 import { useQueryClient } from '@tanstack/react-query'; // Import useQueryClient
+import AdminNfcReader from '@/components/AdminNfcReader'; // Import the new NFC reader component
 
 const AdminPage = () => {
   const { 
@@ -144,6 +145,9 @@ const AdminPage = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* New NFC Reader Card */}
+        <AdminNfcReader />
 
         <Card className="bg-card/70 backdrop-blur-lg border">
           <CardHeader>

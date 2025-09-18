@@ -1,15 +1,28 @@
 "use client";
 
-import { Link, useLocation } from 'react-router-dom';
-import { Home, ScanLine, Trophy, BarChart, User as UserIcon, Gift } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, ScanLine, Trophy, BarChart, User as UserIcon, Gift, LogOut } from 'lucide-react'; // Added LogOut icon
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '@/lib/supabaseClient'; // Import supabase
+import { showSuccess, showError } from '@/utils/toast'; // Import toast utilities
 
 export const MobileNav = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      showError(`Logout failed: ${error.message}`);
+    } else {
+      showSuccess("You have been logged out.");
+      navigate('/');
+    }
+  };
 
   const navLinks = [
     { href: '/', label: t('nav.home'), icon: Home },
@@ -42,6 +55,15 @@ export const MobileNav = () => {
             </Link>
           );
         })}
+        {user && (
+          <button
+            onClick={handleLogout}
+            className="flex flex-col items-center justify-center flex-1 h-full text-xs font-medium transition-colors text-muted-foreground hover:text-foreground"
+          >
+            <LogOut className="h-5 w-5 mb-1 text-muted-foreground" />
+            <span className="sr-only sm:not-sr-only">{t('nav.logout')}</span>
+          </button>
+        )}
       </div>
     </nav>
   );

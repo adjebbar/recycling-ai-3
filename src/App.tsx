@@ -13,7 +13,7 @@ import LeaderboardPage from "./pages/Leaderboard";
 import ProfilePage from "./pages/Profile";
 import RewardsPage from "./pages/Rewards";
 import AdminRoute from "./components/AdminRoute";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import { Navbar } from "./components/Navbar";
 import { ThemeProvider } from "./components/theme-provider";
 import { useTranslation } from "react-i18next";
@@ -23,36 +23,30 @@ import SettingsPage from "./pages/Settings";
 import { MadeWithDyad } from "./components/made-with-dyad";
 import NfcPage from "./pages/NfcPage";
 import AdminValidateTicketPage from "./pages/AdminValidateTicket";
-import { MobileNav } from "./components/MobileNav";
-import { useIsMobile } from "./hooks/use-mobile";
-import RewardHistoryPage from "./pages/RewardHistory";
-import LoadingScreen from "./components/LoadingScreen"; // Import LoadingScreen
+import { MobileNav } from "./components/MobileNav"; // Import MobileNav
+import { useIsMobile } from "./hooks/use-mobile"; // Import useIsMobile
+import RewardHistoryPage from "./pages/RewardHistory"; // Import RewardHistoryPage
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { i18n } = useTranslation();
   const location = useLocation();
-  const isMobile = useIsMobile();
-  const { loading, user } = useAuth(); // Get loading and user from context
+  const isMobile = useIsMobile(); // Use the hook
 
   useEffect(() => {
     document.documentElement.lang = i18n.language;
     document.documentElement.dir = i18n.dir(i18n.language);
   }, [i18n, i18n.language]);
 
-  // If still loading auth state, show a full-page loader
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
-  // Hide the main app navbar on the landing page for logged-out users
-  const hideNavbar = !user && location.pathname === '/';
+  // The ScanFAB is no longer needed as its functionality is integrated into MobileNav
+  // const hideFABOnRoutes = ['/scanner', '/login', '/signup'];
+  // const showFAB = !hideFABOnRoutes.includes(location.pathname);
 
   return (
     <>
-      {!hideNavbar && <Navbar />}
-      <main className={isMobile ? "pb-16" : ""}>
+      <Navbar />
+      <main className={isMobile ? "pb-16" : ""}> {/* Add padding-bottom for mobile nav */}
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/scanner" element={<ScannerPage />} />
@@ -63,7 +57,7 @@ const AppContent = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/nfc" element={<NfcPage />} />
-          <Route path="/reward-history" element={<RewardHistoryPage />} />
+          <Route path="/reward-history" element={<RewardHistoryPage />} /> {/* New route */}
           
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminPage />} />
@@ -73,7 +67,7 @@ const AppContent = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {isMobile && <MobileNav />}
+      {isMobile && <MobileNav />} {/* Conditionally render MobileNav */}
     </>
   );
 };

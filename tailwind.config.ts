@@ -122,6 +122,10 @@ export default {
           "0%, 100%": { filter: "drop-shadow(0 0 5px hsl(var(--primary)))" },
           "50%": { filter: "drop-shadow(0 0 15px hsl(var(--primary)))" },
         },
+        blink: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -135,6 +139,7 @@ export default {
         "scan-beam-active": "scan-beam-active 1.5s ease-in-out",
         "scan-line-sweep": "scan-line-sweep 2s ease-in-out infinite",
         "glow-pulse": "glow-pulse 0.5s ease-in-out",
+        blink: "blink 1s step-end infinite",
       },
     },
   },

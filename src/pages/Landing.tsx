@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import GettingStarted from "@/components/GettingStarted";
 import SeeItInAction from "@/components/SeeItInAction";
+import TypewriterEffect from "@/components/TypewriterEffect"; // Import the new component
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -50,6 +51,16 @@ const LandingPage = () => {
   const CO2_SAVED_PER_BOTTLE_KG = 0.03;
   const animatedCo2Saved = (animatedBottles * CO2_SAVED_PER_BOTTLE_KG).toFixed(1);
 
+  const titleSegments = [
+    { text: "Scan Today for a " },
+    { text: "Greener", className: "text-primary" },
+    { text: " Tomorrow" },
+  ];
+
+  const subtitleSegments = [
+    { text: "Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards." },
+  ];
+
   return (
     <div className="min-h-screen w-full text-foreground overflow-x-hidden relative">
       <div
@@ -68,13 +79,13 @@ const LandingPage = () => {
           >
             <div className="container mx-auto">
               <div className="max-w-3xl mx-auto">
-                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 animate-fade-in-up drop-shadow-md text-white" style={{ animationDelay: '0.2s' }}>
-                  Scan Today for a <span className="text-primary">Greener</span> Tomorrow
+                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-md text-white">
+                  <TypewriterEffect segments={titleSegments} speed={70} initialDelay={500} />
                 </h1>
-                <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto animate-fade-in-up drop-shadow-md" style={{ animationDelay: '0.4s' }}>
-                  Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
+                <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-md">
+                  <TypewriterEffect segments={subtitleSegments} speed={30} initialDelay={2000} />
                 </p>
-                <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4" style={{ animationDelay: '0.6s' }}>
+                <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4" style={{ animationDelay: '4s' }}>
                   <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
                     <Link to="/scanner">Start Scanning Anonymously</Link>
                   </Button>

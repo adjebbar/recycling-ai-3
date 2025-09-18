@@ -62,10 +62,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Updated orange color
-        orange: {
-          DEFAULT: "hsl(30 90% 55%)", // A richer, slightly deeper orange
-          foreground: "hsl(24 9.8% 10%)", // Dark text for contrast
+        // Changed from orange to a vibrant cyan
+        orange: { // Keeping the name 'orange' for consistency with existing usage, but the color is now cyan
+          DEFAULT: "hsl(180 70% 50%)", // A vibrant cyan
+          foreground: "hsl(224 71.4% 4.1%)", // Dark text for contrast
         },
       },
       borderRadius: {

@@ -62,12 +62,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Changed from orange to a vibrant cyan
         orange: { // Keeping the name 'orange' for consistency with existing usage, but the color is now cyan
           DEFAULT: "hsl(180 70% 50%)", // A vibrant cyan
           foreground: "hsl(224 71.4% 4.1%)", // Dark text for contrast
-        },
-        templateGreen: { // New color for the template background
-          DEFAULT: "#66BB6A", // Extracted from the image
         },
       },
       borderRadius: {
@@ -85,8 +83,8 @@ export default {
           to: { height: "0" },
         },
         "fade-in-up": {
-          "0%": { opacity: "0", transform: "translateY(10px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
+          "from": { opacity: "0", transform: "translateY(10px)" },
+          "to": { opacity: "1", transform: "translateY(0)" },
         },
         "point-burst": {
           "0%": { transform: "scale(0.5) translateY(10px)", opacity: "0" },

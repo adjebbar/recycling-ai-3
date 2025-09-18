@@ -32,8 +32,8 @@ const LoginPage = () => {
     <div className="container mx-auto p-4 flex justify-center items-center min-h-[calc(100vh-4rem)]">
       <Card className="w-full max-w-md bg-card/60 backdrop-blur-md">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>Enter your credentials to access your account.</CardDescription>
+          <CardTitle className="text-foreground">Login</CardTitle>
+          <CardDescription className="text-muted-foreground">Enter your credentials to access your account.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
@@ -67,8 +67,8 @@ const LoginPage = () => {
             </div>
           </form>
         </CardContent>
-        <CardFooter className="text-sm">
-          <p>Don't have an account? <Link to="/signup" className="underline">Sign up</Link></p>
+        <CardFooter className="text-sm text-muted-foreground"> {/* Explicitly set text-muted-foreground */}
+          <p>Don't have an account? <Link to="/signup" className="underline text-primary hover:text-primary/80">Sign up</Link></p> {/* Adjusted link color */}
         </CardFooter>
       </Card>
     </div>

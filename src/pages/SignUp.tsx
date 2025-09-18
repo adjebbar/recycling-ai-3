@@ -43,8 +43,8 @@ const SignUpPage = () => {
     <div className="container mx-auto p-4 flex justify-center items-center min-h-[calc(100vh-4rem)]">
       <Card className="w-full max-w-md bg-card/60 backdrop-blur-md">
         <CardHeader>
-          <CardTitle>Sign Up</CardTitle>
-          <CardDescription>Create a new account to start recycling.</CardDescription>
+          <CardTitle className="text-foreground">Sign Up</CardTitle>
+          <CardDescription className="text-muted-foreground">Create a new account to start recycling.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignUp}>
@@ -89,8 +89,8 @@ const SignUpPage = () => {
             </div>
           </form>
         </CardContent>
-        <CardFooter className="text-sm">
-          <p>Already have an account? <Link to="/login" className="underline">Login</Link></p>
+        <CardFooter className="text-sm text-muted-foreground"> {/* Explicitly set text-muted-foreground */}
+          <p>Already have an account? <Link to="/login" className="underline text-primary hover:text-primary/80">Login</Link></p> {/* Adjusted link color */}
         </CardFooter>
       </Card>
     </div>

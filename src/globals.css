@@ -20,7 +20,7 @@
     --secondary-foreground: 222 47% 11.2%;
 
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 36.9%; /* Slightly darker for better contrast */
+    --muted-foreground: 215.4 16.3% 45%; /* Slightly lighter for better contrast */
 
     --accent: 47.9 95.8% 53.1%; /* Keep current accent */
     --accent-foreground: 24 9.8% 10%;

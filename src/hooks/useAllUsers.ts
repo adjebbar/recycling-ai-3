@@ -10,35 +10,26 @@ export interface UserListItem {
 }
 
 const fetchAllUsers = async (): Promise<UserListItem[]> => {
-  // Fetch users from auth.users directly to get email, then join with profiles for names
-  const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+  const { data, error } = await supabase.functions.invoke('list-all-users');
 
-  if (authError) {
-    throw new Error(`Failed to fetch auth users: ${authError.message}`);
+  if (error) {
+    let errorMessage = 'Failed to fetch users.';
+    try {
+      const errorBody = await error.context.json();
+      if (errorBody && errorBody.error) {
+        errorMessage = errorBody.error;
+      }
+    } catch (e) {
+      console.error("Could not parse error response from edge function:", e);
+    }
+    throw new Error(errorMessage);
   }
 
-  const userIds = authUsers.users.map(u => u.id);
-
-  const { data: profiles, error: profilesError } = await supabase
-    .from('profiles')
-    .select('id, first_name, last_name')
-    .in('id', userIds);
-
-  if (profilesError) {
-    throw new Error(`Failed to fetch profiles: ${profilesError.message}`);
+  if (data.error) {
+    throw new Error(data.error);
   }
 
-  const profileMap = new Map(profiles.map(p => [p.id, p]));
-
-  return authUsers.users.map(authUser => {
-    const profile = profileMap.get(authUser.id);
-    return {
-      id: authUser.id,
-      first_name: profile?.first_name || null,
-      last_name: profile?.last_name || null,
-      email: authUser.email || null,
-    };
-  });
+  return data as UserListItem[];
 };
 
 export const useAllUsers = () => {

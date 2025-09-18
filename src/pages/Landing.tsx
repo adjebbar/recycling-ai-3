@@ -85,7 +85,7 @@ const LandingPage = () => {
                 <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-md">
                   <TypewriterEffect segments={subtitleSegments} speed={30} initialDelay={2000} />
                 </p>
-                <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4" style={{ animationDelay: '4s' }}>
+                <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4" style={{ animationDelay: '7s' }}>
                   <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
                     <Link to="/scanner">Start Scanning Anonymously</Link>
                   </Button>

@@ -31,7 +31,7 @@ const Index = () => {
   }, [points, level, nextLevel]);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 min-h-[calc(100vh-4rem)] bg-gradient-to-br from-background to-muted/50 rounded-lg shadow-inner">
       <section className="text-center py-16 md:py-24">
         <div
           className="max-w-3xl mx-auto animate-fade-in-up"

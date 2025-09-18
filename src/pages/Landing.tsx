@@ -68,7 +68,7 @@ const LandingPage = () => {
           >
             <div className="container mx-auto">
               <div className="max-w-3xl mx-auto">
-                <div className="bg-background/30 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                <div className="bg-background/50 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-md text-white">
                     Scan Today for a <span className="text-primary">Greener</span> Tomorrow
                   </h1>

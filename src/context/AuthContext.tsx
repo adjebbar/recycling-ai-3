@@ -197,9 +197,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       } else {
-        // User is logged out, retrieve anonymous points if any
-        currentPoints = Number(localStorage.getItem('anonymousPoints') || '0');
-        setAnonymousPoints(currentPoints); // Ensure anonymousPoints state is updated
+        // User is logged out
+        // Explicitly clear anonymous points to ensure a fresh start for anonymous sessions after logout
+        localStorage.removeItem('anonymousPoints');
+        currentPoints = 0; // Anonymous points start from 0 after a logged-in user logs out
+        setAnonymousPoints(0); // Ensure anonymousPoints state is updated to 0
       }
 
       // Update all states at once after all async operations

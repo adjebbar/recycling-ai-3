@@ -77,10 +77,10 @@ const LandingPage = () => {
                   </p>
                 </div>
                 <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4 mt-8" style={{ animationDelay: '0.6s' }}>
-                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-primary-foreground">
                     <Link to="/scanner">Start Scanning Anonymously</Link>
                   </Button>
-                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-primary-foreground">
                     <Link to="/signup">Create Account & Track Progress</Link>
                   </Button>
                 </div>
@@ -190,10 +190,10 @@ const LandingPage = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-white">Ready to Make a Difference?</h2>
               <p className="text-white mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-primary-foreground">
                   <Link to="/scanner">Start Scanning Now</Link>
                 </Button>
-                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-primary-foreground">
                   <Link to="/signup">Create Account</Link>
                 </Button>
               </div>

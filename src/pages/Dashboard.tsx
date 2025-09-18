@@ -31,88 +31,77 @@ const Index = () => {
   }, [points, level, nextLevel]);
 
   return (
-    <div className="min-h-screen w-full text-foreground overflow-x-hidden relative">
-      {/* Background Image */}
-      <div
-        className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: `url('/backgrounds/recycling-illustration.jpg')` }}
-      />
-      {/* Dark overlay without blur */}
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/80 via-black/40 to-transparent z-0" />
-      
-      {/* Page Content */}
-      <div className="relative z-10 container mx-auto p-4">
-        <section className="text-center py-16 md:py-24 relative overflow-hidden rounded-xl bg-transparent shadow-none mb-16">
-          <div
-            className="max-w-3xl mx-auto animate-fade-in-up"
-            style={{ animationDelay: '0.1s' }}
-          >
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-white drop-shadow-md">
-              <span className="text-primary">{t('home.hero.recycle')}</span>{t('home.hero.earnRepeat')}
-            </h1>
-            <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-sm">
-              {t('home.subtitle')}
-            </p>
-            <div className="flex justify-center gap-4">
-              <Link to="/scanner">
-                <Button size="lg" className="text-lg px-10 py-7 rounded-full animate-subtle-pulse shadow-lg shadow-primary/50 bg-primary hover:bg-primary/90 text-primary-foreground">
-                  <ScanLine className="mr-3 h-6 w-6" />
-                  {t('home.startScanning')}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        <section
-          className="max-w-3xl mx-auto -mt-12 mb-16 animate-fade-in-up"
-          style={{ animationDelay: '0.3s' }}
+    <div className="container mx-auto p-4">
+      <section className="text-center py-16 md:py-24 relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 to-background/50 shadow-lg mb-16">
+        <div
+          className="max-w-3xl mx-auto animate-fade-in-up"
+          style={{ animationDelay: '0.1s' }}
         >
-          <div className="grid gap-6 sm:grid-cols-2">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-foreground drop-shadow-md">
+            <span className="text-primary">{t('home.hero.recycle')}</span>{t('home.hero.earnRepeat')}
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto drop-shadow-sm">
+            {t('home.subtitle')}
+          </p>
+          <div className="flex justify-center gap-4">
+            <Link to="/scanner">
+              <Button size="lg" className="text-lg px-10 py-7 rounded-full animate-subtle-pulse shadow-lg shadow-primary/50 bg-primary hover:bg-primary/90 text-primary-foreground">
+                <ScanLine className="mr-3 h-6 w-6" />
+                {t('home.startScanning')}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section
+        className="max-w-3xl mx-auto -mt-12 mb-16 animate-fade-in-up"
+        style={{ animationDelay: '0.3s' }}
+      >
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Card className="w-full bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+            <CardHeader>
+              <CardTitle>{t('home.yourPoints')}</CardTitle>
+              <CardDescription>Level {level?.level}: {level?.name}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-5xl font-bold text-primary">{animatedPoints}</p>
+            </CardContent>
+          </Card>
+
+          {nextLevel ? (
             <Card className="w-full bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
               <CardHeader>
-                <CardTitle>{t('home.yourPoints')}</CardTitle>
-                <CardDescription>Level {level?.level}: {level?.name}</CardDescription>
+                <CardTitle>Next Level: {nextLevel.name}</CardTitle>
+                <CardDescription>Reach {nextLevel.minPoints} points to level up!</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-5xl font-bold text-primary">{animatedPoints}</p>
+                <Progress value={progress} className="w-full mb-2" />
+                <p className="text-sm text-muted-foreground text-right">
+                  {points.toLocaleString()} / {nextLevel.minPoints.toLocaleString()}
+                </p>
               </CardContent>
             </Card>
+          ) : (
+            <Card className="w-full bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+              <CardHeader>
+                <CardTitle>Max Level Reached!</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">You are a true Planet Hero!</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </section>
 
-            {nextLevel ? (
-              <Card className="w-full bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
-                <CardHeader>
-                  <CardTitle>Next Level: {nextLevel.name}</CardTitle>
-                  <CardDescription>Reach {nextLevel.minPoints} points to level up!</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Progress value={progress} className="w-full mb-2" />
-                  <p className="text-sm text-muted-foreground text-right">
-                    {points.toLocaleString()} / {nextLevel.minPoints.toLocaleString()}
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="w-full bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
-                <CardHeader>
-                  <CardTitle>Max Level Reached!</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">You are a true Planet Hero!</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </section>
+      <section className="animate-fade-in-up py-8 bg-background/70 rounded-xl mb-8" style={{ animationDelay: '0.6s' }}>
+        <CommunityImpact />
+      </section>
 
-        <section className="animate-fade-in-up py-8 bg-background/70 rounded-xl mb-8" style={{ animationDelay: '0.6s' }}>
-          <CommunityImpact />
-        </section>
-
-        <section className="animate-fade-in-up py-8 bg-background/90 rounded-xl" style={{ animationDelay: '0.8s' }}>
-          <RecyclingBenefits />
-        </section>
-      </div>
+      <section className="animate-fade-in-up py-8 bg-background/90 rounded-xl" style={{ animationDelay: '0.8s' }}>
+        <RecyclingBenefits />
+      </section>
     </div>
   );
 };

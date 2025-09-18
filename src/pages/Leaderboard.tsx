@@ -18,7 +18,7 @@ const LeaderboardPage = () => {
   const { data: users, isLoading, isError } = useLeaderboard();
 
   return (
-    <div className="container mx-auto p-4 min-h-[calc(100vh-4rem)] bg-gradient-to-br from-background to-muted/50 rounded-lg shadow-inner animate-fade-in-up">
+    <div className="container mx-auto p-4 animate-fade-in-up">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">Top Recyclers</h1>
         <p className="text-lg text-muted-foreground">

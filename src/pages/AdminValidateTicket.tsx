@@ -89,7 +89,7 @@ const AdminValidateTicketPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 min-h-[calc(100vh-4rem)] bg-gradient-to-br from-background to-muted/50 rounded-lg shadow-inner animate-fade-in-up">
+    <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Valider un Ticket</h1>
       
       <div className="grid md:grid-cols-2 gap-8">
@@ -101,7 +101,7 @@ const AdminValidateTicketPage = () => {
           <CardContent>
             <div className="aspect-square bg-muted rounded-md flex items-center justify-center overflow-hidden relative">
               {cameraError ? (
-                <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
+                <Alert variant="destructive" className="text-center">
                   <AlertTriangle className="h-6 w-6 mx-auto mb-2" />
                   <AlertTitle>Erreur de Caméra</AlertTitle>
                   <AlertDescription>{cameraError}</AlertDescription>

@@ -54,7 +54,7 @@ const LandingPage = () => {
     <div className="min-h-screen w-full text-foreground overflow-x-hidden relative">
       <div
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: `url('/backgrounds/environment-day.jpg')` }}
+        style={{ backgroundImage: `url('/backgrounds/save-the-planet.jpg')` }}
       />
       {/* Updated overlay to a green gradient */}
       <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-primary/70 via-primary/50 to-transparent z-0" />

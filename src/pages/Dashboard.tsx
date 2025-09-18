@@ -95,13 +95,13 @@ const Index = () => {
         </div>
       </section>
 
-      <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+      <section className="animate-fade-in-up py-8 bg-background/70 rounded-xl mb-8" style={{ animationDelay: '0.6s' }}>
         <CommunityImpact />
-      </div>
+      </section>
 
-      <div className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+      <section className="animate-fade-in-up py-8 bg-background/90 rounded-xl" style={{ animationDelay: '0.8s' }}>
         <RecyclingBenefits />
-      </div>
+      </section>
     </div>
   );
 };

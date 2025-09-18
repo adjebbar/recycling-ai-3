@@ -53,15 +53,15 @@ const RecyclingBenefits = () => {
   const { title, description, Icon } = benefits[currentIndex];
 
   return (
-    <div className="mt-16 text-center">
-      <h2 className="text-3xl font-bold mb-6">Why Recycle?</h2>
+    <div className="mt-8 text-center"> {/* Adjusted mt-16 to mt-8 for better spacing */}
+      <h2 className="text-3xl font-bold mb-6 text-foreground">Why Recycle?</h2>
       <Card className={cn(
         "max-w-2xl mx-auto transition-opacity duration-500 bg-card/70 backdrop-blur-lg border",
         isFading ? "opacity-0" : "opacity-100"
       )}>
         <CardHeader className="flex flex-row items-center space-x-4 pb-2">
           <Icon className="h-8 w-8 text-primary" />
-          <CardTitle>{title}</CardTitle>
+          <CardTitle className="text-foreground">{title}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">{description}</p>

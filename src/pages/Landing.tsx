@@ -35,8 +35,8 @@ const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps
             <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit mb-4">
                 <Icon className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-semibold mb-2 text-foreground">{title}</h3> {/* Changed to text-foreground */}
-            <p className="text-muted-foreground">{description}</p> {/* Changed to text-muted-foreground */}
+            <h3 className="text-xl font-semibold mb-2 text-foreground">{title}</h3>
+            <p className="text-muted-foreground">{description}</p>
         </CardContent>
     </Card>
 );
@@ -68,7 +68,7 @@ const LandingPage = () => {
           >
             <div className="container mx-auto">
               <div className="max-w-3xl mx-auto">
-                <div className="bg-black/40 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}> {/* Changed bg-background/20 to bg-black/40 */}
+                <div className="bg-black/40 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white">
                     Scan Today for a <span className="text-primary">Greener</span> Tomorrow
                   </h1>
@@ -89,11 +89,11 @@ const LandingPage = () => {
           </section>
 
           {/* Features Section */}
-          <section className="py-16 md:py-24 bg-gradient-to-b from-transparent to-background/50">
+          <section className="py-16 md:py-24 bg-gradient-to-b from-background/50 to-background/70">
               <div className="container mx-auto px-4">
                   <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                      <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2> {/* Changed to text-foreground */}
-                      <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p> {/* Changed to text-muted-foreground */}
+                      <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2>
+                      <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
                   </div>
                   <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                       <FeatureCard 
@@ -119,16 +119,16 @@ const LandingPage = () => {
           </section>
 
           {/* How It Works Section (Getting Started) */}
-          <section className="py-16 md:py-24 bg-background/50">
+          <section className="py-16 md:py-24 bg-background/70">
             <div className="container mx-auto px-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
               <GettingStarted />
             </div>
           </section>
 
           {/* Animation Section */}
-          <section className="py-16 md:py-24 bg-background/70">
+          <section className="py-16 md:py-24 bg-background/90">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">See It in Action</h2> {/* Changed to text-foreground */}
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">See It in Action</h2>
               <div className="max-w-2xl mx-auto">
                 <SeeItInAction />
               </div>
@@ -136,11 +136,11 @@ const LandingPage = () => {
           </section>
 
           {/* Community Impact Section */}
-          <section className="py-16 md:py-24 bg-background/90">
+          <section className="py-16 md:py-24 bg-gradient-to-b from-background/90 to-background">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground">Our Collective Impact</h2> {/* Changed to text-foreground */}
-                <p className="text-muted-foreground mt-2">You're not just recycling; you're part of a global community making a difference.</p> {/* Changed to text-muted-foreground */}
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground">Our Collective Impact</h2>
+                <p className="text-muted-foreground mt-2">You're not just recycling; you're part of a global community making a difference.</p>
               </div>
               <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>

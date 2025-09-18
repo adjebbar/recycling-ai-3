@@ -68,13 +68,15 @@ const LandingPage = () => {
           >
             <div className="container mx-auto">
               <div className="max-w-3xl mx-auto">
-                <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 animate-fade-in-up drop-shadow-md text-white" style={{ animationDelay: '0.2s' }}>
-                  Scan Today for a <span className="text-primary">Greener</span> Tomorrow
-                </h1>
-                <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto animate-fade-in-up drop-shadow-md" style={{ animationDelay: '0.4s' }}>
-                  Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
-                </p>
-                <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4" style={{ animationDelay: '0.6s' }}>
+                <div className="bg-background/30 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-md text-white">
+                    Scan Today for a <span className="text-primary">Greener</span> Tomorrow
+                  </h1>
+                  <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-md">
+                    Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
+                  </p>
+                </div>
+                <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4 mt-8" style={{ animationDelay: '0.6s' }}>
                   <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
                     <Link to="/scanner">Start Scanning Anonymously</Link>
                   </Button>

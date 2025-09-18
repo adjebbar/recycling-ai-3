@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AlertTriangle, QrCode, Trash2 } from 'lucide-react';
+import { AlertTriangle, QrCode, Trash2, User as UserIcon, Loader2 } from 'lucide-react';
 import { showSuccess, showError, showLoading, dismissToast } from '@/utils/toast';
 import { supabase } from '@/lib/supabaseClient';
 import { Link } from 'react-router-dom';
@@ -21,6 +21,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAllUsers } from '@/hooks/useAllUsers'; // Import the new hook
 
 const AdminPage = () => {
   const { 
@@ -29,6 +37,8 @@ const AdminPage = () => {
     resetCommunityStats,
     fetchCommunityStats
   } = useAuth();
+
+  const { data: allUsers, isLoading: isUsersLoading, isError: isUsersError } = useAllUsers();
 
   const [bottles, setBottles] = useState(totalBottlesRecycled);
   const [recyclers, setRecyclers] = useState(activeRecyclers);
@@ -69,7 +79,7 @@ const AdminPage = () => {
 
   const handleDeleteUser = async () => {
     if (!userIdToDelete) {
-      showError("Please enter a User ID to delete.");
+      showError("Please select a user to delete.");
       return;
     }
     setDeleteLoading(true);
@@ -170,24 +180,43 @@ const AdminPage = () => {
           <CardHeader>
             <CardTitle>Gestion des Utilisateurs</CardTitle>
             <CardDescription>
-              Supprimer un compte utilisateur. Cette action est irréversible.
+              Sélectionnez un utilisateur à supprimer. Cette action est irréversible.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="grid gap-2">
-                <Label htmlFor="userIdToDelete">ID de l'utilisateur à supprimer</Label>
-                <Input
-                  id="userIdToDelete"
-                  type="text"
-                  placeholder="Entrez l'ID de l'utilisateur (UUID)"
-                  value={userIdToDelete}
-                  onChange={(e) => setUserIdToDelete(e.target.value)}
-                />
+                <Label htmlFor="user-select">Sélectionner un utilisateur</Label>
+                {isUsersLoading ? (
+                  <div className="flex items-center space-x-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Chargement des utilisateurs...</span>
+                  </div>
+                ) : isUsersError ? (
+                  <p className="text-destructive text-sm">Erreur lors du chargement des utilisateurs.</p>
+                ) : (
+                  <Select onValueChange={setUserIdToDelete} value={userIdToDelete}>
+                    <SelectTrigger id="user-select" className="w-full">
+                      <SelectValue placeholder="Sélectionnez un utilisateur" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allUsers?.map((userItem) => (
+                        <SelectItem key={userItem.id} value={userItem.id}>
+                          <div className="flex items-center">
+                            <UserIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                            {userItem.first_name && userItem.last_name ? 
+                              `${userItem.first_name} ${userItem.last_name} (${userItem.email})` : 
+                              userItem.email}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" disabled={!userIdToDelete || deleteLoading}>
+                  <Button variant="destructive" disabled={!userIdToDelete || deleteLoading || isUsersLoading}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     {deleteLoading ? 'Suppression...' : 'Supprimer l\'utilisateur'}
                   </Button>

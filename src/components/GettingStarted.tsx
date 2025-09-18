@@ -24,7 +24,10 @@ const steps = [
 const GettingStarted = () => {
   return (
     <>
-      <h2 className="text-3xl font-bold mb-6 text-center text-white">How It Works</h2>
+      <div className="bg-background/30 p-6 rounded-lg shadow-lg mb-6 text-center">
+        <h2 className="text-3xl font-bold text-white">How It Works</h2>
+        <p className="text-white mt-2 max-w-2xl mx-auto">Follow these simple steps to start your recycling journey.</p>
+      </div>
       <div className="grid gap-6 md:grid-cols-3 max-w-4xl mx-auto">
         {steps.map((step, index) => {
           const Icon = step.icon;

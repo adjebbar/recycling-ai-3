@@ -57,7 +57,7 @@ const LandingPage = () => {
         style={{ backgroundImage: `url('/backgrounds/ai-recycling-hero.png')` }}
       />
       {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 w-full h-full bg-black/70 z-0" />
+      <div className="absolute inset-0 w-full h-full bg-black/50 z-0" />
       
       <div className="relative z-10">
         <LandingHeader />

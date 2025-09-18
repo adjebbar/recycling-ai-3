@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import GettingStarted from "@/components/GettingStarted";
 import SeeItInAction from "@/components/SeeItInAction";
+import RecyclingSymbols from "@/components/RecyclingSymbols"; // Import the new component
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -17,7 +18,6 @@ const LandingHeader = () => (
         <Recycle className="h-8 w-8 text-primary" />
         <span className="text-2xl font-bold text-white">EcoScan AI</span>
       </Link>
-      {/* Removed explicit Login/Sign Up buttons from header to streamline CTA */}
     </div>
   </header>
 );
@@ -52,19 +52,20 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen w-full text-foreground overflow-x-hidden relative">
+      {/* Top Half Background Image */}
       <div
-        className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: `url('/backgrounds/recycling-illustration.jpg')` }}
+        className="absolute top-0 left-0 w-full h-[50vh] bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url('/backgrounds/recycling-machine.png')` }}
       />
-      {/* Dark overlay for text readability, now a gradient from top to bottom with blur */}
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/80 via-black/40 to-transparent z-0 backdrop-blur-sm" />
+      {/* Overlay for top half */}
+      <div className="absolute top-0 left-0 w-full h-[50vh] bg-gradient-to-b from-black/60 to-transparent z-0" />
       
       <div className="relative z-10">
         <LandingHeader />
         <main>
-          {/* Hero Section */}
+          {/* Hero Section - sits on the top half background */}
           <section
-            className="min-h-screen flex items-center justify-center text-center pt-20 px-4"
+            className="h-[50vh] flex items-center justify-center text-center pt-20 px-4"
           >
             <div className="container mx-auto">
               <div className="max-w-3xl mx-auto">
@@ -88,116 +89,123 @@ const LandingPage = () => {
             </div>
           </section>
 
-          {/* Features Section */}
-          <section className="py-16 md:py-24 bg-gradient-to-b from-transparent to-background/50">
-              <div className="container mx-auto px-4">
-                  <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}> {/* Corrected style prop closing brace */}
-                      <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2>
-                      <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
+          {/* Bottom Half Content */}
+          <div className="bg-background py-16"> {/* This will be the new background for the bottom half */}
+            <div className="container mx-auto p-4">
+              <RecyclingSymbols /> {/* New component for recycling symbols */}
+
+              {/* Features Section */}
+              <section className="py-16 md:py-24">
+                  <div className="container mx-auto px-4">
+                      <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2>
+                          <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                          <FeatureCard 
+                              icon={ScanLine}
+                              title="Effortless Scanning"
+                              description="Our AI-powered scanner instantly recognizes plastic bottle barcodes, making recycling quick and simple."
+                              delay="0.4s"
+                          />
+                          <FeatureCard 
+                              icon={Trophy}
+                              title="Tangible Rewards"
+                              description="Earn points for every bottle you scan and redeem them for exciting rewards from our partners."
+                              delay="0.6s"
+                          />
+                          <FeatureCard 
+                              icon={BarChart}
+                              title="Track Your Impact"
+                              description="Visualize your contribution with personal stats and see how you stack up on the community leaderboard."
+                              delay="0.8s"
+                          />
+                      </div>
                   </div>
-                  <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                      <FeatureCard 
-                          icon={ScanLine}
-                          title="Effortless Scanning"
-                          description="Our AI-powered scanner instantly recognizes plastic bottle barcodes, making recycling quick and simple."
-                          delay="0.4s"
-                      />
-                      <FeatureCard 
-                          icon={Trophy}
-                          title="Tangible Rewards"
-                          description="Earn points for every bottle you scan and redeem them for exciting rewards from our partners."
-                          delay="0.6s"
-                      />
-                      <FeatureCard 
-                          icon={BarChart}
-                          title="Track Your Impact"
-                          description="Visualize your contribution with personal stats and see how you stack up on the community leaderboard."
-                          delay="0.8s"
-                      />
+              </section>
+
+              {/* How It Works Section (Getting Started) */}
+              <section className="py-16 md:py-24">
+                <div className="container mx-auto px-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+                  <GettingStarted />
+                </div>
+              </section>
+
+              {/* Animation Section */}
+              <section className="py-16 md:py-24">
+                <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                  <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">See It in Action</h2>
+                  <div className="max-w-2xl mx-auto">
+                    <SeeItInAction />
                   </div>
-              </div>
-          </section>
-
-          {/* How It Works Section (Getting Started) */}
-          <section className="py-16 md:py-24 bg-background/50">
-            <div className="container mx-auto px-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-              <GettingStarted />
-            </div>
-          </section>
-
-          {/* Animation Section */}
-          <section className="py-16 md:py-24 bg-background/70">
-            <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">See It in Action</h2>
-              <div className="max-w-2xl mx-auto">
-                <SeeItInAction />
-              </div>
-            </div>
-          </section>
-
-          {/* Community Impact Section */}
-          <section className="py-16 md:py-24 bg-background/90">
-            <div className="container mx-auto px-4">
-              <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground">Our Collective Impact</h2>
-                <p className="text-muted-foreground mt-2">You're not just recycling; you're part of a global community making a difference.</p>
-              </div>
-              <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
-                <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                  <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-foreground">Total Bottles Recycled</CardTitle>
-                      <Recycle className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-4xl font-bold text-primary">{animatedBottles.toLocaleString()}</div>
-                      <p className="text-xs text-muted-foreground">and counting, thanks to our community.</p>
-                    </CardContent>
-                  </Card>
                 </div>
-                <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-                  <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-foreground">Active Recyclers</CardTitle>
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-4xl font-bold text-primary">{animatedRecyclers.toLocaleString()}</div>
-                      <p className="text-xs text-muted-foreground">making a positive impact right now.</p>
-                    </CardContent>
-                  </Card>
-                </div>
-                <div className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
-                  <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-foreground">CO₂ Saved</CardTitle>
-                      <Leaf className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-4xl font-bold text-primary">{animatedCo2Saved} kg</div>
-                      <p className="text-xs text-muted-foreground">preventing harmful greenhouse gases.</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </div>
-          </section>
+              </section>
 
-          {/* Final CTA Section */}
-          <section className="py-16 md:py-24 bg-background">
-            <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">Ready to Make a Difference?</h2>
-              <p className="text-muted-foreground mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-orange-foreground shadow-lg shadow-orange/50">
-                  <Link to="/scanner">Start Scanning Now</Link>
-                </Button>
-                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/50">
-                  <Link to="/signup">Create Account</Link>
-                </Button>
-              </div>
+              {/* Community Impact Section */}
+              <section className="py-16 md:py-24">
+                <div className="container mx-auto px-4">
+                  <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                    <h2 className="text-3xl md:text-4xl font-bold text-foreground">Our Collective Impact</h2>
+                    <p className="text-muted-foreground mt-2">You're not just recycling; you're part of a global community making a difference.</p>
+                  </div>
+                  <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
+                    <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                      <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-sm font-medium text-foreground">Total Bottles Recycled</CardTitle>
+                          <Recycle className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-4xl font-bold text-primary">{animatedBottles.toLocaleString()}</div>
+                          <p className="text-xs text-muted-foreground">and counting, thanks to our community.</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+                      <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-sm font-medium text-foreground">Active Recyclers</CardTitle>
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-4xl font-bold text-primary">{animatedRecyclers.toLocaleString()}</div>
+                          <p className="text-xs text-muted-foreground">making a positive impact right now.</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    <div className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+                      <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-sm font-medium text-foreground">CO₂ Saved</CardTitle>
+                          <Leaf className="h-4 w-4 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-4xl font-bold text-primary">{animatedCo2Saved} kg</div>
+                          <p className="text-xs text-muted-foreground">preventing harmful greenhouse gases.</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Final CTA Section */}
+              <section className="py-16 md:py-24 bg-background">
+                <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                  <h2 className="text-3xl md:text-4xl font-bold text-foreground">Ready to Make a Difference?</h2>
+                  <p className="text-muted-foreground mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
+                  <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                    <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-orange-foreground shadow-lg shadow-orange/50">
+                      <Link to="/scanner">Start Scanning Now</Link>
+                    </Button>
+                    <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/50">
+                      <Link to="/signup">Create Account</Link>
+                    </Button>
+                  </div>
+                </div>
+              </section>
             </div>
-          </section>
+          </div>
         </main>
       </div>
     </div>

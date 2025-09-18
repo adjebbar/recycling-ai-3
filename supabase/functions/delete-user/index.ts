@@ -12,14 +12,18 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log(`[delete-user] function invoked. Method: ${req.method}`);
   if (req.method === 'OPTIONS') {
+    console.log("[delete-user] Responding to OPTIONS request.");
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { userId } = await req.json();
+    console.log(`[delete-user] Attempting to delete user with ID: ${userId}`);
 
     if (!userId) {
+      console.error('[delete-user] Error: User ID is required in request body.');
       return new Response(JSON.stringify({ error: 'User ID is required' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
@@ -30,30 +34,34 @@ serve(async (req) => {
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     if (!supabaseUrl || !serviceRoleKey) {
+      console.error("[delete-user] Error: Supabase environment variables (URL or Service Role Key) are not set.");
       throw new Error("Supabase environment variables are not set.");
     }
+    console.log("[delete-user] Supabase URL and Service Role Key found.");
 
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+    console.log("[delete-user] Supabase admin client created.");
 
     // Delete the user from auth.users
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (deleteError) {
-      console.error('Error deleting user:', deleteError.message);
-      return new Response(JSON.stringify({ error: deleteError.message }), {
+      console.error(`[delete-user] Error deleting user ${userId}: ${deleteError.message}`);
+      return new Response(JSON.stringify({ error: `Failed to delete user: ${deleteError.message}` }), { // Inclure le message d'erreur spécifique
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
       });
     }
 
+    console.log(`[delete-user] User ${userId} deleted successfully.`);
     return new Response(JSON.stringify({ success: true, message: `User ${userId} deleted successfully.` }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
 
   } catch (error: any) {
-    console.error('Error in delete-user function:', error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error(`[delete-user] Uncaught error in function: ${error.message}`);
+    return new Response(JSON.stringify({ error: `An unexpected error occurred: ${error.message}` }), { // Inclure le message d'erreur spécifique
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     });

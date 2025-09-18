@@ -91,7 +91,7 @@ const LandingPage = () => {
           {/* Features Section */}
           <section className="py-16 md:py-24">
               <div className="container mx-auto px-4">
-                  <div className="bg-background/30 p-6 rounded-lg shadow-lg mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                  <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                       <h2 className="text-3xl md:text-4xl font-bold text-white">Revolutionize Your Recycling</h2>
                       <p className="text-white mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
                   </div>
@@ -128,10 +128,8 @@ const LandingPage = () => {
           {/* Animation Section */}
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <div className="bg-background/30 p-6 rounded-lg shadow-lg mb-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">See It in Action</h2>
-                <p className="text-white mt-2 max-w-2xl mx-auto">Watch how easy it is to scan and recycle.</p>
-              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">See It in Action</h2>
+              {/* The section for the image has been removed from here */}
               <div className="max-w-2xl mx-auto">
                 <SeeItInAction />
               </div>
@@ -141,7 +139,7 @@ const LandingPage = () => {
           {/* Community Impact Section */}
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4">
-              <div className="bg-background/30 p-6 rounded-lg shadow-lg mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <h2 className="text-3xl md:text-4xl font-bold text-white">Our Collective Impact</h2>
                 <p className="text-white mt-2">You're not just recycling; you're part of a global community making a difference.</p>
               </div>
@@ -189,10 +187,8 @@ const LandingPage = () => {
           {/* Final CTA Section */}
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <div className="bg-background/30 p-6 rounded-lg shadow-lg mb-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-white">Ready to Make a Difference?</h2>
-                <p className="text-white mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
-              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white">Ready to Make a Difference?</h2>
+              <p className="text-white mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-primary-foreground">
                   <Link to="/scanner">Start Scanning Now</Link>

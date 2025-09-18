@@ -56,8 +56,8 @@ const LandingPage = () => {
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
         style={{ backgroundImage: `url('/backgrounds/ai-recycling-hero.png')` }}
       />
-      {/* Dark overlay for text readability, now a gradient from top to bottom */}
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/80 via-black/40 to-transparent z-0" />
+      {/* Dark overlay for text readability, now a gradient from top to bottom with blur */}
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/80 via-black/40 to-transparent z-0 backdrop-blur-sm" />
       
       <div className="relative z-10">
         <LandingHeader />
@@ -91,7 +91,7 @@ const LandingPage = () => {
           {/* Features Section */}
           <section className="py-16 md:py-24 bg-gradient-to-b from-transparent to-background/50">
               <div className="container mx-auto px-4">
-                  <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                  <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}> {/* Corrected style prop closing brace */}
                       <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2>
                       <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
                   </div>

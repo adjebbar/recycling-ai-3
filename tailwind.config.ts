@@ -66,7 +66,9 @@ export default {
           DEFAULT: "hsl(180 70% 50%)", // A vibrant cyan
           foreground: "hsl(224 71.4% 4.1%)", // Dark text for contrast
         },
-        // Removed templateGreen
+        templateGreen: { // New color for the template background
+          DEFAULT: "#66BB6A", // Extracted from the image
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

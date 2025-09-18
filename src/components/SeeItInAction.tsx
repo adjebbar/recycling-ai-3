@@ -103,7 +103,7 @@ const SeeItInAction = () => {
   }[phase];
 
   return (
-    <Card className="w-full max-w-3xl mx-auto bg-card/80 backdrop-blur-lg border shadow-xl rounded-2xl overflow-hidden">
+    <Card className="w-full max-w-3xl mx-auto bg-background/80 backdrop-blur-lg border shadow-xl rounded-2xl overflow-hidden">
       <CardContent className="p-6 md:p-8">
         <div className="relative h-64 w-full flex items-center justify-between">
           {/* Phone on the left */}

@@ -67,6 +67,10 @@ export default {
           DEFAULT: "hsl(27 87% 67%)", // A vibrant orange
           foreground: "hsl(24 9.8% 10%)", // Dark text for contrast
         },
+        // New lime green color for the background
+        "lime-green": {
+          DEFAULT: "hsl(var(--lime-green))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

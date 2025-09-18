@@ -35,7 +35,7 @@ const Index = () => {
       {/* Background Image */}
       <div
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: `url('/backgrounds/ai-recycling-hero.png')` }}
+        style={{ backgroundImage: `url('/backgrounds/recycling-illustration.jpg')` }}
       />
       {/* Dark overlay without blur */}
       <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-black/80 via-black/40 to-transparent z-0" />

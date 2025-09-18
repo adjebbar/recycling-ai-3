@@ -32,10 +32,10 @@ const GettingStarted = () => {
             <Card key={index} className="bg-card/90 backdrop-blur-md border text-left shadow-lg rounded-xl">
               <CardHeader className="flex flex-row items-center space-x-4 pb-2">
                 <Icon className="h-8 w-8 text-primary" />
-                <CardTitle>{step.title}</CardTitle>
+                <CardTitle className="text-white">{step.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">{step.description}</p>
+                <p className="text-gray-200">{step.description}</p>
               </CardContent>
             </Card>
           );

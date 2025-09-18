@@ -47,7 +47,7 @@ serve(async (req) => {
 
     if (deleteError) {
       console.error(`[delete-user] Error deleting user ${userId}: ${deleteError.message}`);
-      return new Response(JSON.stringify({ error: `Failed to delete user: ${deleteError.message}` }), { // Inclure le message d'erreur spécifique
+      return new Response(JSON.stringify({ error: `Failed to delete user: ${deleteError.message}` }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
       });
@@ -61,7 +61,7 @@ serve(async (req) => {
 
   } catch (error: any) {
     console.error(`[delete-user] Uncaught error in function: ${error.message}`);
-    return new Response(JSON.stringify({ error: `An unexpected error occurred: ${error.message}` }), { // Inclure le message d'erreur spécifique
+    return new Response(JSON.stringify({ error: `An unexpected error occurred: ${error.message}` }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     });

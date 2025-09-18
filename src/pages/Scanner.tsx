@@ -281,10 +281,8 @@ const ScannerPage = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] w-full text-foreground relative">
-      <div className="absolute inset-0 w-full h-full bg-cover bg-fixed" style={{ backgroundImage: `url('/hero-background.jpg')`, backgroundPosition: 'center 75%' }} />
-      {/* Updated overlay to a green gradient */}
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-primary/80 via-primary/60 to-transparent z-0" />
+    <div className="min-h-[calc(100vh-4rem)] w-full text-foreground relative bg-gradient-to-br from-gray-900 to-gray-700">
+      {/* Removed the old background image and green gradient overlay */}
       
       <div className="relative z-10 container mx-auto p-4 flex flex-col items-center animate-fade-in-up">
         <div className="text-center max-w-lg w-full">
@@ -306,7 +304,6 @@ const ScannerPage = () => {
                     <AlertTitle className="text-xl font-bold">{t('scanner.cameraErrorTitle')}</AlertTitle>
                     <AlertDescription className="mt-2 text-base">
                       {t('scanner.cameraErrorMessage')}
-                      <p className="mt-2 text-sm text-muted-foreground">({cameraInitializationError})</p>
                       <Button onClick={() => setCameraInitializationError(null)} className="mt-6">{t('scanner.retryCamera')}</Button>
                     </AlertDescription>
                   </Alert>

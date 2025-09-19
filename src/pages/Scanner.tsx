@@ -379,7 +379,7 @@ const ScannerPage = () => {
         style={{ backgroundImage: `url('/images/eco-futuristic-background.png')` }}
       />
       {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-black opacity-60 z-0" />
+      <div className="absolute inset-0 bg-primary-dark opacity-80 z-0" />
       
       <div className="relative z-10 container mx-auto p-4 flex flex-col items-center animate-fade-in-up">
         <div className="text-center max-w-lg w-full">

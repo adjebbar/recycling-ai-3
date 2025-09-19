@@ -372,22 +372,13 @@ const ScannerPage = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] w-full text-foreground relative">
-      {/* Background Image */}
-      <div
-        className="absolute inset-0 w-full h-full bg-cover bg-center"
-        style={{ backgroundImage: `url('/images/eco-futuristic-background.png')` }}
-      />
-      {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-primary-dark opacity-80 z-0" />
-      
-      <div className="relative z-10 container mx-auto p-4 flex flex-col items-center animate-fade-in-up">
+    <div className="min-h-[calc(100vh-4rem)] w-full text-foreground">
+      <div className="container mx-auto p-4 flex flex-col items-center animate-fade-in-up">
         <div className="text-center max-w-lg w-full">
-          <h1 className="text-3xl font-bold mb-4 text-white">{t('scanner.title')}</h1>
-          <p className="text-white mb-6">{t('scanner.subtitle')}</p>
+          <h1 className="text-3xl font-bold mb-4 text-foreground">{t('scanner.title')}</h1>
+          <p className="text-muted-foreground mb-6">{t('scanner.subtitle')}</p>
         </div>
 
-        {/* New image added here */}
         <div className="w-full max-w-md mb-8">
           <img 
             src="/images/recycling-machine-scan.png" 
@@ -397,12 +388,12 @@ const ScannerPage = () => {
         </div>
         
         <Tabs defaultValue="camera" className="w-full max-w-lg">
-          <TabsList className="grid w-full grid-cols-2 bg-card/70 backdrop-blur-lg border">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="camera"><Camera className="mr-2 h-4 w-4" />{t('scanner.cameraTab')}</TabsTrigger>
             <TabsTrigger value="manual"><Keyboard className="mr-2 h-4 w-4" />{t('scanner.manualTab')}</TabsTrigger>
           </TabsList>
           <TabsContent value="camera">
-            <Card className="overflow-hidden bg-card/70 backdrop-blur-lg border">
+            <Card className="overflow-hidden">
               <CardContent className="p-4 relative">
                 {cameraInitializationError ? (
                   <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
@@ -417,13 +408,13 @@ const ScannerPage = () => {
                   <div className="flex flex-col items-center justify-center p-6 space-y-4">
                     <ImageIcon className="h-16 w-16 text-muted-foreground" />
                     <h3 className="text-xl font-bold">Analyze with Image</h3>
-                    <p className="text-foreground text-center">
+                    <p className="text-muted-foreground text-center">
                       Barcode scan was inconclusive. Take a photo of the item to determine if it's a plastic bottle.
                     </p>
                     <input
                       type="file"
                       accept="image/*"
-                      capture="environment" // Suggests front or rear camera
+                      capture="environment"
                       onChange={handleImageCapture}
                       ref={fileInputRef}
                       className="hidden"
@@ -474,7 +465,7 @@ const ScannerPage = () => {
                 )}
                 {renderScanResult()}
                 {scanFailureMessage && !scanResult && !imageAnalysisMode && (
-                  <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-foreground">
+                  <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
                     {scanFailureMessage}
                   </p>
                 )}
@@ -482,7 +473,7 @@ const ScannerPage = () => {
             </Card>
           </TabsContent>
           <TabsContent value="manual">
-            <Card className="bg-card/70 backdrop-blur-lg border relative overflow-hidden">
+            <Card className="relative overflow-hidden">
               <CardHeader>
                 <CardTitle>{t('scanner.manualTitle')}</CardTitle>
                 <CardDescription>{t('scanner.manualDescription')}</CardDescription>
@@ -499,10 +490,10 @@ const ScannerPage = () => {
         </Tabs>
 
         {!user && (
-          <Card className="w-full max-w-lg mt-4 bg-card/70 backdrop-blur-lg border">
+          <Card className="w-full max-w-lg mt-4">
             <CardContent className="p-4 flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-foreground">{t('scanner.sessionScore')}</p> {/* Changed to text-foreground */}
+                <p className="text-sm font-medium text-muted-foreground">{t('scanner.sessionScore')}</p>
                 <p className="text-2xl font-bold text-primary">{animatedPoints}</p>
               </div>
               <div className="flex items-center gap-2">
@@ -523,14 +514,14 @@ const ScannerPage = () => {
           open={showTicket} 
           onOpenChange={setShowTicket} 
           qrCodeValue={qrCodeValue}
-          voucherCode={generatedVoucherCode} // Pass the new prop
+          voucherCode={generatedVoucherCode}
           isLoading={isRedeeming}
           points={points}
           onRedeemAndClose={handleRedeemAndClose}
         />
 
         <div className="text-center mt-6 max-w-lg w-full">
-          <p className="text-sm text-foreground flex items-center justify-center">
+          <p className="text-sm text-muted-foreground flex items-center justify-center">
             <CameraOff className="w-4 h-4 mr-2" />
             {t('scanner.cameraPermission')}
           </p>

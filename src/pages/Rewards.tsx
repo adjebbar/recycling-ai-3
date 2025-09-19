@@ -19,15 +19,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from '@/lib/supabaseClient'; // Added this import
+import { supabase } from '@/lib/supabaseClient';
 
 const RewardsPage = () => {
   const { t } = useTranslation();
   const { data: rewards, isLoading } = useRewards();
   const { points, user, deductPoints, refetchProfile } = useAuth();
-  const [generatedVoucherCode, setGeneratedVoucherCode] = useState<string | null>(null); // New state for human-readable code
-  const [generatedQrCodeValue, setGeneratedQrCodeValue] = useState<string | null>(null); // State for JWT for QR code
+  const [generatedVoucherCode, setGeneratedVoucherCode] = useState<string | null>(null);
+  const [generatedQrCodeValue, setGeneratedQrCodeValue] = useState<string | null>(null);
   const [isRedeeming, setIsRedeeming] = useState(false);
+  const [redeemedRewardName, setRedeemedRewardName] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const handleRedeem = async (rewardName: string, cost: number, rewardId: number) => {
@@ -41,8 +42,9 @@ const RewardsPage = () => {
     }
 
     setIsRedeeming(true);
-    setGeneratedVoucherCode(null); // Clear previous code
-    setGeneratedQrCodeValue(null); // Clear previous QR code value
+    setGeneratedVoucherCode(null);
+    setGeneratedQrCodeValue(null);
+    setRedeemedRewardName(rewardName);
 
     try {
       await deductPoints(cost);
@@ -69,17 +71,23 @@ const RewardsPage = () => {
         throw new Error(data.error);
       }
 
-      setGeneratedVoucherCode(data.voucherCode); // Set the human-readable code
-      setGeneratedQrCodeValue(data.voucherToken); // Set the JWT for the QR code
+      setGeneratedVoucherCode(data.voucherCode);
+      setGeneratedQrCodeValue(data.voucherToken);
       await refetchProfile();
       await queryClient.invalidateQueries({ queryKey: ['rewardHistory', user.id] });
     } catch (err: any) {
       const errorMessage = err.message || "An unknown error occurred.";
       console.error("Failed to redeem reward or generate voucher:", err);
       showError(`Redemption Error: ${errorMessage}`);
+      setRedeemedRewardName(null);
     } finally {
       setIsRedeeming(false);
     }
+  };
+
+  const closeVoucherDialog = () => {
+    setGeneratedVoucherCode(null);
+    setRedeemedRewardName(null);
   };
 
   return (
@@ -112,7 +120,7 @@ const RewardsPage = () => {
             </Card>
           ))
         ) : (
-          rewards?.map((reward) => (
+          rewards?.filter(reward => reward.name !== 'Clevent App Credit').map((reward) => (
             <Card key={reward.id} className="flex flex-col bg-card/70 backdrop-blur-lg border text-center">
               <CardHeader className="items-center">
                 <div className="text-4xl mb-2">{reward.icon}</div>
@@ -155,19 +163,19 @@ const RewardsPage = () => {
       </div>
 
       {/* Dialog to show the generated code */}
-      <AlertDialog open={!!generatedVoucherCode} onOpenChange={() => setGeneratedVoucherCode(null)}> {/* Open based on human-readable code */}
+      <AlertDialog open={!!generatedVoucherCode} onOpenChange={closeVoucherDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Your Clevent Credit Code</AlertDialogTitle>
+            <AlertDialogTitle>Your {redeemedRewardName} Code</AlertDialogTitle>
             <AlertDialogDescription>
-              Use the code below to recharge your Clevent app. Copy the code and paste it into the recharge field in the Clevent mobile app.
+              Use the code below to claim your reward.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="my-4 p-4 bg-muted rounded-md text-center">
-            <p className="text-2xl font-mono font-bold tracking-widest">{generatedVoucherCode}</p> {/* Display human-readable code */}
+            <p className="text-2xl font-mono font-bold tracking-widest">{generatedVoucherCode}</p>
           </div>
           <AlertDialogFooter>
-            <Button onClick={() => setGeneratedVoucherCode(null)}>Close</Button>
+            <Button onClick={closeVoucherDialog}>Close</Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

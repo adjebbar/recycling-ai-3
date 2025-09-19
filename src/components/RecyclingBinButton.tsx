@@ -15,36 +15,37 @@ interface RecyclingBinButtonProps {
 }
 
 const RecyclingBinButton = ({ to, label, variant = 'primary', className, icon: Icon, shape = 'circle' }: RecyclingBinButtonProps) => {
-  const baseClasses = "relative flex flex-col items-center justify-center p-4 shadow-lg transition-all duration-300 hover:scale-[1.03] hover:shadow-xl group cursor-pointer text-center";
+  // Standardized size for all shapes: w-40 h-40
+  const baseClasses = "relative flex flex-col items-center justify-center p-4 shadow-lg transition-all duration-300 hover:scale-[1.03] hover:shadow-xl group cursor-pointer text-center w-40 h-40";
   
   const variantClasses = {
     primary: "bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/50",
     orange: "bg-orange hover:bg-orange/90 text-orange-foreground shadow-orange/50",
   };
 
-  let shapeClasses = "";
+  let shapeSpecificClasses = "";
   let iconSizeClasses = "h-10 w-10"; // Default icon size
-  let textClasses = "text-base"; // Default text size
+  let textClasses = "text-sm"; // Default text size
 
   if (shape === 'scanner') {
-    // A wider, slightly rounded rectangle for a scanner look
-    shapeClasses = "rounded-xl w-48 h-28"; // Wider than tall
+    // A wider, slightly rounded rectangle for a scanner look, now with standardized overall dimensions
+    shapeSpecificClasses = "rounded-xl"; 
     iconSizeClasses = "h-10 w-10";
-    textClasses = "text-sm"; // Smaller text for scanner
+    textClasses = "text-sm";
   } else if (shape === 'bin') {
-    // Trapezoidal shape for a bin
-    shapeClasses = "clip-path-[polygon(15%_0%,_85%_0%,_100%_100%,_0%_100%)] w-40 h-48"; // Taller than wide
+    // Trapezoidal shape for a bin, now with standardized overall dimensions
+    shapeSpecificClasses = "clip-path-[polygon(15%_0%,_85%_0%,_100%_100%,_0%_100%)]";
     iconSizeClasses = "h-12 w-12";
-    textClasses = "text-base"; // Default text size for bin
+    textClasses = "text-base";
   } else { // 'circle' (default)
-    shapeClasses = "rounded-full w-40 h-40";
+    shapeSpecificClasses = "rounded-full";
     iconSizeClasses = "h-10 w-10";
     textClasses = "text-base";
   }
 
   return (
-    <Link to={to} className={cn(baseClasses, variantClasses[variant], shapeClasses, className)}>
-      <Icon className={cn(iconSizeClasses, "text-white group-hover:animate-spin-slow mb-2")} />
+    <Link to={to} className={cn(baseClasses, variantClasses[variant], shapeSpecificClasses, className)}>
+      <Icon className={cn(iconSizeClasses, "text-white group-hover:animate-spin-slow mb-1")} />
       <span className={cn(textClasses, "font-bold leading-tight px-2")}>
         {label}
       </span>

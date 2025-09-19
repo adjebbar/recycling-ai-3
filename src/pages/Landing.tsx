@@ -85,7 +85,7 @@ const LandingPage = () => {
                     variant="orange" 
                     icon={ScanLine} // Use ScanLine icon
                     shape="scanner" // Use scanner shape
-                    className="w-full sm:w-auto flex-1 max-w-[280px]"
+                    className="w-full sm:w-auto" // Removed flex-1 max-w-[280px]
                   />
                   <RecyclingBinButton 
                     to="/signup" 
@@ -93,7 +93,7 @@ const LandingPage = () => {
                     variant="primary" 
                     icon={Recycle} // Use Recycle icon
                     shape="bin" // Use bin shape
-                    className="w-full sm:w-auto flex-1 max-w-[280px]"
+                    className="w-full sm:w-auto" // Removed flex-1 max-w-[280px]
                   />
                 </div>
               </div>
@@ -208,7 +208,7 @@ const LandingPage = () => {
                   variant="orange" 
                   icon={ScanLine} // Use ScanLine icon
                   shape="scanner" // Use scanner shape
-                  className="w-full sm:w-auto flex-1 max-w-[280px]"
+                  className="w-full sm:w-auto" // Removed flex-1 max-w-[280px]
                 />
                 <RecyclingBinButton 
                   to="/signup" 
@@ -216,7 +216,7 @@ const LandingPage = () => {
                   variant="primary" 
                   icon={Recycle} // Use Recycle icon
                   shape="bin" // Use bin shape
-                  className="w-full sm:w-auto flex-1 max-w-[280px]"
+                  className="w-full sm:w-auto" // Removed flex-1 max-w-[280px]
                 />
               </div>
             </div>

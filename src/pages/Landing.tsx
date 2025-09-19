@@ -33,7 +33,7 @@ const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps
     <Card className="text-center bg-background/50 backdrop-blur-lg border shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl animate-fade-in-up rounded-xl" style={{ animationDelay: delay }}>
         <CardContent className="p-8">
             <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit mb-4">
-                <Icon className="h-8 w-8 text-orange" /> {/* Changed to text-orange */}
+                <Icon className="h-8 w-8 text-orange" />
             </div>
             <h3 className="text-xl font-semibold mb-2 text-foreground">{title}</h3>
             <p className="text-foreground">{description}</p>
@@ -71,7 +71,7 @@ const LandingPage = () => {
               <div className="max-w-3xl mx-auto">
                 <div className="p-8 rounded-xl shadow-2xl bg-background/50 backdrop-blur-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white">
-                    Recycle Today for a <span className="text-primary animate-blink-text">Greener</span> Tomorrow
+                    Recycle Today for a <span className="text-primary animate-blink-text text-stroke-primary text-fill-transparent">Greener</span> Tomorrow
                   </h1>
                   <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-sm">
                     Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
@@ -149,7 +149,7 @@ const LandingPage = () => {
                   <Card className="bg-background/80 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl font-semibold text-foreground">Total Bottles Recycled</CardTitle>
-                      <Recycle className="h-4 w-4 text-primary" /> {/* Changed to text-primary */}
+                      <Recycle className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary drop-shadow-md">{animatedBottles.toLocaleString()}</div>
@@ -161,7 +161,7 @@ const LandingPage = () => {
                   <Card className="bg-background/80 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl font-semibold text-foreground">Active Recyclers</CardTitle>
-                      <Users className="h-4 w-4 text-primary" /> {/* Changed to text-primary */}
+                      <Users className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary drop-shadow-md">{animatedRecyclers.toLocaleString()}</div>
@@ -173,7 +173,7 @@ const LandingPage = () => {
                   <Card className="bg-background/80 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl font-semibold text-foreground">CO₂ Saved</CardTitle>
-                      <Leaf className="h-4 w-4 text-primary" /> {/* Changed to text-primary */}
+                      <Leaf className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary drop-shadow-md">{animatedCo2Saved} kg</div>

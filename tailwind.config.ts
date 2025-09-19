@@ -143,5 +143,19 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    function ({ addUtilities, theme }: any) {
+      addUtilities({
+        '.text-stroke-primary': {
+          '-webkit-text-stroke': `1.5px hsl(var(--primary))`, // Adjust stroke width as needed
+          'text-stroke': `1.5px hsl(var(--primary))`,
+        },
+        '.text-fill-transparent': {
+          '-webkit-text-fill-color': 'transparent',
+          'text-fill-color': 'transparent',
+        },
+      });
+    },
+  ],
 } satisfies Config;

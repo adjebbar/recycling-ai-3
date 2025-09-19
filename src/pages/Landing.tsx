@@ -78,7 +78,7 @@ const LandingPage = () => {
                     Scan plastic bottles to earn points instantly. Register later to track your progress and unlock exclusive rewards!
                   </p>
                 </div>
-                <div className="animate-fade-in-up flex justify-center mt-8" style={{ animationDelay: '0.6s' }}>
+                <div className="animate-fade-in-up flex justify-center mt-4" style={{ animationDelay: '0.6s' }}> {/* Changed mt-8 to mt-4 */}
                   <Link to="/scanner" className="block w-full max-w-[250px]"> {/* Adjusted max-w for smaller size */}
                     <img 
                       src="/images/90435859_Scan Product Barcode.svg" 

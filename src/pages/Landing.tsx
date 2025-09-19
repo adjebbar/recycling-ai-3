@@ -58,8 +58,7 @@ const LandingPage = () => {
         style={{ backgroundImage: `url('/images/abstract-eco-background.svg')` }}
       />
       
-      {/* Global Overlay for the entire page content */}
-      <div className="absolute inset-0 bg-background/80 z-0" />
+      {/* Removed the global bg-background/80 overlay */}
 
       <div className="relative z-10"> {/* This div now contains all foreground content */}
         <LandingHeader />
@@ -68,9 +67,10 @@ const LandingPage = () => {
           <section
             className="relative min-h-screen flex items-center justify-center text-center pt-20 px-4"
           >
+            {/* Re-added a darker overlay specifically for the hero text container */}
+            <div className="absolute inset-0 bg-black/60 z-0"></div> 
             <div className="container mx-auto relative z-10">
               <div className="max-w-3xl mx-auto">
-                {/* Removed bg-black/40 from here, relying on global overlay */}
                 <div className="p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white">
                     Recycle Today for a <span className="text-primary">Greener</span> Tomorrow
@@ -92,7 +92,7 @@ const LandingPage = () => {
           </section>
 
           {/* Features Section */}
-          <section className="py-16 md:py-24"> {/* Removed bg-black/60 */}
+          <section className="py-16 md:py-24">
               <div className="container mx-auto px-4">
                   <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                       <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2>
@@ -122,14 +122,14 @@ const LandingPage = () => {
           </section>
 
           {/* How It Works Section (Getting Started) */}
-          <section className="py-16 md:py-24"> {/* Removed bg-black/60 */}
+          <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
               <GettingStarted />
             </div>
           </section>
 
           {/* Animation Section */}
-          <section className="py-16 md:py-24"> {/* Removed bg-black/60 */}
+          <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">See It in Action</h2>
               <div className="max-w-2xl mx-auto">
@@ -139,7 +139,7 @@ const LandingPage = () => {
           </section>
 
           {/* Community Impact Section */}
-          <section className="py-16 md:py-24"> {/* Removed bg-black/60 */}
+          <section className="py-16 md:py-24">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground">Our Collective Impact</h2>
@@ -187,7 +187,7 @@ const LandingPage = () => {
           </section>
 
           {/* Final CTA Section */}
-          <section className="py-16 md:py-24"> {/* Removed bg-black/60 */}
+          <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">Ready to Make a Difference?</h2>
               <p className="text-muted-foreground mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>

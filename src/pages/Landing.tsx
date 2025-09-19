@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import GettingStarted from "@/components/GettingStarted";
 import SeeItInAction from "@/components/SeeItInAction";
-// Removed RecyclingBinButton import as it's no longer used in the main CTA
+import PlasticBottleVector from "@/components/PlasticBottleVector"; // Import the new component
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -78,15 +78,16 @@ const LandingPage = () => {
                     Scan plastic bottles to earn points instantly. Register later to track your progress and unlock exclusive rewards!
                   </p>
                 </div>
-                <div className="animate-fade-in-up flex justify-center mt-4" style={{ animationDelay: '0.6s' }}>
+                <div className="animate-fade-in-up flex justify-center mt-4 relative" style={{ animationDelay: '0.6s' }}>
                   <Link to="/scanner">
                     <Button 
-                      className="rounded-full h-20 w-20 md:h-24 md:w-24 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-subtle-pulse"
+                      className="rounded-full h-20 w-20 md:h-24 md:w-24 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-subtle-pulse relative z-10"
                     >
                       <ScanLine className="h-10 w-10 text-primary-foreground mb-1" />
                       <span className="text-sm font-bold text-primary-foreground">Scan Now</span>
                     </Button>
                   </Link>
+                  <PlasticBottleVector className="absolute -top-10 left-1/2 -translate-x-1/2 h-32 w-16 z-0 animate-fade-in-up" style={{ animationDelay: '0.8s' }} />
                 </div>
               </div>
             </div>

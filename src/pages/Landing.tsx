@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import GettingStarted from "@/components/GettingStarted";
 import SeeItInAction from "@/components/SeeItInAction";
-import RecyclingBinButton from "@/components/RecyclingBinButton"; // Import the new component
+// Removed RecyclingBinButton import as it's no longer used in the main CTA
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -75,26 +75,17 @@ const LandingPage = () => {
                     Recycle Today for a <span className="text-primary-dark animate-blink-text text-stroke-primary">Greener</span> Tomorrow
                   </h1>
                   <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-sm">
-                    Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
+                    Scan plastic bottles to earn points instantly. Register later to track your progress and unlock exclusive rewards!
                   </p>
                 </div>
-                <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4 mt-8" style={{ animationDelay: '0.6s' }}>
-                  <RecyclingBinButton 
-                    to="/scanner" 
-                    label="Scan Me" 
-                    variant="orange" 
-                    icon={ScanLine} // Use ScanLine icon
-                    shape="scanner" // Use scanner shape
-                    className="w-full sm:w-auto" // Removed flex-1 max-w-[280px]
-                  />
-                  <RecyclingBinButton 
-                    to="/signup" 
-                    label="Create account to track your progress" 
-                    variant="primary" 
-                    icon={Recycle} // Use Recycle icon
-                    shape="bin" // Use bin shape
-                    className="w-full sm:w-auto" // Removed flex-1 max-w-[280px]
-                  />
+                <div className="animate-fade-in-up flex justify-center mt-8" style={{ animationDelay: '0.6s' }}>
+                  <Link to="/scanner" className="block w-full max-w-xs sm:max-w-sm md:max-w-md">
+                    <img 
+                      src="/images/90435859_Scan Product Barcode.svg" 
+                      alt="Scan Product Barcode" 
+                      className="w-full h-auto transition-transform duration-300 hover:scale-105 cursor-pointer shadow-lg rounded-xl"
+                    />
+                  </Link>
                 </div>
               </div>
             </div>
@@ -200,24 +191,14 @@ const LandingPage = () => {
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <h2 className="text-3xl md:text-4xl font-bold text-white">Ready to Make a Difference?</h2>
-              <p className="text-white mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
-              <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <RecyclingBinButton 
-                  to="/scanner" 
-                  label="Start Scanning Now" 
-                  variant="orange" 
-                  icon={ScanLine} // Use ScanLine icon
-                  shape="scanner" // Use scanner shape
-                  className="w-full sm:w-auto" // Removed flex-1 max-w-[280px]
-                />
-                <RecyclingBinButton 
-                  to="/signup" 
-                  label="Create Account" 
-                  variant="primary" 
-                  icon={Recycle} // Use Recycle icon
-                  shape="bin" // Use bin shape
-                  className="w-full sm:w-auto" // Removed flex-1 max-w-[280px]
-                />
+              <p className="text-white mt-2 mb-6 max-w-xl mx-auto">Start scanning now to earn points, and consider creating an account to track your full recycling journey and unlock more rewards!</p>
+              <div className="flex justify-center">
+                <Link to="/signup">
+                  <Button size="lg" className="text-lg px-10 py-7 rounded-full shadow-lg shadow-primary/50 bg-primary hover:bg-primary/90 text-primary-foreground">
+                    <Recycle className="mr-3 h-6 w-6" />
+                    Create Account
+                  </Button>
+                </Link>
               </div>
             </div>
           </section>

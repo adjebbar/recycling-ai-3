@@ -12,6 +12,7 @@ import CommunityImpact from "@/components/CommunityImpact";
 import RecyclingBenefits from "@/components/RecyclingBenefits";
 import { useTranslation } from "react-i18next";
 import { levels } from "@/lib/levels";
+import { ScanFAB } from "@/components/ScanFAB";
 
 const Index = () => {
   const { t } = useTranslation();
@@ -105,6 +106,8 @@ const Index = () => {
       <section className="animate-fade-in-up py-8 bg-background/90 rounded-xl" style={{ animationDelay: '0.8s' }}>
         <RecyclingBenefits />
       </section>
+      
+      <ScanFAB />
     </div>
   );
 };

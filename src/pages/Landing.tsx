@@ -36,7 +36,7 @@ const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps
                 <Icon className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-xl font-semibold mb-2 text-foreground">{title}</h3>
-            <p className="text-muted-foreground">{description}</p>
+            <p className="text-gray-700 dark:text-gray-200">{description}</p>
         </CardContent>
     </Card>
 );
@@ -71,7 +71,7 @@ const LandingPage = () => {
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-foreground">
                     Recycle Today for a <span className="text-primary">Greener</span> Tomorrow
                   </h1>
-                  <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto drop-shadow-sm">
+                  <p className="text-lg md:text-xl text-gray-700 dark:text-gray-200 mb-8 max-w-2xl mx-auto drop-shadow-sm">
                     Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
                   </p>
                 </div>
@@ -92,7 +92,7 @@ const LandingPage = () => {
               <div className="container mx-auto px-4">
                   <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                       <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2>
-                      <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
+                      <p className="text-gray-700 dark:text-gray-200 mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
                   </div>
                   <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                       <FeatureCard 
@@ -139,7 +139,7 @@ const LandingPage = () => {
             <div className="container mx-auto px-4">
               <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground">Our Collective Impact</h2>
-                <p className="text-muted-foreground mt-2">You're not just recycling; you're part of a global community making a difference.</p>
+                <p className="text-gray-700 dark:text-gray-200 mt-2">You're not just recycling; you're part of a global community making a difference.</p>
               </div>
               <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
@@ -150,7 +150,7 @@ const LandingPage = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedBottles.toLocaleString()}</div>
-                      <p className="text-xs text-muted-foreground">and counting, thanks to our community.</p>
+                      <p className="text-xs text-gray-700 dark:text-gray-200">and counting, thanks to our community.</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -162,7 +162,7 @@ const LandingPage = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedRecyclers.toLocaleString()}</div>
-                      <p className="text-xs text-muted-foreground">making a positive impact right now.</p>
+                      <p className="text-xs text-gray-700 dark:text-gray-200">making a positive impact right now.</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -174,7 +174,7 @@ const LandingPage = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedCo2Saved} kg</div>
-                      <p className="text-xs text-muted-foreground">preventing harmful greenhouse gases.</p>
+                      <p className="text-xs text-gray-700 dark:text-gray-200">preventing harmful greenhouse gases.</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -186,7 +186,7 @@ const LandingPage = () => {
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">Ready to Make a Difference?</h2>
-              <p className="text-muted-foreground mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
+              <p className="text-gray-700 dark:text-gray-200 mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-orange-foreground shadow-lg shadow-orange/50">
                   <Link to="/scanner">Start Scanning Now</Link>

@@ -21,66 +21,6 @@ import { achievementsList } from '@/lib/achievements'; // Import achievementsLis
 
 const POINTS_PER_BOTTLE = 10;
 
-const isPlasticBottle = (product: any): boolean => {
-  // Combine all relevant text fields into a single, lowercased string for easier searching.
-  const searchText = [
-    product.product_name,
-    product.generic_name,
-    product.categories,
-    product.packaging,
-    ...(product.packaging_tags || []),
-  ].filter(Boolean).join(' ').toLowerCase(); // Filter out null/undefined/empty strings
-
-  console.log("isPlasticBottle: searchText:", searchText);
-
-  // Define keywords
-  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene'];
-  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
-  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'eau', 'water', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk'];
-  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak'];
-
-  // 1. Strict Exclusion: If any exclusion keyword is found, it's definitely not a plastic bottle.
-  const isExcluded = exclusionKeywords.some(keyword => searchText.includes(keyword));
-  console.log("isPlasticBottle: isExcluded:", isExcluded);
-  if (isExcluded) {
-    return false;
-  }
-
-  // 2. Primary Inclusion: Check for a combination of plastic and bottle keywords.
-  const hasPlasticKeyword = plasticKeywords.some(keyword => searchText.includes(keyword));
-  const hasBottleKeyword = bottleKeywords.some(keyword => searchText.includes(keyword));
-  console.log("isPlasticBottle: hasPlasticKeyword:", hasPlasticKeyword, "hasBottleKeyword:", hasBottleKeyword);
-
-  if (hasPlasticKeyword && hasBottleKeyword) {
-    return true;
-  }
-
-  // 3. Enhanced Fallback Heuristic: If it's a drink and contains "bottle" in its name/categories,
-  // it's very likely a plastic bottle, since glass, metal, and cartons have already been excluded.
-  const hasDrinkKeyword = drinkKeywords.some(keyword => searchText.includes(keyword));
-  
-  // For water bottles, "eau" is a strong indicator, and they are almost always plastic if not excluded.
-  const isWaterProduct = searchText.includes('eau') || searchText.includes('water');
-
-  console.log("isPlasticBottle: hasDrinkKeyword:", hasDrinkKeyword, "isWaterProduct:", isWaterProduct);
-
-  if (hasDrinkKeyword && hasBottleKeyword) {
-    return true;
-  }
-
-  // Specific heuristic for water bottles if previous checks didn't catch it
-  if (isWaterProduct && !isExcluded) {
-    // If it's a water product and not explicitly excluded, assume it's a plastic bottle.
-    // This helps catch cases where "plastic" or "bouteille" might be missing from packaging info.
-    return true;
-  }
-
-  // If none of the above conditions are met, assume it's not a recyclable plastic bottle.
-  console.log("isPlasticBottle: No plastic bottle criteria met, returning false.");
-  return false;
-};
-
-
 const ScannerPage = () => {
   const { t } = useTranslation();
   const { addPoints, user, points, resetAnonymousPoints } = useAuth();
@@ -95,13 +35,6 @@ const ScannerPage = () => {
   const [qrCodeValue, setQrCodeValue] = useState<string | null>(null); // This will be the JWT
   const [generatedVoucherCode, setGeneratedVoucherCode] = useState<string | null>(null); // New state for human-readable code
   const [isRedeeming, setIsRedeeming] = useState(false);
-
-  // New states for image analysis
-  const [imageAnalysisMode, setImageAnalysisMode] = useState(false);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null); // Base64 image data
-  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
 
   const triggerPiConveyor = async (result: 'accepted' | 'rejected') => {
     try {
@@ -136,7 +69,6 @@ const ScannerPage = () => {
     }
 
     showSuccess(successMessage);
-    setScanResult({ type: 'success', message: successMessage }); // No image URL from image analysis
     triggerPiConveyor('accepted');
 
     if (!user) {
@@ -159,131 +91,53 @@ const ScannerPage = () => {
     
     setLastScanned(barcode);
     setScanFailureMessage(null);
-    setScanResult(null); // Clear previous scan result
+    setScanResult(null);
     const loadingToast = showLoading(t('scanner.verifying'));
 
     try {
       const { data, error: invokeError } = await supabase.functions.invoke('fetch-product-info', { body: { barcode } });
       
-      if (invokeError) {
-        let errorMessage = 'Product verification failed.';
-        try {
-          const errorBody = await invokeError.context.json();
-          if (errorBody && errorBody.error) {
-            errorMessage = errorBody.error;
-          }
-        } catch (e) {
-          console.error("Could not parse error response from edge function:", e);
-        }
-        throw new Error(errorMessage);
-      }
-
-      if (data.error) throw new Error(data.error);
       dismissToast(loadingToast);
 
-      if (data.status === 1 && data.product) {
-        const imageUrl = data.product.image_front_url || data.product.image_url;
-        if (isPlasticBottle(data.product)) {
-          await handleSuccessfulRecycle(barcode);
-          setScanResult({ type: 'success', message: t('scanner.success', { points: POINTS_PER_BOTTLE }), imageUrl: imageUrl });
-        } else {
-          const errorMessage = t('scanner.notPlastic');
-          showError(errorMessage);
-          setScanResult({ type: 'error', message: errorMessage, imageUrl: imageUrl });
-          triggerPiConveyor('rejected');
-          // Offer image analysis as fallback
-          setImageAnalysisMode(true);
-        }
-      } else {
-        const errorMessage = t('scanner.notFound');
-        showError(errorMessage);
-        setScanResult({ type: 'error', message: errorMessage });
-        triggerPiConveyor('rejected');
-        // Offer image analysis as fallback
-        setImageAnalysisMode(true);
+      if (invokeError) {
+        throw new Error('Product verification failed due to a network error.');
       }
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      const imageUrl = data.product?.image_front_url || data.product?.image_url;
+
+      switch (data.decision) {
+        case 'accepted':
+          await handleSuccessfulRecycle(barcode);
+          setScanResult({ type: 'success', message: t('scanner.success', { points: POINTS_PER_BOTTLE }), imageUrl });
+          break;
+        case 'rejected':
+          showError(data.reason || t('scanner.notPlastic'));
+          setScanResult({ type: 'error', message: data.reason || t('scanner.notPlastic'), imageUrl });
+          triggerPiConveyor('rejected');
+          break;
+        case 'not_found':
+          showError(data.reason || t('scanner.notFound'));
+          setScanResult({ type: 'error', message: data.reason || t('scanner.notFound') });
+          triggerPiConveyor('rejected');
+          break;
+        default:
+          throw new Error('Received an unknown decision from the server.');
+      }
+
     } catch (err: any) {
       dismissToast(loadingToast);
       const errorMessage = err.message || t('scanner.connectionError');
       showError(errorMessage);
       setScanResult({ type: 'error', message: errorMessage });
       triggerPiConveyor('rejected');
-      // Offer image analysis as fallback
-      setImageAnalysisMode(true);
       console.error(err);
     } finally {
-      // Keep scanResult visible for a short period, then clear
       setTimeout(() => {
         setScanResult(null);
         setLastScanned(null);
-      }, 3000);
-    }
-  };
-
-  const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCapturedImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleImageAnalysis = async () => {
-    if (!capturedImage) {
-      showError("Please capture an image first.");
-      return;
-    }
-
-    setIsAnalyzingImage(true);
-    setScanResult(null); // Clear previous scan result
-    const loadingToast = showLoading("Analyzing image...");
-
-    try {
-      const { data, error: invokeError } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', {
-        body: { imageData: capturedImage },
-      });
-
-      if (invokeError) {
-        let errorMessage = 'Image analysis failed.';
-        try {
-          const errorBody = await invokeError.context.json();
-          if (errorBody && errorBody.error) {
-            errorMessage = errorBody.error;
-          }
-        } catch (e) {
-          console.error("Could not parse error response from edge function:", e);
-        }
-        throw new Error(errorMessage);
-      }
-
-      if (data.error) throw new Error(data.error);
-      dismissToast(loadingToast);
-
-      if (data.is_plastic_bottle) {
-        await handleSuccessfulRecycle();
-        setScanResult({ type: 'success', message: t('scanner.imageSuccess', { points: POINTS_PER_BOTTLE }) });
-      } else {
-        const errorMessage = t('scanner.imageNotPlastic');
-        showError(errorMessage);
-        setScanResult({ type: 'error', message: errorMessage });
-        triggerPiConveyor('rejected');
-      }
-    } catch (err: any) {
-      dismissToast(loadingToast);
-      const errorMessage = err.message || "An unknown error occurred during image analysis.";
-      showError(errorMessage);
-      setScanResult({ type: 'error', message: errorMessage });
-      triggerPiConveyor('rejected');
-      console.error(err);
-    } finally {
-      setIsAnalyzingImage(false);
-      setCapturedImage(null); // Clear captured image after analysis
-      setImageAnalysisMode(false); // Exit image analysis mode
-      setTimeout(() => {
-        setScanResult(null);
       }, 3000);
     }
   };
@@ -292,36 +146,21 @@ const ScannerPage = () => {
     setShowTicket(true);
     setIsRedeeming(true);
     setQrCodeValue(null);
-    setGeneratedVoucherCode(null); // Clear previous code
+    setGeneratedVoucherCode(null);
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-voucher', {
         body: { points },
       });
 
-      if (error) {
-        let errorMessage = 'Voucher generation failed. Please try again.';
-        try {
-          const errorBody = await error.context.json();
-          if (errorBody && errorBody.error) {
-            errorMessage = errorBody.error;
-          }
-        } catch (e) {
-          console.error("Could not parse error response from edge function:", e);
-        }
-        throw new Error(errorMessage);
-      }
-      
-      if (data.error) {
-        throw new Error(data.error);
+      if (error || data.error) {
+        throw new Error(error?.message || data.error);
       }
 
-      setQrCodeValue(data.voucherToken); // Set the JWT for the QR code
-      setGeneratedVoucherCode(data.voucherCode); // Set the human-readable code
+      setQrCodeValue(data.voucherToken);
+      setGeneratedVoucherCode(data.voucherCode);
     } catch (err: any) {
-      const errorMessage = err.message || "An unknown error occurred.";
-      console.error("Failed to generate voucher:", err);
-      showError(`Voucher Error: ${errorMessage}`);
+      showError(`Voucher Error: ${err.message}`);
       setShowTicket(false);
     } finally {
       setIsRedeeming(false);
@@ -396,58 +235,6 @@ const ScannerPage = () => {
                       <Button onClick={() => setCameraInitializationError(null)} className="mt-6">{t('scanner.retryCamera')}</Button>
                     </AlertDescription>
                   </Alert>
-                ) : imageAnalysisMode ? (
-                  <div className="flex flex-col items-center justify-center p-6 space-y-4">
-                    <ImageIcon className="h-16 w-16 text-muted-foreground" />
-                    <h3 className="text-xl font-bold">Analyze with Image</h3>
-                    <p className="text-muted-foreground text-center">
-                      Barcode scan was inconclusive. Take a photo of the item to determine if it's a plastic bottle.
-                    </p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      onChange={handleImageCapture}
-                      ref={fileInputRef}
-                      className="hidden"
-                    />
-                    {capturedImage && (
-                      <div className="relative w-48 h-48 rounded-md overflow-hidden border-2 border-primary">
-                        <img src={capturedImage} alt="Captured for analysis" className="w-full h-full object-cover" />
-                        <Button 
-                          variant="destructive" 
-                          size="sm" 
-                          className="absolute top-1 right-1"
-                          onClick={() => setCapturedImage(null)}
-                        >
-                          X
-                        </Button>
-                      </div>
-                    )}
-                    <Button 
-                      onClick={() => fileInputRef.current?.click()} 
-                      disabled={isAnalyzingImage}
-                    >
-                      {capturedImage ? "Retake Photo" : "Take Photo"}
-                    </Button>
-                    <Button 
-                      onClick={handleImageAnalysis} 
-                      disabled={!capturedImage || isAnalyzingImage}
-                      className="w-full"
-                    >
-                      {isAnalyzingImage ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Analyzing...
-                        </>
-                      ) : (
-                        "Analyze Image"
-                      )}
-                    </Button>
-                    <Button variant="outline" onClick={() => setImageAnalysisMode(false)}>
-                      Cancel
-                    </Button>
-                  </div>
                 ) : (
                   <BarcodeScanner 
                     onScanSuccess={processBarcode} 
@@ -456,7 +243,7 @@ const ScannerPage = () => {
                   />
                 )}
                 {renderScanResult()}
-                {scanFailureMessage && !scanResult && !imageAnalysisMode && (
+                {scanFailureMessage && !scanResult && (
                   <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
                     {scanFailureMessage}
                   </p>

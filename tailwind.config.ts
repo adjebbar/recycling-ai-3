@@ -126,6 +126,10 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.6" },
         },
+        "spin-slow": { // New keyframe for slow spin
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -140,6 +144,7 @@ export default {
         "scan-line-sweep": "scan-line-sweep 2s ease-in-out infinite",
         "glow-pulse": "glow-pulse 0.5s ease-in-out",
         "blink-text": "blink-text 1.5s infinite alternate",
+        "spin-slow": "spin-slow 3s linear infinite", // New animation
       },
     },
   },

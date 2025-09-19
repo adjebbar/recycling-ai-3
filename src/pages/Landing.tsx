@@ -70,7 +70,7 @@ const LandingPage = () => {
               <div className="max-w-3xl mx-auto">
                 <div className="bg-black/40 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}> {/* Adjusted background for hero text container */}
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white"> {/* Changed to text-white */}
-                    Scan Today for a <span className="text-primary">Greener</span> Tomorrow
+                    Recycle Today for a <span className="text-primary">Greener</span> Tomorrow
                   </h1>
                   <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto drop-shadow-md"> {/* Changed to text-gray-200 */}
                     Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
@@ -128,7 +128,7 @@ const LandingPage = () => {
           {/* Animation Section */}
           <section className="py-16 md:py-24 bg-background/70">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">See It in Action</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">See It in Action</h2>
               <div className="max-w-2xl mx-auto">
                 <SeeItInAction />
               </div>

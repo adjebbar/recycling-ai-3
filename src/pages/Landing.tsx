@@ -15,7 +15,7 @@ const LandingHeader = () => (
     <div className="container mx-auto flex justify-between items-center px-4">
       <Link to="/" className="flex items-center space-x-2">
         <Recycle className="h-8 w-8 text-primary" />
-        <span className="text-2xl font-bold text-white">EcoScan AI</span>
+        <span className="text-2xl font-bold text-foreground">EcoScan AI</span> {/* Changed to text-foreground */}
       </Link>
       {/* Removed explicit Login/Sign Up buttons from header to streamline CTA */}
     </div>
@@ -54,10 +54,9 @@ const LandingPage = () => {
     <div className="min-h-screen w-full text-foreground overflow-x-hidden relative">
       <div
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: `url('/images/recycling-hero-illustration.jpg')` }}
+        style={{ backgroundImage: `url('/images/eco-futuristic-background.png')` }}
       />
-      {/* Dark overlay for text readability, now a gradient */}
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-black/80 via-black/40 to-transparent z-0" />
+      {/* Removed dark overlay for better visibility of the new background image */}
       
       <div className="relative z-10">
         <LandingHeader />
@@ -68,11 +67,11 @@ const LandingPage = () => {
           >
             <div className="container mx-auto">
               <div className="max-w-3xl mx-auto">
-                <div className="bg-black/40 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white">
+                <div className="bg-background/80 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}> {/* Adjusted background */}
+                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-foreground"> {/* Changed to text-foreground */}
                     Scan Today for a <span className="text-primary">Greener</span> Tomorrow
                   </h1>
-                  <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-md">
+                  <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto drop-shadow-md"> {/* Changed to text-muted-foreground */}
                     Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
                   </p>
                 </div>
@@ -92,8 +91,8 @@ const LandingPage = () => {
           <section className="py-16 md:py-24 bg-gradient-to-b from-transparent to-background/50">
               <div className="container mx-auto px-4">
                   <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                      <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2> {/* Corrected to text-foreground */}
-                      <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p> {/* Corrected to text-muted-foreground */}
+                      <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2>
+                      <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
                   </div>
                   <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                       <FeatureCard 

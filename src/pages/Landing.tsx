@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import GettingStarted from "@/components/GettingStarted";
 import SeeItInAction from "@/components/SeeItInAction";
-import PlasticBottleVector from "@/components/PlasticBottleVector"; // Import the new component
+// Removed PlasticBottleVector import as it's no longer used
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -87,7 +87,7 @@ const LandingPage = () => {
                       <span className="text-sm font-bold text-primary-foreground">Scan Now</span>
                     </Button>
                   </Link>
-                  <PlasticBottleVector className="absolute -top-16 left-1/2 -translate-x-1/2 h-32 w-16 z-0 animate-fade-in-up" style={{ animationDelay: '0.8s' }} /> {/* Adjusted top position */}
+                  {/* Removed PlasticBottleVector component */}
                 </div>
               </div>
             </div>

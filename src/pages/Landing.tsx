@@ -2,14 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf, ArrowDown } from "lucide-react";
+import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import GettingStarted from "@/components/GettingStarted";
 import SeeItInAction from "@/components/SeeItInAction";
-// Removed PlasticBottleVector import as it's no longer used
+import ArrowVector from "@/components/ArrowVector";
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -81,7 +81,7 @@ const LandingPage = () => {
                 <div className="animate-fade-in-up flex justify-center mt-8 relative" style={{ animationDelay: '0.6s' }}>
                   <div className="absolute -top-20 left-1/2 -translate-x-1/2 flex flex-col items-center z-20 pointer-events-none">
                     <p className="text-orange font-bold text-lg mb-1 animate-bounce">Start Here!</p>
-                    <ArrowDown className="w-8 h-8 text-orange" />
+                    <ArrowVector className="w-8 h-8 text-orange" />
                   </div>
                   <Link to="/scanner" className="transition-transform duration-300 hover:scale-105">
                     <img 

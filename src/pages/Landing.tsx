@@ -15,7 +15,7 @@ const LandingHeader = () => (
     <div className="container mx-auto flex justify-between items-center px-4">
       <Link to="/" className="flex items-center space-x-2">
         <Recycle className="h-8 w-8 text-primary" />
-        <span className="text-2xl font-bold text-foreground">EcoScan AI</span> {/* Changed to text-foreground */}
+        <span className="text-2xl font-bold text-foreground">EcoScan AI</span>
       </Link>
       {/* Removed explicit Login/Sign Up buttons from header to streamline CTA */}
     </div>
@@ -56,7 +56,8 @@ const LandingPage = () => {
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
         style={{ backgroundImage: `url('/images/eco-futuristic-background.png')` }}
       />
-      {/* Removed dark overlay for better visibility of the new background image */}
+      {/* Add a subtle dark overlay for text readability */}
+      <div className="absolute inset-0 w-full h-full bg-black/30 z-0" />
       
       <div className="relative z-10">
         <LandingHeader />
@@ -67,11 +68,11 @@ const LandingPage = () => {
           >
             <div className="container mx-auto">
               <div className="max-w-3xl mx-auto">
-                <div className="bg-background/80 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}> {/* Adjusted background */}
-                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-foreground"> {/* Changed to text-foreground */}
+                <div className="bg-background/80 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-foreground">
                     Scan Today for a <span className="text-primary">Greener</span> Tomorrow
                   </h1>
-                  <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto drop-shadow-md"> {/* Changed to text-muted-foreground */}
+                  <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto drop-shadow-md">
                     Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
                   </p>
                 </div>

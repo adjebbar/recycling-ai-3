@@ -30,7 +30,7 @@ interface FeatureCardProps {
 }
 
 const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps) => (
-    <Card className="text-center bg-card/70 backdrop-blur-lg border shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl animate-fade-in-up rounded-xl" style={{ animationDelay: delay }}>
+    <Card className="text-center bg-background/50 backdrop-blur-lg border shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl animate-fade-in-up rounded-xl" style={{ animationDelay: delay }}>
         <CardContent className="p-8">
             <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit mb-4">
                 <Icon className="h-8 w-8 text-primary" />
@@ -58,8 +58,6 @@ const LandingPage = () => {
         style={{ backgroundImage: `url('/images/3759825_76251.jpg')` }}
       />
       
-      {/* Removed the global bg-background/80 overlay */}
-
       <div className="relative z-10"> {/* This div now contains all foreground content */}
         <LandingHeader />
         <main>
@@ -67,8 +65,7 @@ const LandingPage = () => {
           <section
             className="relative min-h-screen flex items-center justify-center text-center pt-20 px-4"
           >
-            {/* Re-added a darker overlay specifically for the hero text container */}
-            <div className="absolute inset-0 bg-black/60 z-0"></div> 
+            {/* Removed the darker overlay specifically for the hero text container */}
             <div className="container mx-auto relative z-10">
               <div className="max-w-3xl mx-auto">
                 <div className="p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
@@ -147,7 +144,7 @@ const LandingPage = () => {
               </div>
               <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                  <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                  <Card className="bg-background/50 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium text-foreground">Total Bottles Recycled</CardTitle>
                       <Recycle className="h-4 w-4 text-muted-foreground" />
@@ -159,7 +156,7 @@ const LandingPage = () => {
                   </Card>
                 </div>
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-                  <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                  <Card className="bg-background/50 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium text-foreground">Active Recyclers</CardTitle>
                       <Users className="h-4 w-4 text-muted-foreground" />
@@ -171,7 +168,7 @@ const LandingPage = () => {
                   </Card>
                 </div>
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
-                  <Card className="bg-card/70 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                  <Card className="bg-background/50 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium text-foreground">CO₂ Saved</CardTitle>
                       <Leaf className="h-4 w-4 text-muted-foreground" />

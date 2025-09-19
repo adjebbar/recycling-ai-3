@@ -15,7 +15,7 @@ const LandingHeader = () => (
     <div className="container mx-auto flex justify-between items-center px-4">
       <Link to="/" className="flex items-center space-x-2">
         <Recycle className="h-8 w-8 text-primary" />
-        <span className="text-2xl font-bold text-white">EcoScan AI</span> {/* Changed to text-white for better contrast */}
+        <span className="text-2xl font-bold text-white">EcoScan AI</span>
       </Link>
       {/* Removed explicit Login/Sign Up buttons from header to streamline CTA */}
     </div>
@@ -54,7 +54,7 @@ const LandingPage = () => {
     <div className="min-h-screen w-full text-foreground overflow-x-hidden relative">
       <div
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: `url('/images/eco-futuristic-background.png')` }}
+        style={{ backgroundImage: `url('/images/abstract-eco-background.svg')` }}
       />
       {/* Increased dark overlay for better text readability */}
       <div className="absolute inset-0 w-full h-full bg-black/50 z-0" /> 
@@ -128,7 +128,7 @@ const LandingPage = () => {
           {/* Animation Section */}
           <section className="py-16 md:py-24 bg-background/70">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">See It in Action</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">See It in Action</h2>
               <div className="max-w-2xl mx-auto">
                 <SeeItInAction />
               </div>

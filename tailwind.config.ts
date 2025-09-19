@@ -130,6 +130,10 @@ export default {
           from: { transform: "rotate(0deg)" },
           to: { transform: "rotate(360deg)" },
         },
+        "border-color-change": {
+          '0%, 100%': { borderColor: 'hsl(var(--primary))' },
+          '50%': { borderColor: 'hsl(var(--orange))' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -145,6 +149,7 @@ export default {
         "glow-pulse": "glow-pulse 0.5s ease-in-out",
         "blink-text": "blink-text 1.5s infinite alternate",
         "spin-slow": "spin-slow 3s linear infinite", // New animation
+        "border-color-change": "border-color-change 3s ease-in-out infinite",
       },
     },
   },

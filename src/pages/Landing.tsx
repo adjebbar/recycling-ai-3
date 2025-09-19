@@ -85,13 +85,18 @@ const LandingPage = () => {
                 </div>
 
                 <div className="animate-fade-in-up flex justify-center mt-4" style={{ animationDelay: '0.6s' }}>
-                  <Link to="/scanner" className="transition-transform duration-300 hover:scale-105">
-                    <img 
-                      src="/images/7178577_61340.jpg" 
-                      alt="Scan Now" 
-                      className="h-48 w-auto shadow-xl animate-subtle-pulse relative z-10 rounded-lg"
-                    />
-                  </Link>
+                  <div className="relative flex items-center justify-center">
+                    {/* Animated Border */}
+                    <div className="absolute -inset-2 rounded-full border-4 border-primary animate-border-color-change animate-subtle-pulse z-0"></div>
+                    
+                    <Link to="/scanner" className="transition-transform duration-300 hover:scale-105 relative z-10">
+                      <img 
+                        src="/images/7178577_61340.jpg" 
+                        alt="Scan Now" 
+                        className="h-48 w-48 object-cover shadow-xl relative z-10 rounded-full"
+                      />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

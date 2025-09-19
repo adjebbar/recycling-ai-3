@@ -6,18 +6,18 @@ import { UserPlus, ScanLine, Trophy } from "lucide-react";
 const steps = [
   {
     icon: UserPlus,
-    title: "1. Sign Up or Scan Anonymously",
-    description: "Create an account to track progress and unlock rewards, or start scanning right away as a guest.",
+    title: "1. Choose Your Recycling Path",
+    description: "Scan bottles anonymously for instant points, or create an account to track your progress and unlock exclusive benefits.",
   },
   {
     icon: ScanLine,
-    title: "2. Scan & Earn Points",
-    description: "Use your phone's camera to scan barcodes on plastic bottles. You'll earn points for every successful scan.",
+    title: "2. Scan Plastic Bottles",
+    description: "Use your phone's camera to scan the barcode on plastic bottles you want to recycle and earn points.",
   },
   {
     icon: Trophy,
-    title: "3. Redeem Rewards",
-    description: "Exchange your points for shopping vouchers and other exclusive rewards in our store.",
+    title: "3. Enjoy Your Rewards",
+    description: "Redeem your accumulated points for shopping vouchers (anonymous) or exclusive rewards and achievements (account holders).",
   },
 ];
 
@@ -31,7 +31,7 @@ const GettingStarted = () => {
           return (
             <Card key={index} className="bg-background/50 backdrop-blur-lg border text-left shadow-lg rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
               <CardHeader className="flex flex-row items-center space-x-4 pb-2">
-                <Icon className="h-8 w-8 text-primary" /> {/* Changed to text-primary */}
+                <Icon className="h-8 w-8 text-orange" /> {/* Changed to text-orange */}
                 <CardTitle className="text-foreground">{step.title}</CardTitle>
               </CardHeader>
               <CardContent>

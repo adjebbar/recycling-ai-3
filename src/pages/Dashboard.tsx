@@ -32,10 +32,7 @@ const Index = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <section 
-        className="text-center py-16 md:py-24 relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 to-background/50 shadow-lg mb-16"
-        style={{ backgroundImage: "url('/images/abstract-eco-background.svg')", backgroundSize: 'cover' }}
-      >
+      <section className="text-center py-16 md:py-24 relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 to-background/50 shadow-lg mb-16">
         <div
           className="max-w-3xl mx-auto animate-fade-in-up"
           style={{ animationDelay: '0.1s' }}

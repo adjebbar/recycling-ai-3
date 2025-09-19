@@ -56,7 +56,7 @@ const LandingPage = () => {
       {/* Background Image */}
       <div
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: `url('/images/recycling-hero-illustration.jpg')` }}
+        style={{ backgroundImage: `url('/images/3759825_76251.jpg')` }}
       />
       {/* Dark overlay for readability */}
       <div className="absolute inset-0 bg-black opacity-50 z-0" />
@@ -81,7 +81,7 @@ const LandingPage = () => {
                 <div className="animate-fade-in-up flex justify-center mt-4 relative" style={{ animationDelay: '0.6s' }}>
                   <Link to="/scanner" className="transition-transform duration-300 hover:scale-105">
                     <img 
-                      src="/images/7178577_61340.svg" 
+                      src="/images/7178577_61340.jpg" 
                       alt="Scan Now" 
                       className="h-48 w-auto shadow-xl animate-subtle-pulse relative z-10 rounded-lg"
                     />

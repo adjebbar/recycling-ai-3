@@ -56,17 +56,17 @@ const LandingPage = () => {
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
         style={{ backgroundImage: `url('/images/abstract-eco-background.svg')` }}
       />
-      {/* The main dark overlay for the entire background is removed,
-          but the hero text container still has bg-black/40 for readability. */}
       
       <div className="relative z-10">
         <LandingHeader />
         <main>
           {/* Hero Section */}
           <section
-            className="min-h-screen flex items-center justify-center text-center pt-20 px-4"
+            className="relative min-h-screen flex items-center justify-center text-center pt-20 px-4"
           >
-            <div className="container mx-auto">
+            {/* New overlay added here */}
+            <div className="absolute inset-0 bg-black/50 z-0"></div> 
+            <div className="container mx-auto relative z-10">
               <div className="max-w-3xl mx-auto">
                 <div className="bg-black/40 p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}> {/* Adjusted background for hero text container */}
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white"> {/* Changed to text-white */}

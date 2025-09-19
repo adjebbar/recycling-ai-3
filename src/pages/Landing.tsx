@@ -146,37 +146,37 @@ const LandingPage = () => {
               </div>
               <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                  <Card className="bg-background/50 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                  <Card className="bg-background/80 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl font-semibold text-foreground">Total Bottles Recycled</CardTitle>
                       <Recycle className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-4xl font-bold text-primary">{animatedBottles.toLocaleString()}</div>
+                      <div className="text-4xl font-bold text-primary drop-shadow-md">{animatedBottles.toLocaleString()}</div>
                       <p className="text-foreground">and counting, thanks to our community.</p>
                     </CardContent>
                   </Card>
                 </div>
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-                  <Card className="bg-background/50 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                  <Card className="bg-background/80 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl font-semibold text-foreground">Active Recyclers</CardTitle>
                       <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-4xl font-bold text-primary">{animatedRecyclers.toLocaleString()}</div>
+                      <div className="text-4xl font-bold text-primary drop-shadow-md">{animatedRecyclers.toLocaleString()}</div>
                       <p className="text-foreground">making a positive impact right now.</p>
                     </CardContent>
                   </Card>
                 </div>
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
-                  <Card className="bg-background/50 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                  <Card className="bg-background/80 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-xl font-semibold text-foreground">CO₂ Saved</CardTitle>
                       <Leaf className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-4xl font-bold text-primary">{animatedCo2Saved} kg</div>
+                      <div className="text-4xl font-bold text-primary drop-shadow-md">{animatedCo2Saved} kg</div>
                       <p className="text-foreground">preventing harmful greenhouse gases.</p>
                     </CardContent>
                   </Card>

@@ -59,22 +59,6 @@ const isPlasticBottle = (product: any): boolean => {
   return false;
 };
 
-// Helper to fetch an image from a URL and convert it to base64
-async function imageToB64(url: string): Promise<string> {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch image: ${response.statusText}`);
-    }
-    const blob = await response.blob();
-    const reader = new FileReader();
-    return new Promise((resolve, reject) => {
-        reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-    });
-}
-
-
 serve(async (req) => {
   console.log(`[verify-product] function invoked. Method: ${req.method}`);
   if (req.method === 'OPTIONS') {

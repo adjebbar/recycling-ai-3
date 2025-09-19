@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import GettingStarted from "@/components/GettingStarted";
 import SeeItInAction from "@/components/SeeItInAction";
+import RecyclingBinButton from "@/components/RecyclingBinButton"; // Import the new component
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -78,12 +79,18 @@ const LandingPage = () => {
                   </p>
                 </div>
                 <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4 mt-8" style={{ animationDelay: '0.6s' }}>
-                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-orange-foreground shadow-lg shadow-orange/50">
-                    <Link to="/scanner">Start Scanning Anonymously</Link>
-                  </Button>
-                  <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/50">
-                    <Link to="/signup">Create Account & Track Progress</Link>
-                  </Button>
+                  <RecyclingBinButton 
+                    to="/scanner" 
+                    label="Start Scanning Anonymously" 
+                    variant="orange" 
+                    className="w-full sm:w-auto flex-1 max-w-[280px]"
+                  />
+                  <RecyclingBinButton 
+                    to="/signup" 
+                    label="Create Account & Track Progress" 
+                    variant="primary" 
+                    className="w-full sm:w-auto flex-1 max-w-[280px]"
+                  />
                 </div>
               </div>
             </div>
@@ -191,12 +198,18 @@ const LandingPage = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-white">Ready to Make a Difference?</h2>
               <p className="text-white mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-orange-foreground shadow-lg shadow-orange/50">
-                  <Link to="/scanner">Start Scanning Now</Link>
-                </Button>
-                <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/50">
-                  <Link to="/signup">Create Account</Link>
-                </Button>
+                <RecyclingBinButton 
+                  to="/scanner" 
+                  label="Start Scanning Now" 
+                  variant="orange" 
+                  className="w-full sm:w-auto flex-1 max-w-[280px]"
+                />
+                <RecyclingBinButton 
+                  to="/signup" 
+                  label="Create Account" 
+                  variant="primary" 
+                  className="w-full sm:w-auto flex-1 max-w-[280px]"
+                />
               </div>
             </div>
           </section>

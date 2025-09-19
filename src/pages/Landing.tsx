@@ -78,13 +78,14 @@ const LandingPage = () => {
                     Scan plastic bottles to earn points instantly. Register later to track your progress and unlock exclusive rewards!
                   </p>
                 </div>
-                <div className="animate-fade-in-up flex justify-center mt-4" style={{ animationDelay: '0.6s' }}> {/* Changed mt-8 to mt-4 */}
-                  <Link to="/scanner" className="block w-full max-w-[250px]"> {/* Adjusted max-w for smaller size */}
-                    <img 
-                      src="/images/90435859_Scan Product Barcode.svg" 
-                      alt="Scan Product Barcode" 
-                      className="w-full h-auto transition-transform duration-300 hover:scale-105 cursor-pointer shadow-lg rounded-xl p-4 bg-card/70 backdrop-blur-lg border" // Added styling
-                    />
+                <div className="animate-fade-in-up flex justify-center mt-4" style={{ animationDelay: '0.6s' }}>
+                  <Link to="/scanner">
+                    <Button 
+                      className="rounded-full h-20 w-20 md:h-24 md:w-24 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-subtle-pulse"
+                    >
+                      <ScanLine className="h-10 w-10 text-primary-foreground mb-1" />
+                      <span className="text-sm font-bold text-primary-foreground">Scan Now</span>
+                    </Button>
                   </Link>
                 </div>
               </div>

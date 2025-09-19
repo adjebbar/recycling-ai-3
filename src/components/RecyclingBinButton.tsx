@@ -14,7 +14,8 @@ interface RecyclingBinButtonProps {
 
 const RecyclingBinButton = ({ to, label, variant = 'primary', className }: RecyclingBinButtonProps) => {
   // Changed to rounded-full for a circular shape, removed clip-path
-  const baseClasses = "relative flex flex-col items-center justify-center p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-[1.03] hover:shadow-xl group cursor-pointer w-48 h-48 text-center";
+  // Reduced size from w-48 h-48 to w-40 h-40
+  const baseClasses = "relative flex flex-col items-center justify-center p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-[1.03] hover:shadow-xl group cursor-pointer w-40 h-40 text-center";
   
   const variantClasses = {
     primary: "bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/50",
@@ -23,8 +24,8 @@ const RecyclingBinButton = ({ to, label, variant = 'primary', className }: Recyc
 
   return (
     <Link to={to} className={cn(baseClasses, variantClasses[variant], className)}>
-      <Globe className="h-12 w-12 text-white group-hover:animate-spin-slow mb-2" /> {/* Changed icon to Globe */}
-      <span className="text-lg font-bold leading-tight px-2">
+      <Globe className="h-10 w-10 text-white group-hover:animate-spin-slow mb-1" /> {/* Adjusted icon size and margin */}
+      <span className="text-base font-bold leading-tight px-2"> {/* Adjusted text size */}
         {label}
       </span>
     </Link>

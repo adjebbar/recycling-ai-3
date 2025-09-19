@@ -50,6 +50,15 @@ serve(async (req) => {
     }
     
     if (!response.ok) {
+      // Specifically handle 404 Not Found from the external API
+      if (response.status === 404) {
+        console.log(`Product with barcode ${barcode} not found in Open Food Facts.`);
+        return new Response(JSON.stringify({ status: 0, status_verbose: 'product not found' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200, // Return 200 OK to our client, with a payload indicating not found
+        });
+      }
+      // For all other errors, treat them as server errors
       const errorText = await response.text();
       console.error(`Open Food Facts API responded with status: ${response.status}, body: ${errorText}`);
       throw new Error(`Open Food Facts API responded with status: ${response.status}`);

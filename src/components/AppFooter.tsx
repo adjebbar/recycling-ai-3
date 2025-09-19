@@ -9,7 +9,7 @@ export const AppFooter = () => {
   return (
     <footer className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
       <p className="mb-1">
-        {t('footer.copyrightLine1', '© 2025 NewTech. All rights reserved.')}
+        {t('footer.copyrightLine1', '© {{year}} NewTech. All rights reserved.', { year: currentYear })}
       </p>
       <p className="mb-1">
         {t('footer.copyrightLine2', 'Application developed by NewTech Corp.')}

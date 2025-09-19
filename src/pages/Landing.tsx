@@ -65,14 +65,13 @@ const LandingPage = () => {
           <section
             className="relative min-h-screen flex items-center justify-center text-center pt-20 px-4"
           >
-            {/* Removed the darker overlay specifically for the hero text container */}
             <div className="container mx-auto relative z-10">
               <div className="max-w-3xl mx-auto">
-                <div className="p-6 rounded-lg shadow-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white">
+                <div className="p-8 rounded-xl shadow-2xl bg-background/80 backdrop-blur-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-foreground">
                     Recycle Today for a <span className="text-primary">Greener</span> Tomorrow
                   </h1>
-                  <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto drop-shadow-md">
+                  <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto drop-shadow-sm">
                     Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
                   </p>
                 </div>

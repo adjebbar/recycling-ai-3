@@ -79,11 +79,11 @@ const LandingPage = () => {
                   </p>
                 </div>
                 <div className="animate-fade-in-up flex justify-center mt-8" style={{ animationDelay: '0.6s' }}>
-                  <Link to="/scanner" className="block w-full max-w-xs sm:max-w-sm md:max-w-md">
+                  <Link to="/scanner" className="block w-full max-w-[250px]"> {/* Adjusted max-w for smaller size */}
                     <img 
                       src="/images/90435859_Scan Product Barcode.svg" 
                       alt="Scan Product Barcode" 
-                      className="w-full h-auto transition-transform duration-300 hover:scale-105 cursor-pointer shadow-lg rounded-xl"
+                      className="w-full h-auto transition-transform duration-300 hover:scale-105 cursor-pointer shadow-lg rounded-xl p-4 bg-card/70 backdrop-blur-lg border" // Added styling
                     />
                   </Link>
                 </div>

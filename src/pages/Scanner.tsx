@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Camera, CameraOff, Keyboard, CheckCircle2, XCircle, RefreshCw, AlertTriangle, Trophy } from 'lucide-react';
+import { Camera, CameraOff, Keyboard, CheckCircle2, XCircle, RefreshCw, AlertTriangle, Trophy, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -96,6 +96,13 @@ const ScannerPage = () => {
   const [generatedVoucherCode, setGeneratedVoucherCode] = useState<string | null>(null); // New state for human-readable code
   const [isRedeeming, setIsRedeeming] = useState(false);
 
+  // New states for image analysis
+  const [imageAnalysisMode, setImageAnalysisMode] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null); // Base64 image data
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+
   const triggerPiConveyor = async (result: 'accepted' | 'rejected') => {
     try {
       const { error } = await supabase.functions.invoke('trigger-pi-conveyor', {
@@ -113,11 +120,46 @@ const ScannerPage = () => {
     }
   };
 
+  const handleSuccessfulRecycle = async (barcode?: string) => {
+    const addPointsResult = await addPoints(POINTS_PER_BOTTLE, barcode);
+
+    let successMessage = t('scanner.success', { points: addPointsResult.pointsEarned });
+    if (addPointsResult.leveledUpTo) {
+      successMessage += ` 🎉 ${t('scanner.leveledUp', { levelName: addPointsResult.leveledUpTo.name })}`;
+    }
+    if (addPointsResult.unlockedAchievements.length > 0) {
+      const achievementNames = addPointsResult.unlockedAchievements.map(id => {
+        const achievement = achievementsList.find(a => a.id === id);
+        return achievement ? t(`achievements.${id}Name`) : '';
+      }).filter(Boolean).join(', ');
+      successMessage += ` 🏆 ${t('scanner.achievementsUnlocked', { achievements: achievementNames })}`;
+    }
+
+    showSuccess(successMessage);
+    setScanResult({ type: 'success', message: successMessage }); // No image URL from image analysis
+    triggerPiConveyor('accepted');
+
+    if (!user) {
+      const hasShownToast = sessionStorage.getItem('signupToastShown');
+      if (!hasShownToast) {
+        setTimeout(() => {
+          toast.info(t('scanner.signupPromptTitle'), {
+            description: t('scanner.signupPromptDescription'),
+            action: { label: t('nav.signup'), onClick: () => navigate('/signup') },
+            duration: 10000,
+          });
+          sessionStorage.setItem('signupToastShown', 'true');
+        }, 1500);
+      }
+    }
+  };
+
   const processBarcode = async (barcode: string) => {
     if (!barcode || barcode === lastScanned) return;
     
     setLastScanned(barcode);
     setScanFailureMessage(null);
+    setScanResult(null); // Clear previous scan result
     const loadingToast = showLoading(t('scanner.verifying'));
 
     try {
@@ -142,48 +184,23 @@ const ScannerPage = () => {
       if (data.status === 1 && data.product) {
         const imageUrl = data.product.image_front_url || data.product.image_url;
         if (isPlasticBottle(data.product)) {
-          const addPointsResult = await addPoints(POINTS_PER_BOTTLE, barcode); // Get the consolidated result
-
-          let successMessage = t('scanner.success', { points: addPointsResult.pointsEarned });
-          if (addPointsResult.leveledUpTo) {
-            successMessage += ` 🎉 ${t('scanner.leveledUp', { levelName: addPointsResult.leveledUpTo.name })}`;
-          }
-          if (addPointsResult.unlockedAchievements.length > 0) {
-            const achievementNames = addPointsResult.unlockedAchievements.map(id => {
-              const achievement = achievementsList.find(a => a.id === id);
-              return achievement ? t(`achievements.${id}Name`) : '';
-            }).filter(Boolean).join(', ');
-            successMessage += ` 🏆 ${t('scanner.achievementsUnlocked', { achievements: achievementNames })}`;
-          }
-
-          showSuccess(successMessage); // Show one consolidated success toast
-          setScanResult({ type: 'success', message: successMessage, imageUrl: imageUrl });
-          triggerPiConveyor('accepted');
-          
-          if (!user) {
-            const hasShownToast = sessionStorage.getItem('signupToastShown');
-            if (!hasShownToast) {
-              setTimeout(() => {
-                toast.info(t('scanner.signupPromptTitle'), {
-                  description: t('scanner.signupPromptDescription'),
-                  action: { label: t('nav.signup'), onClick: () => navigate('/signup') },
-                  duration: 10000,
-                });
-                sessionStorage.setItem('signupToastShown', 'true');
-              }, 1500);
-            }
-          }
+          await handleSuccessfulRecycle(barcode);
+          setScanResult({ type: 'success', message: t('scanner.success', { points: POINTS_PER_BOTTLE }), imageUrl: imageUrl });
         } else {
           const errorMessage = t('scanner.notPlastic');
           showError(errorMessage);
-          setScanResult({ type: 'error', message: errorMessage });
+          setScanResult({ type: 'error', message: errorMessage, imageUrl: imageUrl });
           triggerPiConveyor('rejected');
+          // Offer image analysis as fallback
+          setImageAnalysisMode(true);
         }
       } else {
         const errorMessage = t('scanner.notFound');
         showError(errorMessage);
         setScanResult({ type: 'error', message: errorMessage });
         triggerPiConveyor('rejected');
+        // Offer image analysis as fallback
+        setImageAnalysisMode(true);
       }
     } catch (err: any) {
       dismissToast(loadingToast);
@@ -191,10 +208,81 @@ const ScannerPage = () => {
       showError(errorMessage);
       setScanResult({ type: 'error', message: errorMessage });
       triggerPiConveyor('rejected');
+      // Offer image analysis as fallback
+      setImageAnalysisMode(true);
       console.error(err);
     } finally {
+      // Keep scanResult visible for a short period, then clear
       setTimeout(() => {
+        setScanResult(null);
         setLastScanned(null);
+      }, 3000);
+    }
+  };
+
+  const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCapturedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageAnalysis = async () => {
+    if (!capturedImage) {
+      showError("Please capture an image first.");
+      return;
+    }
+
+    setIsAnalyzingImage(true);
+    setScanResult(null); // Clear previous scan result
+    const loadingToast = showLoading("Analyzing image...");
+
+    try {
+      const { data, error: invokeError } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', {
+        body: { imageData: capturedImage },
+      });
+
+      if (invokeError) {
+        let errorMessage = 'Image analysis failed.';
+        try {
+          const errorBody = await invokeError.context.json();
+          if (errorBody && errorBody.error) {
+            errorMessage = errorBody.error;
+          }
+        } catch (e) {
+          console.error("Could not parse error response from edge function:", e);
+        }
+        throw new Error(errorMessage);
+      }
+
+      if (data.error) throw new Error(data.error);
+      dismissToast(loadingToast);
+
+      if (data.is_plastic_bottle) {
+        await handleSuccessfulRecycle();
+        setScanResult({ type: 'success', message: t('scanner.imageSuccess', { points: POINTS_PER_BOTTLE }) });
+      } else {
+        const errorMessage = t('scanner.imageNotPlastic');
+        showError(errorMessage);
+        setScanResult({ type: 'error', message: errorMessage });
+        triggerPiConveyor('rejected');
+      }
+    } catch (err: any) {
+      dismissToast(loadingToast);
+      const errorMessage = err.message || "An unknown error occurred during image analysis.";
+      showError(errorMessage);
+      setScanResult({ type: 'error', message: errorMessage });
+      triggerPiConveyor('rejected');
+      console.error(err);
+    } finally {
+      setIsAnalyzingImage(false);
+      setCapturedImage(null); // Clear captured image after analysis
+      setImageAnalysisMode(false); // Exit image analysis mode
+      setTimeout(() => {
         setScanResult(null);
       }, 3000);
     }
@@ -320,6 +408,58 @@ const ScannerPage = () => {
                       <Button onClick={() => setCameraInitializationError(null)} className="mt-6">{t('scanner.retryCamera')}</Button>
                     </AlertDescription>
                   </Alert>
+                ) : imageAnalysisMode ? (
+                  <div className="flex flex-col items-center justify-center p-6 space-y-4">
+                    <ImageIcon className="h-16 w-16 text-muted-foreground" />
+                    <h3 className="text-xl font-bold">Analyze with Image</h3>
+                    <p className="text-muted-foreground text-center">
+                      Barcode scan was inconclusive. Take a photo of the item to determine if it's a plastic bottle.
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment" // Suggests front or rear camera
+                      onChange={handleImageCapture}
+                      ref={fileInputRef}
+                      className="hidden"
+                    />
+                    {capturedImage && (
+                      <div className="relative w-48 h-48 rounded-md overflow-hidden border-2 border-primary">
+                        <img src={capturedImage} alt="Captured for analysis" className="w-full h-full object-cover" />
+                        <Button 
+                          variant="destructive" 
+                          size="sm" 
+                          className="absolute top-1 right-1"
+                          onClick={() => setCapturedImage(null)}
+                        >
+                          X
+                        </Button>
+                      </div>
+                    )}
+                    <Button 
+                      onClick={() => fileInputRef.current?.click()} 
+                      disabled={isAnalyzingImage}
+                    >
+                      {capturedImage ? "Retake Photo" : "Take Photo"}
+                    </Button>
+                    <Button 
+                      onClick={handleImageAnalysis} 
+                      disabled={!capturedImage || isAnalyzingImage}
+                      className="w-full"
+                    >
+                      {isAnalyzingImage ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        "Analyze Image"
+                      )}
+                    </Button>
+                    <Button variant="outline" onClick={() => setImageAnalysisMode(false)}>
+                      Cancel
+                    </Button>
+                  </div>
                 ) : (
                   <BarcodeScanner 
                     onScanSuccess={processBarcode} 
@@ -328,7 +468,7 @@ const ScannerPage = () => {
                   />
                 )}
                 {renderScanResult()}
-                {scanFailureMessage && !scanResult && (
+                {scanFailureMessage && !scanResult && !imageAnalysisMode && (
                   <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
                     {scanFailureMessage}
                   </p>

@@ -79,37 +79,9 @@ const LandingPage = () => {
                   </p>
                 </div>
                 <div className="animate-fade-in-up flex justify-center mt-8 relative" style={{ animationDelay: '0.6s' }}>
-                  <div className="absolute -top-28 left-1/2 -translate-x-1/2 z-20 pointer-events-none animate-bounce w-32 h-28">
-                    <svg viewBox="0 0 100 100" className="text-white drop-shadow-lg">
-                      <text 
-                          x="50" 
-                          y="25" 
-                          fontFamily="cursive, 'Comic Sans MS', sans-serif" 
-                          fontSize="22" 
-                          fontWeight="bold" 
-                          textAnchor="middle" 
-                          fill="currentColor"
-                          stroke="black"
-                          strokeWidth="0.5"
-                      >
-                          Start Here!
-                      </text>
-                      <path 
-                          d="M 50 35 Q 48 60, 50 85" 
-                          stroke="currentColor" 
-                          strokeWidth="5" 
-                          fill="none" 
-                          strokeLinecap="round" 
-                      />
-                      <path 
-                          d="M 40 75 L 50 85 L 60 75" 
-                          stroke="currentColor" 
-                          strokeWidth="5" 
-                          fill="none" 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                      />
-                    </svg>
+                  <div className="absolute -top-20 left-1/2 -translate-x-1/2 flex flex-col items-center z-20 pointer-events-none">
+                    <p className="text-white font-bold text-lg mb-1 animate-bounce">Start Here!</p>
+                    <ArrowDown className="w-8 h-8 text-white" />
                   </div>
                   <Link to="/scanner" className="transition-transform duration-300 hover:scale-105">
                     <img 

@@ -74,7 +74,7 @@ const App = () => {
       <TooltipProvider>
         <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
           <Toaster />
-          <Sonner position="bottom-center" />
+          <Sonner position="bottom-center" visibleToasts={1} richColors duration={3000} />
           <BrowserRouter>
             <ConfettiProvider>
               <AuthProvider>

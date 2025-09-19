@@ -70,10 +70,10 @@ const LandingPage = () => {
             <div className="container mx-auto relative z-10">
               <div className="max-w-3xl mx-auto">
                 <div className="p-8 rounded-xl shadow-2xl bg-background/50 backdrop-blur-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-foreground">
+                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white">
                     Recycle Today for a <span className="text-primary">Greener</span> Tomorrow
                   </h1>
-                  <p className="text-lg md:text-xl text-gray-700 dark:text-gray-200 mb-8 max-w-2xl mx-auto drop-shadow-sm">
+                  <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-sm">
                     Start recycling instantly and earn points, or create an account to track your progress, unlock achievements, and redeem exclusive rewards.
                   </p>
                 </div>
@@ -122,6 +122,7 @@ const LandingPage = () => {
           {/* How It Works Section (Getting Started) */}
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+              <h2 className="text-3xl font-bold mb-6 text-center text-white">How It Works</h2>
               <GettingStarted />
             </div>
           </section>
@@ -140,8 +141,8 @@ const LandingPage = () => {
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4">
               <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground">Our Collective Impact</h2>
-                <p className="text-gray-700 dark:text-gray-200 mt-2">You're not just recycling; you're part of a global community making a difference.</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-white">Our Collective Impact</h2>
+                <p className="text-white mt-2 max-w-2xl mx-auto">You're not just recycling; you're part of a global community making a difference.</p>
               </div>
               <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
@@ -187,8 +188,8 @@ const LandingPage = () => {
           {/* Final CTA Section */}
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">Ready to Make a Difference?</h2>
-              <p className="text-gray-700 dark:text-gray-200 mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-white">Ready to Make a Difference?</h2>
+              <p className="text-white mt-2 mb-6 max-w-xl mx-auto">Choose your path: quick scan for instant rewards, or sign up to track your full recycling journey.</p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full bg-orange hover:bg-orange/90 text-orange-foreground shadow-lg shadow-orange/50">
                   <Link to="/scanner">Start Scanning Now</Link>

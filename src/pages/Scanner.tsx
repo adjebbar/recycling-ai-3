@@ -290,6 +290,15 @@ const ScannerPage = () => {
           <h1 className="text-3xl font-bold mb-4 text-foreground">{t('scanner.title')}</h1>
           <p className="text-muted-foreground mb-6">{t('scanner.subtitle')}</p>
         </div>
+
+        {/* New image added here */}
+        <div className="w-full max-w-md mb-8">
+          <img 
+            src="/images/recycling-machine-scan.png" 
+            alt="Recycling Machine Scan" 
+            className="w-full h-auto rounded-lg shadow-lg object-cover"
+          />
+        </div>
         
         <Tabs defaultValue="camera" className="w-full max-w-lg">
           <TabsList className="grid w-full grid-cols-2 bg-card/70 backdrop-blur-lg border">

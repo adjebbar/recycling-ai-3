@@ -31,57 +31,59 @@ const LeaderboardPage = () => {
           <CardDescription>Top 10 users by points</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">Rank</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead className="text-right">Points</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><Skeleton className="h-5 w-5 rounded-full" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-4 w-12" /></TableCell>
-                  </TableRow>
-                ))
-              ) : isError ? (
+          <div className="overflow-x-auto"> {/* Added overflow-x-auto for horizontal scrolling on small screens */}
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-destructive">
-                    Failed to load leaderboard.
-                  </TableCell>
+                  <TableHead className="w-[50px]">Rank</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Level</TableHead>
+                  <TableHead className="text-right">Points</TableHead>
                 </TableRow>
-              ) : (
-                users?.map((user, index) => {
-                  const level = getLevelFromPoints(user.points);
-                  const userName = (user.first_name && user.last_name) 
-                    ? `${user.first_name} ${user.last_name}` 
-                    : 'Anonymous Recycler';
-                  return (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center">
-                          {index < 3 ? (
-                            <Medal className={`h-5 w-5 ${getRankColor(index + 1)}`} />
-                          ) : (
-                            <span className="w-5 text-center">{index + 1}</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{userName}</TableCell>
-                      <TableCell>{level.name}</TableCell>
-                      <TableCell className="text-right font-semibold">{user.points.toLocaleString()}</TableCell>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-5 w-5 rounded-full" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-4 w-12" /></TableCell>
                     </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
+                  ))
+                ) : isError ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-destructive">
+                      Failed to load leaderboard.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  users?.map((user, index) => {
+                    const level = getLevelFromPoints(user.points);
+                    const userName = (user.first_name && user.last_name) 
+                      ? `${user.first_name} ${user.last_name}` 
+                      : 'Anonymous Recycler';
+                    return (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center">
+                            {index < 3 ? (
+                              <Medal className={`h-5 w-5 ${getRankColor(index + 1)}`} />
+                            ) : (
+                              <span className="w-5 text-center">{index + 1}</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="max-w-[150px] truncate">{userName}</TableCell> {/* Added truncate and max-w */}
+                        <TableCell>{level.name}</TableCell>
+                        <TableCell className="text-right font-semibold">{user.points.toLocaleString()}</TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

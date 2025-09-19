@@ -70,36 +70,38 @@ const ProfilePage = () => {
           <CardDescription>{t('profile.recentActivityDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('profile.date')}</TableHead>
-                <TableHead>{t('profile.barcode')}</TableHead>
-                <TableHead className="text-right">{t('profile.points')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                scanHistory?.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{format(new Date(item.scanned_at), 'PPp')}</TableCell>
-                    <TableCell className="font-mono">{item.product_barcode}</TableCell>
-                    <TableCell className="text-right">
-                      <Badge variant="secondary">+{item.points_earned}</Badge>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <div className="overflow-x-auto"> {/* Added overflow-x-auto for horizontal scrolling on small screens */}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('profile.date')}</TableHead>
+                  <TableHead>{t('profile.barcode')}</TableHead>
+                  <TableHead className="text-right">{t('profile.points')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  scanHistory?.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="min-w-[120px]">{format(new Date(item.scanned_at), 'PPp')}</TableCell> {/* Added min-w */}
+                      <TableCell className="font-mono text-xs max-w-[150px] truncate">{item.product_barcode}</TableCell> {/* Added truncate and max-w */}
+                      <TableCell className="text-right">
+                        <Badge variant="secondary">+{item.points_earned}</Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

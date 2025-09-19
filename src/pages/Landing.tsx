@@ -122,7 +122,7 @@ const LandingPage = () => {
           {/* How It Works Section (Getting Started) */}
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-              <h2 className="text-3xl font-bold mb-6 text-center text-white">How It Works</h2>
+              {/* Removed duplicate h2 here */}
               <GettingStarted />
             </div>
           </section>
@@ -153,7 +153,7 @@ const LandingPage = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedBottles.toLocaleString()}</div>
-                      <p className="text-xs text-foreground">and counting, thanks to our community.</p>
+                      <p className="text-xs text-white">and counting, thanks to our community.</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -165,7 +165,7 @@ const LandingPage = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedRecyclers.toLocaleString()}</div>
-                      <p className="text-xs text-foreground">making a positive impact right now.</p>
+                      <p className="text-xs text-white">making a positive impact right now.</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -177,7 +177,7 @@ const LandingPage = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedCo2Saved} kg</div>
-                      <p className="text-xs text-foreground">preventing harmful greenhouse gases.</p>
+                      <p className="text-xs text-white">preventing harmful greenhouse gases.</p>
                     </CardContent>
                   </Card>
                 </div>

@@ -92,7 +92,8 @@ const ScannerPage = () => {
   const [cameraInitializationError, setCameraInitializationError] = useState<string | null>(null);
   const [scanFailureMessage, setScanFailureMessage] = useState<string | null>(null);
   const [showTicket, setShowTicket] = useState(false);
-  const [qrCodeValue, setQrCodeValue] = useState<string | null>(null);
+  const [qrCodeValue, setQrCodeValue] = useState<string | null>(null); // This will be the JWT
+  const [generatedVoucherCode, setGeneratedVoucherCode] = useState<string | null>(null); // New state for human-readable code
   const [isRedeeming, setIsRedeeming] = useState(false);
 
   const triggerPiConveyor = async (result: 'accepted' | 'rejected') => {
@@ -203,6 +204,7 @@ const ScannerPage = () => {
     setShowTicket(true);
     setIsRedeeming(true);
     setQrCodeValue(null);
+    setGeneratedVoucherCode(null); // Clear previous code
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-voucher', {
@@ -226,7 +228,8 @@ const ScannerPage = () => {
         throw new Error(data.error);
       }
 
-      setQrCodeValue(data.voucherToken);
+      setQrCodeValue(data.voucherToken); // Set the JWT for the QR code
+      setGeneratedVoucherCode(data.voucherCode); // Set the human-readable code
     } catch (err: any) {
       const errorMessage = err.message || "An unknown error occurred.";
       console.error("Failed to generate voucher:", err);
@@ -375,6 +378,7 @@ const ScannerPage = () => {
           open={showTicket} 
           onOpenChange={setShowTicket} 
           qrCodeValue={qrCodeValue}
+          voucherCode={generatedVoucherCode} // Pass the new prop
           isLoading={isRedeeming}
           points={points}
           onRedeemAndClose={handleRedeemAndClose}

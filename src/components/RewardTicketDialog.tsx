@@ -16,7 +16,8 @@ import {
 interface RewardTicketDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  qrCodeValue: string | null;
+  qrCodeValue: string | null; // This will be the JWT
+  voucherCode: string | null; // New prop for human-readable code
   isLoading: boolean;
   points: number;
   onRedeemAndClose: () => void;
@@ -25,7 +26,7 @@ interface RewardTicketDialogProps {
 const VIRTUAL_CASH_PER_POINT = 0.01;
 const SHOPPING_CENTER_ID = "SC-12345";
 
-export const RewardTicketDialog = ({ open, onOpenChange, qrCodeValue, isLoading, points, onRedeemAndClose }: RewardTicketDialogProps) => {
+export const RewardTicketDialog = ({ open, onOpenChange, qrCodeValue, voucherCode, isLoading, points, onRedeemAndClose }: RewardTicketDialogProps) => {
   const cashValue = (points * VIRTUAL_CASH_PER_POINT).toFixed(2);
 
   const handlePrint = () => {
@@ -46,12 +47,19 @@ export const RewardTicketDialog = ({ open, onOpenChange, qrCodeValue, isLoading,
           <div className="bg-white p-4 rounded-md flex justify-center items-center my-4 h-[216px]">
             {isLoading ? (
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            ) : qrCodeValue ? (
+            ) : qrCodeValue ? ( // QR code still uses the JWT
               <QRCode value={qrCodeValue} size={200} />
             ) : (
               <p className="text-destructive text-center">Failed to generate voucher. Please try again.</p>
             )}
           </div>
+
+          {voucherCode && ( // Display human-readable code if available
+            <div className="text-center my-4">
+              <p className="text-sm text-muted-foreground">Voucher Code</p>
+              <p className="text-3xl font-mono font-bold tracking-widest text-foreground">{voucherCode}</p>
+            </div>
+          )}
 
           <div className="text-center my-4">
             <p className="text-sm text-muted-foreground">Voucher Value</p>

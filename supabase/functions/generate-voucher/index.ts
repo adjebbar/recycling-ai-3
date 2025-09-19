@@ -15,6 +15,17 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Function to generate a random alphanumeric code
+function generateVoucherCode(length: number = 8): string {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 serve(async (req) => {
   console.log(`generate-voucher function invoked. Method: ${req.method}`);
   if (req.method === 'OPTIONS') {
@@ -49,6 +60,10 @@ serve(async (req) => {
     const amount = (points * VIRTUAL_CASH_PER_POINT).toFixed(2);
     console.log(`Calculated amount: ${amount}`);
 
+    // Generate a human-readable voucher code
+    const voucherCode = generateVoucherCode();
+    console.log(`Generated voucher code: ${voucherCode}`);
+
     // 1. Create a voucher record in the database
     console.log("Inserting voucher into database...");
     const { data: voucher, error: dbError } = await supabaseAdmin
@@ -58,15 +73,16 @@ serve(async (req) => {
         amount: parseFloat(amount),
         user_id: userId || null, // Store userId if provided
         reward_id: rewardId || null, // Store rewardId if provided
+        voucher_code: voucherCode, // Store the human-readable code
       })
-      .select('id')
+      .select('id, voucher_code') // Select voucher_code as well
       .single();
 
     if (dbError) {
       console.error('Database error creating voucher:', dbError);
       throw new Error(`Could not create voucher record: ${dbError.message}`);
     }
-    console.log(`Voucher created with ID: ${voucher.id}`);
+    console.log(`Voucher created with ID: ${voucher.id} and code: ${voucher.voucher_code}`);
 
     // 2. Create a signed JWT for the voucher
     const jwtSecret = Deno.env.get('VOUCHER_JWT_SECRET');
@@ -94,7 +110,7 @@ serve(async (req) => {
     const jwt = await create({ alg: "HS256", typ: "JWT" }, payload, key);
     console.log("JWT created successfully.");
 
-    return new Response(JSON.stringify({ voucherToken: jwt }), {
+    return new Response(JSON.stringify({ voucherToken: jwt, voucherCode: voucher.voucher_code }), { // Return both
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });

@@ -25,7 +25,8 @@ const RewardsPage = () => {
   const { t } = useTranslation();
   const { data: rewards, isLoading } = useRewards();
   const { points, user, deductPoints, refetchProfile } = useAuth();
-  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [generatedVoucherCode, setGeneratedVoucherCode] = useState<string | null>(null); // New state for human-readable code
+  const [generatedQrCodeValue, setGeneratedQrCodeValue] = useState<string | null>(null); // State for JWT for QR code
   const [isRedeeming, setIsRedeeming] = useState(false);
   const queryClient = useQueryClient();
 
@@ -40,7 +41,8 @@ const RewardsPage = () => {
     }
 
     setIsRedeeming(true);
-    setGeneratedCode(null);
+    setGeneratedVoucherCode(null); // Clear previous code
+    setGeneratedQrCodeValue(null); // Clear previous QR code value
 
     try {
       await deductPoints(cost);
@@ -67,7 +69,8 @@ const RewardsPage = () => {
         throw new Error(data.error);
       }
 
-      setGeneratedCode(data.voucherToken);
+      setGeneratedVoucherCode(data.voucherCode); // Set the human-readable code
+      setGeneratedQrCodeValue(data.voucherToken); // Set the JWT for the QR code
       await refetchProfile();
       await queryClient.invalidateQueries({ queryKey: ['rewardHistory', user.id] });
     } catch (err: any) {
@@ -152,7 +155,7 @@ const RewardsPage = () => {
       </div>
 
       {/* Dialog to show the generated code */}
-      <AlertDialog open={!!generatedCode} onOpenChange={() => setGeneratedCode(null)}>
+      <AlertDialog open={!!generatedVoucherCode} onOpenChange={() => setGeneratedVoucherCode(null)}> {/* Open based on human-readable code */}
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Your Clevent Credit Code</AlertDialogTitle>
@@ -161,10 +164,10 @@ const RewardsPage = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="my-4 p-4 bg-muted rounded-md text-center">
-            <p className="text-2xl font-mono font-bold tracking-widest">{generatedCode}</p>
+            <p className="text-2xl font-mono font-bold tracking-widest">{generatedVoucherCode}</p> {/* Display human-readable code */}
           </div>
           <AlertDialogFooter>
-            <Button onClick={() => setGeneratedCode(null)}>Close</Button>
+            <Button onClick={() => setGeneratedVoucherCode(null)}>Close</Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -93,8 +93,8 @@ const LandingPage = () => {
           <section className="py-16 md:py-24">
               <div className="container mx-auto px-4">
                   <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                      <h2 className="text-3xl md:text-4xl font-bold text-foreground">Revolutionize Your Recycling</h2>
-                      <p className="text-gray-700 dark:text-gray-200 mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
+                      <h2 className="text-3xl md:text-4xl font-bold text-white">Revolutionize Your Recycling</h2>
+                      <p className="text-white mt-2 max-w-2xl mx-auto">EcoScan AI is more than just an app—it's a tool to empower your environmental efforts.</p>
                   </div>
                   <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                       <FeatureCard 

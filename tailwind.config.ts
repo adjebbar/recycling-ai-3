@@ -67,16 +67,6 @@ export default {
           DEFAULT: "hsl(27 87% 67%)", // A vibrant orange
           foreground: "hsl(24 9.8% 10%)", // Dark text for contrast
         },
-        // New colors for the landing page design
-        'landing-green': {
-          lighter: 'hsl(140, 60%, 50%)', // Lighter green for gradient start
-          DEFAULT: 'hsl(140, 60%, 40%)', // Default green
-          darker: 'hsl(140, 60%, 30%)', // Darker green for gradient end
-        },
-        'bin-red': {
-          DEFAULT: 'hsl(350, 70%, 60%)', // Vibrant pinkish red for the bin
-          foreground: 'hsl(0, 0%, 100%)', // White text for bin
-        },
       },
       borderRadius: {
         lg: "var(--radius)",

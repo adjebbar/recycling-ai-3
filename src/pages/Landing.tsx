@@ -55,7 +55,7 @@ const LandingPage = () => {
     <div className="min-h-screen w-full text-foreground overflow-x-hidden">
       {/* Background Image */}
       <div
-        className="fixed inset-0 w-screen h-screen bg-cover bg-center"
+        className="fixed inset-0 w-screen h-screen bg-cover bg-top"
         style={{ backgroundImage: `url('/images/3759825_76251.jpg')` }}
       />
       {/* Dark overlay for readability */}

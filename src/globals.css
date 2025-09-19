@@ -15,6 +15,7 @@
 
     --primary: 142.1 76.2% 36.3%; /* Keep current green */
     --primary-foreground: 355.7 100% 97.3%;
+    --primary-dark: 142.1 76.2% 25%; /* Darker green for fill */
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 47% 11.2%;
@@ -56,6 +57,7 @@
 
     --primary: 142.1 70.6% 45.3%; /* Keep current green */
     --primary-foreground: 355.7 100% 97.3%;
+    --primary-dark: 142.1 70.6% 30%; /* Darker green for fill */
 
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;

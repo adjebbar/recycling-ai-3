@@ -27,6 +27,7 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          dark: "hsl(var(--primary-dark))", // Nouvelle couleur vert foncé
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -62,10 +63,9 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Added new orange color
         orange: {
-          DEFAULT: "hsl(27 87% 67%)", // A vibrant orange
-          foreground: "hsl(24 9.8% 10%)", // Dark text for contrast
+          DEFAULT: "hsl(27 87% 67%)",
+          foreground: "hsl(24 9.8% 10%)",
         },
       },
       borderRadius: {
@@ -148,7 +148,7 @@ export default {
     function ({ addUtilities, theme }: any) {
       addUtilities({
         '.text-stroke-primary': {
-          '-webkit-text-stroke': `1.5px hsl(var(--primary))`, // Adjust stroke width as needed
+          '-webkit-text-stroke': `1.5px hsl(var(--primary))`,
           'text-stroke': `1.5px hsl(var(--primary))`,
         },
         '.text-fill-transparent': {

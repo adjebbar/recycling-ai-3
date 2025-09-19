@@ -372,14 +372,19 @@ const ScannerPage = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] w-full text-foreground relative bg-gradient-to-br from-gray-900 to-gray-700">
-      {/* Background gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-background/20 z-0" />
+    <div className="min-h-[calc(100vh-4rem)] w-full text-foreground relative">
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 w-full h-full bg-cover bg-center"
+        style={{ backgroundImage: `url('/images/eco-futuristic-background.png')` }}
+      />
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-black opacity-60 z-0" />
       
       <div className="relative z-10 container mx-auto p-4 flex flex-col items-center animate-fade-in-up">
         <div className="text-center max-w-lg w-full">
-          <h1 className="text-3xl font-bold mb-4 text-foreground">{t('scanner.title')}</h1>
-          <p className="text-foreground mb-6">{t('scanner.subtitle')}</p>
+          <h1 className="text-3xl font-bold mb-4 text-white">{t('scanner.title')}</h1>
+          <p className="text-white mb-6">{t('scanner.subtitle')}</p>
         </div>
 
         {/* New image added here */}

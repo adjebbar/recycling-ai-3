@@ -148,36 +148,36 @@ const LandingPage = () => {
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
                   <Card className="bg-background/50 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-foreground">Total Bottles Recycled</CardTitle>
+                      <CardTitle className="text-xl font-semibold text-foreground">Total Bottles Recycled</CardTitle>
                       <Recycle className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedBottles.toLocaleString()}</div>
-                      <p className="text-xs text-white">and counting, thanks to our community.</p>
+                      <p className="text-foreground">and counting, thanks to our community.</p>
                     </CardContent>
                   </Card>
                 </div>
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
                   <Card className="bg-background/50 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-foreground">Active Recyclers</CardTitle>
+                      <CardTitle className="text-xl font-semibold text-foreground">Active Recyclers</CardTitle>
                       <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedRecyclers.toLocaleString()}</div>
-                      <p className="text-xs text-white">making a positive impact right now.</p>
+                      <p className="text-foreground">making a positive impact right now.</p>
                     </CardContent>
                   </Card>
                 </div>
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
                   <Card className="bg-background/50 backdrop-blur-lg border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium text-foreground">CO₂ Saved</CardTitle>
+                      <CardTitle className="text-xl font-semibold text-foreground">CO₂ Saved</CardTitle>
                       <Leaf className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedCo2Saved} kg</div>
-                      <p className="text-xs text-white">preventing harmful greenhouse gases.</p>
+                      <p className="text-foreground">preventing harmful greenhouse gases.</p>
                     </CardContent>
                   </Card>
                 </div>

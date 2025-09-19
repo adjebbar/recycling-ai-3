@@ -57,6 +57,8 @@ const LandingPage = () => {
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
         style={{ backgroundImage: `url('/images/3759825_76251.jpg')` }}
       />
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-black opacity-50 z-0" />
       
       <div className="relative z-10"> {/* This div now contains all foreground content */}
         <LandingHeader />

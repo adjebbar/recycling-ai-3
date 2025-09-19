@@ -52,14 +52,14 @@ const LandingPage = () => {
   const animatedCo2Saved = (animatedBottles * CO2_SAVED_PER_BOTTLE_KG).toFixed(1);
 
   return (
-    <div className="min-h-screen w-full text-foreground overflow-x-hidden relative">
+    <div className="min-h-screen w-full text-foreground overflow-x-hidden">
       {/* Background Image */}
       <div
-        className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
+        className="fixed inset-0 w-screen h-screen bg-cover bg-center"
         style={{ backgroundImage: `url('/images/3759825_76251.jpg')` }}
       />
       {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-black opacity-50 z-0" />
+      <div className="fixed inset-0 bg-black opacity-50" />
       
       <div className="relative z-10"> {/* This div now contains all foreground content */}
         <LandingHeader />

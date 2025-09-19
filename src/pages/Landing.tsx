@@ -78,11 +78,13 @@ const LandingPage = () => {
                     Scan plastic bottles to earn points instantly. Register later to track your progress and unlock exclusive rewards!
                   </p>
                 </div>
-                <div className="animate-fade-in-up flex justify-center mt-8 relative" style={{ animationDelay: '0.6s' }}>
-                  <div className="absolute -top-20 left-1/2 -translate-x-1/2 flex flex-col items-center z-20 pointer-events-none">
-                    <p className="text-orange font-bold text-lg mb-1 animate-bounce">Start Here!</p>
-                    <ArrowVector className="w-8 h-8 text-orange" />
-                  </div>
+                
+                <div className="animate-fade-in-up flex flex-col items-center mt-8" style={{ animationDelay: '0.3s' }}>
+                  <p className="text-orange font-bold text-lg mb-1 animate-bounce">Start Here!</p>
+                  <ArrowVector className="w-8 h-8 text-orange" />
+                </div>
+
+                <div className="animate-fade-in-up flex justify-center mt-4" style={{ animationDelay: '0.6s' }}>
                   <Link to="/scanner" className="transition-transform duration-300 hover:scale-105">
                     <img 
                       src="/images/7178577_61340.jpg" 

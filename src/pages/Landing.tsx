@@ -56,8 +56,7 @@ const LandingPage = () => {
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
         style={{ backgroundImage: `url('/images/abstract-eco-background.svg')` }}
       />
-      {/* Increased dark overlay for better text readability */}
-      <div className="absolute inset-0 w-full h-full bg-black/50 z-0" /> 
+      {/* Removed the dark overlay (bg-black/50) */}
       
       <div className="relative z-10">
         <LandingHeader />
@@ -128,7 +127,7 @@ const LandingPage = () => {
           {/* Animation Section */}
           <section className="py-16 md:py-24 bg-black/60">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">See It in Action</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">See It in Action</h2>
               <div className="max-w-2xl mx-auto">
                 <SeeItInAction />
               </div>

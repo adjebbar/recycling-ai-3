@@ -1,77 +1,65 @@
 {
-  "home": {
-    "hero": {
-      "recycle": "Recycle.",
-      "earnRepeat": " Earn. Repeat."
-    },
-    "subtitle": "Scan plastic bottles, earn points, and redeem rewards for a cleaner planet.",
-    "startScanning": "Start Scanning",
-    "yourPoints": "Your Points"
-  },
   "nav": {
     "home": "Home",
     "scan": "Scan",
     "rewards": "Rewards",
     "leaderboard": "Leaderboard",
     "profile": "Profile",
-    "admin": "Admin",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
     "appName": "EcoScan AI",
     "points": "{{count}} Points",
     "myAccount": "My Account",
-    "logout": "Logout",
-    "login": "Login",
-    "signup": "Sign Up",
+    "admin": "Admin",
     "rewardHistory": "Reward History"
   },
+  "home": {
+    "hero": {
+      "recycle": "Recycle.",
+      "earnRepeat": " Earn. Repeat."
+    },
+    "subtitle": "Scan plastic bottles, earn points, and contribute to a cleaner planet.",
+    "startScanning": "Start Scanning",
+    "yourPoints": "Your Points",
+    "nextLevel": "Next Level"
+  },
   "scanner": {
-    "title": "Scan & Recycle",
-    "subtitle": "Scan plastic bottle barcodes to earn points and contribute to a greener planet.",
+    "title": "Recycle & Earn Points",
+    "subtitle": "Scan the barcode on your plastic bottle to earn points and contribute to our community goal.",
     "verifying": "Verifying product...",
-    "success": "Bottle scanned! You earned {{points}} points!",
-    "notPlastic": "This item is not a recyclable plastic bottle.",
-    "notFound": "Product not found or not a plastic bottle.",
-    "connectionError": "Failed to connect to product database. Please try again.",
-    "signupPromptTitle": "Track your progress!",
-    "signupPromptDescription": "Create an account to save your points, unlock achievements, and redeem exclusive rewards.",
+    "success": "Bottle recycled! You earned {{points}} points.",
+    "leveledUp": "Leveled Up to {{levelName}}!",
+    "achievementsUnlocked": "Achievements Unlocked: {{achievements}}",
+    "notPlastic": "This item is not recognized as a plastic bottle. Please try another item.",
+    "notFound": "Product not found. Please ensure it's a plastic bottle with a valid barcode.",
+    "connectionError": "Failed to connect to product database. Please check your internet connection.",
     "cameraTab": "Camera",
     "manualTab": "Manual",
     "manualTitle": "Manual Barcode Entry",
     "manualDescription": "Enter the barcode manually if the camera isn't working.",
     "manualPlaceholder": "Enter barcode number",
     "manualButton": "Submit",
-    "sessionScore": "Session Score",
+    "sessionScore": "Your Session Score",
     "resetScore": "Reset Score",
     "cameraPermission": "Camera permission is required for scanning.",
-    "cameraInitError": "Failed to initialize camera. Please check permissions.",
     "cameraErrorTitle": "Camera Access Denied",
-    "cameraErrorMessage": "It looks like camera access is blocked or unavailable. Please ensure your browser has camera permissions and try again.",
+    "cameraErrorMessage": "Please enable camera permissions in your browser settings to use the scanner.",
     "retryCamera": "Retry Camera",
-    "noBarcodeDetected": "No barcode detected yet. Adjust bottle position.",
-    "leveledUp": "Leveled Up to {{levelName}}!",
-    "achievementsUnlocked": "Achievement Unlocked: {{achievements}}!"
+    "noBarcodeDetected": "No barcode detected. Please ensure the barcode is clear and well-lit.",
+    "imageSuccess": "Image analyzed! Plastic bottle confirmed. You earned {{points}} points.",
+    "imageNotPlastic": "Image analysis suggests this is not a plastic bottle. Please try another item."
   },
   "profile": {
     "title": "My Profile",
     "totalPoints": "Total Points",
     "bottlesRecycled": "Bottles Recycled",
-    "achievements": "Achievements",
     "recentActivity": "Recent Activity",
     "recentActivityDescription": "Your last 20 recycling scans.",
     "date": "Date",
     "barcode": "Barcode",
-    "points": "Points"
-  },
-  "achievements": {
-    "firstScanName": "First Scan",
-    "firstScanDescription": "Complete your very first scan.",
-    "noviceRecyclerName": "Novice Recycler",
-    "noviceRecyclerDescription": "Scan 10 bottles.",
-    "pointCollectorName": "Point Collector",
-    "pointCollectorDescription": "Accumulate 100 points.",
-    "dedicatedRecyclerName": "Dedicated Recycler",
-    "dedicatedRecyclerDescription": "Scan 50 bottles.",
-    "pointsHoarderName": "Points Hoarder",
-    "pointsHoarderDescription": "Accumulate 500 points."
+    "points": "Points",
+    "achievements": "Achievements"
   },
   "rewards": {
     "title": "Rewards",
@@ -84,9 +72,9 @@
   },
   "rewardHistory": {
     "title": "Reward History",
-    "subtitle": "View all the rewards you've redeemed.",
-    "cardTitle": "Your Redeemed Vouchers",
-    "cardDescription": "A list of your past reward redemptions.",
+    "subtitle": "View your redeemed and active vouchers.",
+    "cardTitle": "Your Vouchers",
+    "cardDescription": "A list of your recent reward vouchers.",
     "reward": "Reward",
     "cost": "Cost",
     "value": "Value",
@@ -97,5 +85,21 @@
     "statusExpired": "Expired",
     "genericVoucher": "Shopping Voucher",
     "errorLoading": "Failed to load reward history."
+  },
+  "achievements": {
+    "firstScanName": "First Scan",
+    "firstScanDescription": "Complete your very first bottle scan.",
+    "noviceRecyclerName": "Novice Recycler",
+    "noviceRecyclerDescription": "Scan 10 bottles.",
+    "pointCollectorName": "Point Collector",
+    "pointCollectorDescription": "Accumulate 100 points.",
+    "dedicatedRecyclerName": "Dedicated Recycler",
+    "dedicatedRecyclerDescription": "Scan 50 bottles.",
+    "pointsHoarderName": "Points Hoarder",
+    "pointsHoarderDescription": "Accumulate 500 points."
+  },
+  "footer": {
+    "author": "Author",
+    "copyright": "NewTech corp. All rights reserved."
   }
 }

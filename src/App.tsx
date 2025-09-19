@@ -20,33 +20,29 @@ import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { ConfettiProvider } from "./components/ConfettiProvider";
 import SettingsPage from "./pages/Settings";
-import { MadeWithDyad } from "./components/made-with-dyad";
+import { AppFooter } from "./components/AppFooter"; // Updated import
 import NfcPage from "./pages/NfcPage";
 import AdminValidateTicketPage from "./pages/AdminValidateTicket";
-import { MobileNav } from "./components/MobileNav"; // Import MobileNav
-import { useIsMobile } from "./hooks/use-mobile"; // Import useIsMobile
-import RewardHistoryPage from "./pages/RewardHistory"; // Import RewardHistoryPage
+import { MobileNav } from "./components/MobileNav";
+import { useIsMobile } from "./hooks/use-mobile";
+import RewardHistoryPage from "./pages/RewardHistory";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { i18n } = useTranslation();
   const location = useLocation();
-  const isMobile = useIsMobile(); // Use the hook
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     document.documentElement.lang = i18n.language;
     document.documentElement.dir = i18n.dir(i18n.language);
   }, [i18n, i18n.language]);
 
-  // The ScanFAB is no longer needed as its functionality is integrated into MobileNav
-  // const hideFABOnRoutes = ['/scanner', '/login', '/signup'];
-  // const showFAB = !hideFABOnRoutes.includes(location.pathname);
-
   return (
     <>
       <Navbar />
-      <main className={isMobile ? "pb-16" : ""}> {/* Add padding-bottom for mobile nav */}
+      <main className={isMobile ? "pb-16" : ""}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/scanner" element={<ScannerPage />} />
@@ -57,7 +53,7 @@ const AppContent = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/nfc" element={<NfcPage />} />
-          <Route path="/reward-history" element={<RewardHistoryPage />} /> {/* New route */}
+          <Route path="/reward-history" element={<RewardHistoryPage />} />
           
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminPage />} />
@@ -67,7 +63,7 @@ const AppContent = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {isMobile && <MobileNav />} {/* Conditionally render MobileNav */}
+      {isMobile && <MobileNav />}
     </>
   );
 };
@@ -85,7 +81,7 @@ const App = () => {
                 <AppContent />
               </AuthProvider>
             </ConfettiProvider>
-            <MadeWithDyad />
+            <AppFooter /> {/* Updated component name */}
           </BrowserRouter>
         </ThemeProvider>
       </TooltipProvider>

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf, Scan } from "lucide-react";
+import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -79,15 +79,13 @@ const LandingPage = () => {
                   </p>
                 </div>
                 <div className="animate-fade-in-up flex justify-center mt-4 relative" style={{ animationDelay: '0.6s' }}>
-                  <Link to="/scanner">
-                    <Button 
-                      className="h-32 w-32 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-subtle-pulse relative z-10" // Changed to square (removed rounded-full) and larger
-                    >
-                      <Scan className="h-12 w-12 text-primary-foreground mb-1 animate-glow-pulse" />
-                      <span className="text-sm font-bold text-primary-foreground">Scan Now</span>
-                    </Button>
+                  <Link to="/scanner" className="transition-transform duration-300 hover:scale-105">
+                    <img 
+                      src="/images/scan-button-qr.png" 
+                      alt="Scan Now" 
+                      className="h-48 w-auto shadow-xl animate-subtle-pulse relative z-10"
+                    />
                   </Link>
-                  {/* Removed PlasticBottleVector component */}
                 </div>
               </div>
             </div>

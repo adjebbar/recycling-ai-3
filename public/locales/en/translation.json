@@ -100,6 +100,7 @@
   },
   "footer": {
     "author": "Author",
-    "copyright": "NewTech corp. All rights reserved."
+    "copyrightLine1": "© 2025 NewTech. All rights reserved.",
+    "copyrightLine2": "Application developed by NewTech Corp."
   }
 }

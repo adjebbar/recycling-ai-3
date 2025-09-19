@@ -81,14 +81,18 @@ const LandingPage = () => {
                 <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center items-center gap-4 mt-8" style={{ animationDelay: '0.6s' }}>
                   <RecyclingBinButton 
                     to="/scanner" 
-                    label="Start Scanning Anonymously" 
+                    label="Scan Me" 
                     variant="orange" 
+                    icon={ScanLine} // Use ScanLine icon
+                    shape="scanner" // Use scanner shape
                     className="w-full sm:w-auto flex-1 max-w-[280px]"
                   />
                   <RecyclingBinButton 
                     to="/signup" 
-                    label="Create Account & Track Progress" 
+                    label="Create account to track your progress" 
                     variant="primary" 
+                    icon={Recycle} // Use Recycle icon
+                    shape="bin" // Use bin shape
                     className="w-full sm:w-auto flex-1 max-w-[280px]"
                   />
                 </div>
@@ -202,12 +206,16 @@ const LandingPage = () => {
                   to="/scanner" 
                   label="Start Scanning Now" 
                   variant="orange" 
+                  icon={ScanLine} // Use ScanLine icon
+                  shape="scanner" // Use scanner shape
                   className="w-full sm:w-auto flex-1 max-w-[280px]"
                 />
                 <RecyclingBinButton 
                   to="/signup" 
                   label="Create Account" 
                   variant="primary" 
+                  icon={Recycle} // Use Recycle icon
+                  shape="bin" // Use bin shape
                   className="w-full sm:w-auto flex-1 max-w-[280px]"
                 />
               </div>

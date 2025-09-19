@@ -69,7 +69,7 @@ const LandingPage = () => {
           >
             <div className="container mx-auto relative z-10">
               <div className="max-w-3xl mx-auto">
-                <div className="p-8 rounded-xl shadow-2xl bg-background/80 backdrop-blur-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                <div className="p-8 rounded-xl shadow-2xl bg-background/50 backdrop-blur-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-foreground">
                     Recycle Today for a <span className="text-primary">Greener</span> Tomorrow
                   </h1>
@@ -129,7 +129,7 @@ const LandingPage = () => {
           {/* Animation Section */}
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">See It in Action</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">See It in Action</h2>
               <div className="max-w-2xl mx-auto">
                 <SeeItInAction />
               </div>

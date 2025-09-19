@@ -55,7 +55,7 @@ const LandingPage = () => {
       {/* Background Image */}
       <div
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: `url('/images/7777325_3719883.svg')` }}
+        style={{ backgroundImage: `url('/images/3759825_76251.jpg')` }}
       />
       
       {/* Removed the global bg-background/80 overlay */}

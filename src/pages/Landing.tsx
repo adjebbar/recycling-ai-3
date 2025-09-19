@@ -128,7 +128,7 @@ const LandingPage = () => {
           {/* Animation Section */}
           <section className="py-16 md:py-24 bg-background/70">
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">See It in Action</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">See It in Action</h2>
               <div className="max-w-2xl mx-auto">
                 <SeeItInAction />
               </div>

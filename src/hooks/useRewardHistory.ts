@@ -10,6 +10,7 @@ export interface RewardHistoryItem {
   created_at: string;
   redeemed_at: string | null;
   expires_at: string | null;
+  reward_id: number; // Added to track which reward was redeemed
   rewards: { // Join with rewards table
     name: string;
     icon: string;
@@ -28,6 +29,7 @@ const fetchRewardHistory = async (userId: string | undefined): Promise<RewardHis
       created_at,
       redeemed_at,
       expires_at,
+      reward_id,
       rewards (name, icon)
     `)
     .eq('user_id', userId)

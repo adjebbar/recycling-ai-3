@@ -79,16 +79,6 @@ const LandingPage = () => {
                   </p>
                 </div>
                 <div className="animate-fade-in-up flex justify-center mt-4 relative" style={{ animationDelay: '0.6s' }}>
-                  {/* Arrow pointing to the scan button */}
-                  <div className="absolute -top-16 -right-8 md:-right-20 transform -rotate-12 animate-bounce hidden md:block pointer-events-none">
-                    <p className="text-2xl font-bold text-orange -mb-6 ml-4 transform rotate-12">
-                      Start Here!
-                    </p>
-                    <svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform -scale-x-100 drop-shadow-lg">
-                      <path d="M84.1667 55.8333C70 50 66.667 35.8333 62.5 25C58.3333 14.1667 41.6667 12.5 30.8333 18.3333C20 24.1667 15.8333 40 20.8333 50.8333C25.8333 61.6667 42.5 65.8333 51.6667 60.8333" stroke="hsl(var(--orange))" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M51.6667 60.8333L45 70L57.5 68.3333L51.6667 60.8333Z" fill="hsl(var(--orange))"/>
-                    </svg>
-                  </div>
                   <Link to="/scanner" className="transition-transform duration-300 hover:scale-105">
                     <img 
                       src="/images/7178577_61340.jpg" 

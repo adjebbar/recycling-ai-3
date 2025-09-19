@@ -81,13 +81,13 @@ const LandingPage = () => {
                 <div className="animate-fade-in-up flex justify-center mt-4 relative" style={{ animationDelay: '0.6s' }}>
                   <Link to="/scanner">
                     <Button 
-                      className="rounded-full h-20 w-20 md:h-24 md:w-24 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-subtle-pulse relative z-10"
+                      className="h-32 w-32 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-subtle-pulse relative z-10" // Changed to square (removed rounded-full) and larger
                     >
                       <ScanLine className="h-10 w-10 text-primary-foreground mb-1" />
                       <span className="text-sm font-bold text-primary-foreground">Scan Now</span>
                     </Button>
                   </Link>
-                  <PlasticBottleVector className="absolute -top-10 left-1/2 -translate-x-1/2 h-32 w-16 z-0 animate-fade-in-up" style={{ animationDelay: '0.8s' }} />
+                  <PlasticBottleVector className="absolute -top-16 left-1/2 -translate-x-1/2 h-32 w-16 z-0 animate-fade-in-up" style={{ animationDelay: '0.8s' }} /> {/* Adjusted top position */}
                 </div>
               </div>
             </div>

@@ -81,9 +81,9 @@ const LandingPage = () => {
                 <div className="animate-fade-in-up flex justify-center mt-4 relative" style={{ animationDelay: '0.6s' }}>
                   <Link to="/scanner" className="transition-transform duration-300 hover:scale-105">
                     <img 
-                      src="/images/scan-button-qr.png" 
+                      src="/images/7178577_61340.svg" 
                       alt="Scan Now" 
-                      className="h-48 w-auto shadow-xl animate-subtle-pulse relative z-10 mix-blend-darken"
+                      className="h-48 w-auto shadow-xl animate-subtle-pulse relative z-10"
                     />
                   </Link>
                 </div>

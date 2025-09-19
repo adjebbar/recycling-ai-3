@@ -379,7 +379,7 @@ const ScannerPage = () => {
       <div className="relative z-10 container mx-auto p-4 flex flex-col items-center animate-fade-in-up">
         <div className="text-center max-w-lg w-full">
           <h1 className="text-3xl font-bold mb-4 text-foreground">{t('scanner.title')}</h1>
-          <p className="text-muted-foreground mb-6">{t('scanner.subtitle')}</p>
+          <p className="text-foreground mb-6">{t('scanner.subtitle')}</p>
         </div>
 
         {/* New image added here */}
@@ -412,7 +412,7 @@ const ScannerPage = () => {
                   <div className="flex flex-col items-center justify-center p-6 space-y-4">
                     <ImageIcon className="h-16 w-16 text-muted-foreground" />
                     <h3 className="text-xl font-bold">Analyze with Image</h3>
-                    <p className="text-muted-foreground text-center">
+                    <p className="text-foreground text-center">
                       Barcode scan was inconclusive. Take a photo of the item to determine if it's a plastic bottle.
                     </p>
                     <input
@@ -469,7 +469,7 @@ const ScannerPage = () => {
                 )}
                 {renderScanResult()}
                 {scanFailureMessage && !scanResult && !imageAnalysisMode && (
-                  <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
+                  <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-foreground">
                     {scanFailureMessage}
                   </p>
                 )}
@@ -525,7 +525,7 @@ const ScannerPage = () => {
         />
 
         <div className="text-center mt-6 max-w-lg w-full">
-          <p className="text-sm text-muted-foreground flex items-center justify-center">
+          <p className="text-sm text-foreground flex items-center justify-center">
             <CameraOff className="w-4 h-4 mr-2" />
             {t('scanner.cameraPermission')}
           </p>

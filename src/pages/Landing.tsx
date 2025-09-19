@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf } from "lucide-react";
+import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf, ArrowDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -78,7 +78,11 @@ const LandingPage = () => {
                     Scan plastic bottles to earn points instantly. Register later to track your progress and unlock exclusive rewards!
                   </p>
                 </div>
-                <div className="animate-fade-in-up flex justify-center mt-4 relative" style={{ animationDelay: '0.6s' }}>
+                <div className="animate-fade-in-up flex justify-center mt-8 relative" style={{ animationDelay: '0.6s' }}>
+                  <div className="absolute -top-20 left-1/2 -translate-x-1/2 flex flex-col items-center z-20 pointer-events-none">
+                    <p className="text-white font-bold text-lg mb-1 animate-bounce">Start Here!</p>
+                    <ArrowDown className="w-8 h-8 text-white" />
+                  </div>
                   <Link to="/scanner" className="transition-transform duration-300 hover:scale-105">
                     <img 
                       src="/images/7178577_61340.jpg" 

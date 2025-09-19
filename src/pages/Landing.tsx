@@ -83,7 +83,7 @@ const LandingPage = () => {
                     <img 
                       src="/images/scan-button-qr.png" 
                       alt="Scan Now" 
-                      className="h-48 w-auto shadow-xl animate-subtle-pulse relative z-10"
+                      className="h-48 w-auto shadow-xl animate-subtle-pulse relative z-10 mix-blend-darken"
                     />
                   </Link>
                 </div>

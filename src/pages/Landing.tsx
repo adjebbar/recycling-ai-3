@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf } from "lucide-react";
+import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf, Scan } from "lucide-react";
 import { Link } from "react-router-dom";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -83,7 +83,7 @@ const LandingPage = () => {
                     <Button 
                       className="h-32 w-32 shadow-xl bg-primary hover:bg-primary/90 flex flex-col items-center justify-center text-center animate-subtle-pulse relative z-10" // Changed to square (removed rounded-full) and larger
                     >
-                      <ScanLine className="h-10 w-10 text-primary-foreground mb-1" />
+                      <Scan className="h-12 w-12 text-primary-foreground mb-1 animate-glow-pulse" />
                       <span className="text-sm font-bold text-primary-foreground">Scan Now</span>
                     </Button>
                   </Link>

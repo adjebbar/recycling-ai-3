@@ -80,8 +80,8 @@ const LandingPage = () => {
                 </div>
                 <div className="animate-fade-in-up flex justify-center mt-8 relative" style={{ animationDelay: '0.6s' }}>
                   <div className="absolute -top-20 left-1/2 -translate-x-1/2 flex flex-col items-center z-20 pointer-events-none">
-                    <p className="text-white font-bold text-lg mb-1 animate-bounce">Start Here!</p>
-                    <ArrowDown className="w-8 h-8 text-white" />
+                    <p className="text-orange font-bold text-lg mb-1 animate-bounce">Start Here!</p>
+                    <ArrowDown className="w-8 h-8 text-orange" />
                   </div>
                   <Link to="/scanner" className="transition-transform duration-300 hover:scale-105">
                     <img 

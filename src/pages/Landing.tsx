@@ -36,7 +36,7 @@ const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps
                 <Icon className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-xl font-semibold mb-2 text-foreground">{title}</h3>
-            <p className="text-gray-700 dark:text-gray-200">{description}</p>
+            <p className="text-foreground">{description}</p>
         </CardContent>
     </Card>
 );
@@ -152,7 +152,7 @@ const LandingPage = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedBottles.toLocaleString()}</div>
-                      <p className="text-xs text-gray-700 dark:text-gray-200">and counting, thanks to our community.</p>
+                      <p className="text-xs text-foreground">and counting, thanks to our community.</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -164,7 +164,7 @@ const LandingPage = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedRecyclers.toLocaleString()}</div>
-                      <p className="text-xs text-gray-700 dark:text-gray-200">making a positive impact right now.</p>
+                      <p className="text-xs text-foreground">making a positive impact right now.</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -176,7 +176,7 @@ const LandingPage = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-4xl font-bold text-primary">{animatedCo2Saved} kg</div>
-                      <p className="text-xs text-gray-700 dark:text-gray-200">preventing harmful greenhouse gases.</p>
+                      <p className="text-xs text-foreground">preventing harmful greenhouse gases.</p>
                     </CardContent>
                   </Card>
                 </div>

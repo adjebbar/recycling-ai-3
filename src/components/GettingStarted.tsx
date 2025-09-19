@@ -35,7 +35,7 @@ const GettingStarted = () => {
                 <CardTitle className="text-foreground">{step.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">{step.description}</p>
+                <p className="text-gray-700 dark:text-gray-200">{step.description}</p>
               </CardContent>
             </Card>
           );

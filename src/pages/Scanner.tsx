@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
+import { showError, showSuccess, showLoading, dismissToast, showInfo } from '@/utils/toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Camera, CameraOff, Keyboard, CheckCircle2, XCircle, RefreshCw, AlertTriangle, Trophy, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -119,9 +119,9 @@ const ScannerPage = () => {
           triggerPiConveyor('rejected');
           break;
         case 'not_found':
-          showError(data.reason || t('scanner.notFound'));
-          setScanResult({ type: 'error', message: data.reason || t('scanner.notFound') });
-          triggerPiConveyor('rejected');
+          showInfo(t('scanner.notFoundButAccepted', "Product not in database, but we'll accept it. Thanks for recycling!"));
+          await handleSuccessfulRecycle(barcode);
+          setScanResult({ type: 'success', message: t('scanner.accepted', 'Item Accepted!') });
           break;
         default:
           throw new Error('Received an unknown decision from the server.');

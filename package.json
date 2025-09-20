@@ -75,7 +75,6 @@
     "@types/html5-qrcode": "*",
     "@types/i18next": "*",
     "@types/i18next-browser-languagedetector": "*",
-    "@types/i18next-http-backend": "*",
     "@types/lucide-react": "*",
     "@types/next-themes": "*",
     "@types/node": "^22.5.5",

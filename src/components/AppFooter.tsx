@@ -7,9 +7,9 @@ export const AppFooter = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="p-4 text-center text-sm text-gray-700 dark:text-gray-300 bg-background/50 backdrop-blur-lg">
+    <footer className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
       <p className="mb-1">
-        {t('footer.copyrightLine1', `© ${currentYear} NewTech. All rights reserved.`)}
+        {t('footer.copyrightLine1', '© 2025 NewTech. All rights reserved.')}
       </p>
       <p className="mb-1">
         {t('footer.copyrightLine2', 'Application developed by NewTech Corp.')}
@@ -18,7 +18,7 @@ export const AppFooter = () => {
         href="https://www.dyad.sh/"
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:text-gray-900 dark:hover:text-gray-100 text-primary"
+        className="hover:text-gray-700 dark:hover:text-gray-200"
       >
         Made with Dyad
       </a>

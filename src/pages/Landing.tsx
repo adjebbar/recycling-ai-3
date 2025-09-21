@@ -11,6 +11,18 @@ import GettingStarted from "@/components/GettingStarted";
 import SeeItInAction from "@/components/SeeItInAction";
 import ArrowVector from "@/components/ArrowVector";
 
+const LandingHeader = () => (
+  <header className="absolute top-0 left-0 right-0 z-20 py-4">
+    <div className="container mx-auto flex justify-between items-center px-4">
+      <Link to="/" className="flex items-center space-x-2">
+        <Recycle className="h-8 w-8 text-primary" />
+        <span className="text-2xl font-bold text-white">EcoScan AI</span>
+      </Link>
+      {/* Removed explicit Login/Sign Up buttons from header to streamline CTA */}
+    </div>
+  </header>
+);
+
 interface FeatureCardProps {
   icon: React.ElementType<LucideProps>;
   title: string;
@@ -50,24 +62,7 @@ const LandingPage = () => {
       <div className="fixed inset-0 bg-black opacity-50" />
       
       <div className="relative z-10"> {/* This div now contains all foreground content */}
-        {/* Header for Landing Page */}
-        <header className="absolute top-0 left-0 right-0 z-20 py-4">
-          <div className="container mx-auto flex justify-between items-center px-4">
-            <Link to="/" className="flex items-center space-x-2">
-              <Recycle className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold text-white">EcoScan AI</span>
-            </Link>
-            <div className="space-x-2">
-              <Button asChild variant="ghost" className="text-white hover:bg-white/20">
-                <Link to="/login">Login</Link>
-              </Button>
-              <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Link to="/signup">Sign Up</Link>
-              </Button>
-            </div>
-          </div>
-        </header>
-
+        <LandingHeader />
         <main>
           {/* Hero Section */}
           <section
@@ -140,6 +135,7 @@ const LandingPage = () => {
           {/* How It Works Section (Getting Started) */}
           <section className="py-16 md:py-24">
             <div className="container mx-auto px-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+              {/* Removed duplicate h2 here */}
               <GettingStarted />
             </div>
           </section>
@@ -159,7 +155,7 @@ const LandingPage = () => {
             <div className="container mx-auto px-4">
               <div className="text-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <h2 className="text-3xl md:text-4xl font-bold text-white">Our Collective Impact</h2>
-                <p className="text-white mt-2 mb-2 max-w-2xl mx-auto">You're not just recycling; you're part of a global community making a difference.</p>
+                <p className="text-white mt-2 max-w-2xl mx-auto">You're not just recycling; you're part of a global community making a difference.</p>
               </div>
               <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
                 <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>

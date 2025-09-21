@@ -127,48 +127,45 @@ const AdminPage = () => {
 
   return (
     <div className="container mx-auto p-4 animate-fade-in-up">
-      <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-      <p className="text-lg text-muted-foreground mb-8">
-        Manage application settings, community statistics, users, and special tools.
-      </p>
+      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
       
       <Tabs defaultValue="ticket-validation" className="w-full max-w-4xl mx-auto">
         <TabsList className="grid w-full grid-cols-5 h-auto">
           <TabsTrigger value="ticket-validation" className="flex flex-col py-2">
             <QrCode className="h-5 w-5 mb-1" />
-            <span className="text-xs font-medium">Ticket Validation</span>
+            <span className="text-xs">Tickets</span>
           </TabsTrigger>
           <TabsTrigger value="nfc-tools" className="flex flex-col py-2">
             <Nfc className="h-5 w-5 mb-1" />
-            <span className="text-xs font-medium">NFC Tools</span>
+            <span className="text-xs">NFC</span>
           </TabsTrigger>
           <TabsTrigger value="community-stats" className="flex flex-col py-2">
             <Globe className="h-5 w-5 mb-1" />
-            <span className="text-xs font-medium">Community Stats</span>
+            <span className="text-xs">Stats</span>
           </TabsTrigger>
           <TabsTrigger value="user-management" className="flex flex-col py-2">
             <Users className="h-5 w-5 mb-1" />
-            <span className="text-xs font-medium">User Management</span>
+            <span className="text-xs">Users</span>
           </TabsTrigger>
           <TabsTrigger value="danger-zone" className="flex flex-col py-2">
             <AlertTriangle className="h-5 w-5 mb-1 text-destructive" />
-            <span className="text-xs font-medium">Danger Zone</span>
+            <span className="text-xs">Danger</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="ticket-validation" className="mt-4">
           <Card className="bg-card/70 backdrop-blur-lg border">
             <CardHeader>
-              <CardTitle>Ticket Validation</CardTitle>
+              <CardTitle>Validation des Tickets</CardTitle>
               <CardDescription>
-                Scan QR codes on vouchers to validate them and mark them as redeemed.
+                Scannez les QR codes des tickets pour les valider.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild>
                 <Link to="/admin/validate-ticket">
                   <QrCode className="mr-2 h-4 w-4" />
-                  Go to Scanner
+                  Accéder au Scanner
                 </Link>
               </Button>
             </CardContent>
@@ -218,26 +215,26 @@ const AdminPage = () => {
         <TabsContent value="user-management" className="mt-4">
           <Card className="bg-card/70 backdrop-blur-lg border">
             <CardHeader>
-              <CardTitle>User Management</CardTitle>
+              <CardTitle>Gestion des Utilisateurs</CardTitle>
               <CardDescription>
-                Select a user to delete their account. This action is irreversible.
+                Sélectionnez un utilisateur à supprimer. Cette action est irréversible.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="user-select">Select a User</Label>
+                  <Label htmlFor="user-select">Sélectionner un utilisateur</Label>
                   {isUsersLoading ? (
                     <div className="flex items-center space-x-2">
                       <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Loading users...</span>
+                      <span className="text-sm text-muted-foreground">Chargement des utilisateurs...</span>
                     </div>
                   ) : isUsersError ? (
-                    <p className="text-destructive text-sm">Error loading users.</p>
+                    <p className="text-destructive text-sm">Erreur lors du chargement des utilisateurs.</p>
                   ) : (
                     <Select onValueChange={setUserIdToDelete} value={userIdToDelete}>
                       <SelectTrigger id="user-select" className="w-full">
-                        <SelectValue placeholder="Select a user" />
+                        <SelectValue placeholder="Sélectionnez un utilisateur" />
                       </SelectTrigger>
                       <SelectContent>
                         {allUsers?.map((userItem) => (
@@ -258,20 +255,20 @@ const AdminPage = () => {
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" disabled={!userIdToDelete || deleteLoading || isUsersLoading}>
                       <Trash2 className="mr-2 h-4 w-4" />
-                      {deleteLoading ? 'Deleting User...' : 'Delete User'}
+                      {deleteLoading ? 'Suppression...' : 'Supprimer l\'utilisateur'}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action is irreversible. This will permanently delete the user's account and all associated data.
+                        Cette action est irréversible. Cela supprimera définitivement le compte de l'utilisateur et toutes ses données associées.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
                       <AlertDialogAction onClick={handleDeleteUser} disabled={deleteLoading}>
-                        Yes, delete account
+                        Oui, supprimer le compte
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -288,13 +285,11 @@ const AdminPage = () => {
                 <AlertTriangle className="mr-2 h-5 w-5 text-destructive" />
                 Danger Zone
               </CardTitle>
-              <CardDescription>This section contains irreversible actions. Proceed with caution.</CardDescription>
+              <CardDescription>
+                This action will reset all community statistics to zero. This cannot be undone.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <h3 className="text-lg font-semibold mb-2">Reset Community Statistics</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                This action will reset all community statistics (total bottles recycled, active recyclers) to zero. This cannot be undone.
-              </p>
               <Button variant="destructive" onClick={handleReset}>
                 Reset All Stats to Zero
               </Button>

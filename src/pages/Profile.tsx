@@ -12,9 +12,6 @@ import Achievements from "@/components/Achievements";
 import { useTranslation } from "react-i18next";
 import ActivityChart from "@/components/ActivityChart";
 import { Star } from "lucide-react";
-import { useMemo } from "react";
-import { levels } from "@/lib/levels";
-import { Progress } from "@/components/ui/progress"; // Import Progress component
 
 const ProfilePage = () => {
   const { t } = useTranslation();
@@ -22,18 +19,6 @@ const ProfilePage = () => {
   const { data: scanHistory, isLoading } = useProfileData();
   const animatedPoints = useAnimatedCounter(points);
   const animatedTotalScans = useAnimatedCounter(totalScans);
-
-  const nextLevel = useMemo(() => {
-    if (!level) return null;
-    return levels.find(l => l.level === level.level + 1);
-  }, [level]);
-
-  const progress = useMemo(() => {
-    if (!level || !nextLevel) return 100; // If max level or no level, show 100%
-    const levelPointRange = nextLevel.minPoints - level.minPoints;
-    const pointsIntoLevel = points - level.minPoints;
-    return (pointsIntoLevel / levelPointRange) * 100;
-  }, [points, level, nextLevel]);
 
   return (
     <div className="container mx-auto p-4 animate-fade-in-up">
@@ -64,23 +49,13 @@ const ProfilePage = () => {
             <CardTitle>Current Level</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2">
               <Star className="w-8 h-8 text-yellow-400" />
               <div>
                 <p className="text-2xl font-bold">{level?.name}</p>
                 <p className="text-sm text-muted-foreground">Level {level?.level}</p>
               </div>
             </div>
-            {nextLevel ? (
-              <>
-                <Progress value={progress} className="w-full mb-2" />
-                <p className="text-sm text-muted-foreground text-right">
-                  {points.toLocaleString()} / {nextLevel.minPoints.toLocaleString()} {t('rewards.points')} to {nextLevel.name}
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">You've reached the highest level!</p>
-            )}
           </CardContent>
         </Card>
       </div>
@@ -95,7 +70,7 @@ const ProfilePage = () => {
           <CardDescription>{t('profile.recentActivityDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto"> {/* Added overflow-x-auto for horizontal scrolling on small screens */}
             <Table>
               <TableHeader>
                 <TableRow>
@@ -116,8 +91,8 @@ const ProfilePage = () => {
                 ) : (
                   scanHistory?.map((item) => (
                     <TableRow key={item.id}>
-                      <TableCell className="min-w-[120px]">{format(new Date(item.scanned_at), 'PPp')}</TableCell>
-                      <TableCell className="font-mono text-xs max-w-[150px] truncate">{item.product_barcode}</TableCell>
+                      <TableCell className="min-w-[120px]">{format(new Date(item.scanned_at), 'PPp')}</TableCell> {/* Added min-w */}
+                      <TableCell className="font-mono text-xs max-w-[150px] truncate">{item.product_barcode}</TableCell> {/* Added truncate and max-w */}
                       <TableCell className="text-right">
                         <Badge variant="secondary">+{item.points_earned}</Badge>
                       </TableCell>

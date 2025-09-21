@@ -5,7 +5,7 @@ import "./globals.css";
 import "./i18n"; // import i18n configuration
 
 createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+  <React.Suspense fallback="Loading...">
     <App />
-  </React.StrictMode>,
+  </React.Suspense>,
 );

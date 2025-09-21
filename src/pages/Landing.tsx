@@ -71,7 +71,7 @@ const LandingPage = () => {
       {/* Dark overlay for readability */}
       <div className="fixed inset-0 bg-black opacity-50 z-10" />
       
-      <div className="relative z-20"> {/* Changed from z-10 to z-20 */}
+      <div className="relative z-10"> {/* This div now contains all foreground content */}
         <LandingHeader />
         <main>
           {/* Hero Section */}

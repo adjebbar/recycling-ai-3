@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf } from "lucide-react";
+import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -10,6 +10,7 @@ import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import { HowItWorksSection } from "@/components/HowItWorksSection"; // Import the new section component
 import SeeItInAction from "@/components/SeeItInAction";
 import ArrowVector from "@/components/ArrowVector";
+import PlasticBottleVector from "@/components/PlasticBottleVector"; // Import the plastic bottle vector
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -59,8 +60,16 @@ const LandingPage = () => {
         className="fixed inset-0 w-screen h-screen bg-cover bg-top"
         style={{ backgroundImage: `url('/images/3759825_76251.jpg')` }}
       />
+      {/* Background Symbols */}
+      <div className="fixed inset-0 z-5 pointer-events-none">
+        <PlasticBottleVector className="absolute top-1/4 left-1/4 h-20 w-10 text-blue-300/30 animate-pulse-once" style={{ animationDelay: '0.5s' }} />
+        <Recycle className="absolute top-1/3 right-1/4 h-16 w-16 text-primary/30 animate-spin-slow" style={{ animationDelay: '1s' }} />
+        <Trash2 className="absolute bottom-1/4 left-1/3 h-20 w-20 text-gray-400/30 animate-fade-in-up" style={{ animationDelay: '1.5s' }} />
+        <PlasticBottleVector className="absolute top-1/2 right-1/2 h-16 w-8 text-blue-300/20 animate-pulse-once" style={{ animationDelay: '2s' }} />
+        <Recycle className="absolute bottom-1/4 right-1/4 h-12 w-12 text-primary/20 animate-spin-slow" style={{ animationDelay: '2.5s' }} />
+      </div>
       {/* Dark overlay for readability */}
-      <div className="fixed inset-0 bg-black opacity-50" />
+      <div className="fixed inset-0 bg-black opacity-50 z-10" />
       
       <div className="relative z-10"> {/* This div now contains all foreground content */}
         <LandingHeader />

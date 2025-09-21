@@ -107,7 +107,7 @@ export const Navbar = () => {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none text-foreground">{firstName && lastName ? `${firstName} ${lastName}` : t('nav.myAccount')}</p>
+                      <p className="text-sm font-medium leading-none">{firstName && lastName ? `${firstName} ${lastName}` : t('nav.myAccount')}</p>
                       {user?.email && ( // Conditional rendering for user.email
                         <p className="text-xs leading-none text-muted-foreground">
                           {user.email}

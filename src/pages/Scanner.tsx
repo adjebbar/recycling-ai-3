@@ -17,8 +17,9 @@ import { useAnimatedCounter } from '@/hooks/useAnimatedCounter';
 import { supabase } from '@/lib/supabaseClient';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { RewardTicketDialog } from '@/components/RewardTicketDialog';
-import { achievementsList } from '@/lib/achievements'; // Import achievementsList
-import { useIsMobile } from "@/hooks/use-mobile"; // Import useIsMobile
+import { achievementsList } from '@/lib/achievements';
+import { useIsMobile } from "@/hooks/use-mobile";
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const POINTS_PER_BOTTLE = 10;
 
@@ -450,12 +451,14 @@ const ScannerPage = () => {
                 </div>
               ) : (
                 // Barcode scanner for mobile
-                <div className="w-full max-w-xs mx-auto h-96 overflow-hidden rounded-md relative">
-                  <BarcodeScanner 
-                    onScanSuccess={processBarcode} 
-                    onScanFailure={handleScanFailure}
-                    onCameraInitError={handleCameraInitializationError}
-                  />
+                <div className="w-full max-w-xs mx-auto">
+                  <AspectRatio ratio={3 / 4} className="bg-muted rounded-md overflow-hidden relative">
+                    <BarcodeScanner 
+                      onScanSuccess={processBarcode} 
+                      onScanFailure={handleScanFailure}
+                      onCameraInitError={handleCameraInitializationError}
+                    />
+                  </AspectRatio>
                 </div>
               )}
               {renderScanResult()}

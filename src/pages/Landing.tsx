@@ -71,25 +71,21 @@ const LandingPage = () => {
       {/* Dark overlay for readability */}
       <div className="fixed inset-0 bg-black opacity-50 z-10" />
       
-      <div className="relative z-20"> {/* This div now contains all foreground content */}
+      <div className="relative z-20"> {/* Changed from z-10 to z-20 */}
         <LandingHeader />
         <main>
           {/* Hero Section */}
           <section
-            className="relative min-h-screen flex flex-col text-center" // Removed items-center justify-center
+            className="relative min-h-screen flex items-center justify-center text-center pt-20 px-4"
           >
-            {/* Hero Banner Image */}
-            <img
-              src="/images/hero-banner.png"
-              alt="EcoScan AI Banner"
-              className="absolute top-0 left-0 w-full h-[50vh] object-cover z-0" // Absolute position, full width, fixed height, behind content
-              style={{ animationDelay: '0.05s' }}
-            />
-            {/* Dark overlay for the banner image for text readability */}
-            <div className="absolute top-0 left-0 w-full h-[50vh] bg-black opacity-30 z-0" />
-
-            <div className="container mx-auto relative z-10 pt-[25vh] flex-grow flex flex-col items-center justify-center"> {/* Adjusted pt and added flex for centering content below banner */}
+            <div className="container mx-auto relative z-10">
               <div className="max-w-3xl mx-auto">
+                <img 
+                  src="/images/hero-banner.png" 
+                  alt="EcoScan AI Banner" 
+                  className="w-full max-w-xl mx-auto rounded-lg shadow-lg mb-8 animate-fade-in-up" 
+                  style={{ animationDelay: '0.05s' }}
+                />
                 <div className="p-8 rounded-xl shadow-2xl bg-background/50 backdrop-blur-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white">
                     Recycle Today for a <span className="text-primary-dark animate-blink-text text-stroke-primary">Greener</span> Tomorrow

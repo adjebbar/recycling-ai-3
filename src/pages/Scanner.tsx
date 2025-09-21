@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BarcodeScanner from '@/components/BarcodeScanner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Corrected import statement
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { RewardTicketDialog } from '@/components/RewardTicketDialog';
 import { achievementsList } from '@/lib/achievements'; // Import achievementsList
+import { useIsMobile } from "@/hooks/use-mobile"; // Import useIsMobile
 
 const POINTS_PER_BOTTLE = 10;
 
@@ -101,6 +102,8 @@ const ScannerPage = () => {
   const [capturedImage, setCapturedImage] = useState<string | null>(null); // Base64 image data
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isMobile = useIsMobile(); // Initialize the hook
 
 
   const triggerPiConveyor = async (result: 'accepted' | 'rejected') => {
@@ -379,107 +382,194 @@ const ScannerPage = () => {
           <p className="text-muted-foreground mb-6">{t('scanner.subtitle')}</p>
         </div>
         
-        <Tabs defaultValue="camera" className="w-full max-w-lg">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="camera"><Camera className="mr-2 h-4 w-4" />{t('scanner.cameraTab')}</TabsTrigger>
-            <TabsTrigger value="manual"><Keyboard className="mr-2 h-4 w-4" />{t('scanner.manualTab')}</TabsTrigger>
-          </TabsList>
-          <TabsContent value="camera">
-            <Card className="overflow-hidden">
-              <CardContent className="p-4 relative">
-                {cameraInitializationError ? (
-                  <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
-                    <AlertTriangle className="h-8 w-8 mb-4" />
-                    <AlertTitle className="text-xl font-bold">{t('scanner.cameraErrorTitle')}</AlertTitle>
-                    <AlertDescription className="mt-2 text-base">
-                      {t('scanner.cameraErrorMessage')}
-                      <Button onClick={() => setCameraInitializationError(null)} className="mt-6">{t('scanner.retryCamera')}</Button>
-                    </AlertDescription>
-                  </Alert>
-                ) : imageAnalysisMode ? (
-                  <div className="flex flex-col items-center justify-center p-6 space-y-4">
-                    <ImageIcon className="h-16 w-16 text-muted-foreground" />
-                    <h3 className="text-xl font-bold">Analyze with Image</h3>
-                    <p className="text-muted-foreground text-center">
-                      Barcode scan was inconclusive. Take a photo of the item to determine if it's a plastic bottle.
-                    </p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      onChange={handleImageCapture}
-                      ref={fileInputRef}
-                      className="hidden"
-                    />
-                    {capturedImage && (
-                      <div className="relative w-48 h-48 rounded-md overflow-hidden border-2 border-primary">
-                        <img src={capturedImage} alt="Captured for analysis" className="w-full h-full object-cover" />
-                        <Button 
-                          variant="destructive" 
-                          size="sm" 
-                          className="absolute top-1 right-1"
-                          onClick={() => setCapturedImage(null)}
-                        >
-                          X
-                        </Button>
-                      </div>
-                    )}
-                    <Button 
-                      onClick={() => fileInputRef.current?.click()} 
-                      disabled={isAnalyzingImage}
-                    >
-                      {capturedImage ? "Retake Photo" : "Take Photo"}
-                    </Button>
-                    <Button 
-                      onClick={handleImageAnalysis} 
-                      disabled={!capturedImage || isAnalyzingImage}
-                      className="w-full"
-                    >
-                      {isAnalyzingImage ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Analyzing...
-                        </>
-                      ) : (
-                        "Analyze Image"
-                      )}
-                    </Button>
-                    <Button variant="outline" onClick={() => setImageAnalysisMode(false)}>
-                      Cancel
-                    </Button>
-                  </div>
-                ) : (
-                  <BarcodeScanner 
-                    onScanSuccess={processBarcode} 
-                    onScanFailure={handleScanFailure}
-                    onCameraInitError={handleCameraInitializationError}
-                  />
-                )}
-                {renderScanResult()}
-                {scanFailureMessage && !scanResult && !imageAnalysisMode && (
-                  <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
-                    {scanFailureMessage}
+        {isMobile ? (
+          // Mobile-specific camera view
+          <Card className="w-full max-w-lg overflow-hidden">
+            <CardContent className="p-4 relative">
+              {cameraInitializationError ? (
+                <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
+                  <AlertTriangle className="h-8 w-8 mb-4" />
+                  <AlertTitle className="text-xl font-bold">{t('scanner.cameraErrorTitle')}</AlertTitle>
+                  <AlertDescription className="mt-2 text-base">
+                    {t('scanner.cameraErrorMessage')}
+                    <Button onClick={() => setCameraInitializationError(null)} className="mt-6">{t('scanner.retryCamera')}</Button>
+                  </AlertDescription>
+                </Alert>
+              ) : imageAnalysisMode ? (
+                // Image analysis mode for mobile
+                <div className="flex flex-col items-center justify-center p-6 space-y-4">
+                  <ImageIcon className="h-16 w-16 text-muted-foreground" />
+                  <h3 className="text-xl font-bold">Analyze with Image</h3>
+                  <p className="text-muted-foreground text-center">
+                    Barcode scan was inconclusive. Take a photo of the item to determine if it's a plastic bottle.
                   </p>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="manual">
-            <Card className="relative overflow-hidden">
-              <CardHeader>
-                <CardTitle>{t('scanner.manualTitle')}</CardTitle>
-                <CardDescription>{t('scanner.manualDescription')}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleManualSubmit} className="flex space-x-2">
-                  <Input type="text" placeholder={t('scanner.manualPlaceholder')} value={manualBarcode} onChange={(e) => setManualBarcode(e.target.value)} />
-                  <Button type="submit">{t('scanner.manualButton')}</Button>
-                </form>
-              </CardContent>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleImageCapture}
+                    ref={fileInputRef}
+                    className="hidden"
+                  />
+                  {capturedImage && (
+                    <div className="relative w-48 h-48 rounded-md overflow-hidden border-2 border-primary">
+                      <img src={capturedImage} alt="Captured for analysis" className="w-full h-full object-cover" />
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        className="absolute top-1 right-1"
+                        onClick={() => setCapturedImage(null)}
+                      >
+                        X
+                      </Button>
+                    </div>
+                  )}
+                  <Button 
+                    onClick={() => fileInputRef.current?.click()} 
+                    disabled={isAnalyzingImage}
+                  >
+                    {capturedImage ? "Retake Photo" : "Take Photo"}
+                  </Button>
+                  <Button 
+                    onClick={handleImageAnalysis} 
+                    disabled={!capturedImage || isAnalyzingImage}
+                    className="w-full"
+                  >
+                    {isAnalyzingImage ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      "Analyze Image"
+                    )}
+                  </Button>
+                  <Button variant="outline" onClick={() => setImageAnalysisMode(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                // Barcode scanner for mobile
+                <BarcodeScanner 
+                  onScanSuccess={processBarcode} 
+                  onScanFailure={handleScanFailure}
+                  onCameraInitError={handleCameraInitializationError}
+                />
+              )}
               {renderScanResult()}
-            </Card>
-          </TabsContent>
-        </Tabs>
+              {scanFailureMessage && !scanResult && !imageAnalysisMode && (
+                <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
+                  {scanFailureMessage}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          // Desktop view with tabs
+          <Tabs defaultValue="camera" className="w-full max-w-lg">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="camera"><Camera className="mr-2 h-4 w-4" />{t('scanner.cameraTab')}</TabsTrigger>
+              <TabsTrigger value="manual"><Keyboard className="mr-2 h-4 w-4" />{t('scanner.manualTab')}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="camera">
+              <Card className="overflow-hidden">
+                <CardContent className="p-4 relative">
+                  {cameraInitializationError ? (
+                    <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
+                      <AlertTriangle className="h-8 w-8 mb-4" />
+                      <AlertTitle className="text-xl font-bold">{t('scanner.cameraErrorTitle')}</AlertTitle>
+                      <AlertDescription className="mt-2 text-base">
+                        {t('scanner.cameraErrorMessage')}
+                        <Button onClick={() => setCameraInitializationError(null)} className="mt-6">{t('scanner.retryCamera')}</Button>
+                      </AlertDescription>
+                    </Alert>
+                  ) : imageAnalysisMode ? (
+                    // Image analysis mode for desktop
+                    <div className="flex flex-col items-center justify-center p-6 space-y-4">
+                      <ImageIcon className="h-16 w-16 text-muted-foreground" />
+                      <h3 className="text-xl font-bold">Analyze with Image</h3>
+                      <p className="text-muted-foreground text-center">
+                        Barcode scan was inconclusive. Take a photo of the item to determine if it's a plastic bottle.
+                      </p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleImageCapture}
+                        ref={fileInputRef}
+                        className="hidden"
+                      />
+                      {capturedImage && (
+                        <div className="relative w-48 h-48 rounded-md overflow-hidden border-2 border-primary">
+                          <img src={capturedImage} alt="Captured for analysis" className="w-full h-full object-cover" />
+                          <Button 
+                            variant="destructive" 
+                            size="sm" 
+                            className="absolute top-1 right-1"
+                            onClick={() => setCapturedImage(null)}
+                          >
+                            X
+                          </Button>
+                        </div>
+                      )}
+                      <Button 
+                        onClick={() => fileInputRef.current?.click()} 
+                        disabled={isAnalyzingImage}
+                      >
+                        {capturedImage ? "Retake Photo" : "Take Photo"}
+                      </Button>
+                      <Button 
+                        onClick={handleImageAnalysis} 
+                        disabled={!capturedImage || isAnalyzingImage}
+                        className="w-full"
+                      >
+                        {isAnalyzingImage ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          "Analyze Image"
+                        )}
+                      </Button>
+                      <Button variant="outline" onClick={() => setImageAnalysisMode(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    // Barcode scanner for desktop
+                    <BarcodeScanner 
+                      onScanSuccess={processBarcode} 
+                      onScanFailure={handleScanFailure}
+                      onCameraInitError={handleCameraInitializationError}
+                    />
+                  )}
+                  {renderScanResult()}
+                  {scanFailureMessage && !scanResult && !imageAnalysisMode && (
+                    <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
+                      {scanFailureMessage}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="manual">
+              <Card className="relative overflow-hidden">
+                <CardHeader>
+                  <CardTitle>{t('scanner.manualTitle')}</CardTitle>
+                  <CardDescription>{t('scanner.manualDescription')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleManualSubmit} className="flex space-x-2">
+                    <Input type="text" placeholder={t('scanner.manualPlaceholder')} value={manualBarcode} onChange={(e) => setManualBarcode(e.target.value)} />
+                    <Button type="submit">{t('scanner.manualButton')}</Button>
+                  </form>
+                </CardContent>
+                {renderScanResult()}
+              </Card>
+            </TabsContent>
+          </Tabs>
+        )}
 
         {!user && (
           <Card className="w-full max-w-lg mt-4">

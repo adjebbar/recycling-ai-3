@@ -12,7 +12,7 @@ import CommunityImpact from "@/components/CommunityImpact";
 import RecyclingBenefits from "@/components/RecyclingBenefits";
 import { useTranslation } from "react-i18next";
 import { levels } from "@/lib/levels";
-import { HowItWorksDialog } from "@/components/HowItWorksDialog"; // Import the new dialog component
+import { HowItWorksSection } from "@/components/HowItWorksSection"; // Import the new section component
 
 const Index = () => {
   const { t } = useTranslation();
@@ -51,12 +51,7 @@ const Index = () => {
                 {t('home.startScanning')}
               </Button>
             </Link>
-            <HowItWorksDialog>
-              <Button variant="outline" size="lg" className="text-lg px-10 py-7 rounded-full shadow-lg bg-background/50 text-foreground hover:bg-background/70 hover:text-primary-foreground">
-                <Info className="mr-3 h-6 w-6" />
-                How It Works
-              </Button>
-            </HowItWorksDialog>
+            {/* Removed HowItWorksDialog trigger from Dashboard */}
           </div>
         </div>
       </section>
@@ -108,6 +103,11 @@ const Index = () => {
 
       <section className="animate-fade-in-up py-8 bg-background/90 rounded-xl" style={{ animationDelay: '0.8s' }}>
         <RecyclingBenefits />
+      </section>
+
+      {/* How It Works Section for Dashboard */}
+      <section className="animate-fade-in-up py-8 bg-background/10 rounded-xl mt-8" style={{ animationDelay: '1.0s' }}>
+        <HowItWorksSection />
       </section>
     </div>
   );

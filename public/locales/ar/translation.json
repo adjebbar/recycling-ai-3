@@ -5,58 +5,65 @@
     "rewards": "المكافآت",
     "leaderboard": "لوحة الصدارة",
     "profile": "الملف الشخصي",
-    "appName": "إيكو سكان الذكاء الاصطناعي",
-    "login": "تسجيل الدخول",
-    "signup": "التسجيل",
     "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول",
+    "signup": "إنشاء حساب",
+    "appName": "إيكو سكان",
     "points": "{{count}} نقطة",
-    "admin": "المسؤول",
+    "admin": "الإدارة",
     "rewardHistory": "سجل المكافآت"
   },
   "home": {
     "hero": {
-      "recycle": "أعد التدوير.",
-      "earnRepeat": " اكسب. كرر."
+      "recycle": "إعادة التدوير",
+      "earnRepeat": "، اكسب، كرر!"
     },
-    "subtitle": "امسح الزجاجات البلاستيكية، واكسب النقاط، وساهم في كوكب أكثر خضرة.",
+    "subtitle": "امسح الزجاجات البلاستيكية لكسب النقاط والمساهمة في كوكب أنظف.",
     "startScanning": "ابدأ المسح",
-    "yourPoints": "نقاطك"
+    "howItWorks": "كيف يعمل",
+    "yourPoints": "نقاطك",
+    "bottlesRecycled": "زجاجات تم إعادة تدويرها"
   },
   "scanner": {
     "title": "مسح وإعادة تدوير",
-    "subtitle": "امسح الباركود على زجاجتك البلاستيكية لكسب النقاط!",
-    "verifying": "التحقق من المنتج...",
-    "success": "تم إعادة تدوير الزجاجة! لقد ربحت {{points}} نقطة!",
-    "leveledUp": "لقد ارتقيت إلى المستوى {{levelName}}!",
-    "achievementsUnlocked": "تم فتح الإنجازات: {{achievements}}",
-    "notPlastic": "لا يبدو أن هذا زجاجة بلاستيكية. يرجى تجربة عنصر آخر أو استخدام تحليل الصور.",
-    "notFound": "المنتج غير موجود في قاعدة البيانات. يرجى تجربة عنصر آخر أو استخدام تحليل الصور.",
-    "connectionError": "تعذر الاتصال بقاعدة بيانات المنتج. يرجى التحقق من اتصالك بالإنترنت.",
-    "cameraInitError": "فشل بدء تشغيل الكاميرا. يرجى التأكد من منح أذونات الكاميرا وعدم استخدام أي تطبيق آخر للكاميرا.",
-    "noBarcodeDetected": "لم يتم الكشف عن باركود. حاول تعديل الكاميرا أو الإضاءة.",
-    "manualTitle": "إدخال يدوي",
-    "manualDescription": "أدخل الباركود يدويًا إذا كان الماسح الضوئي لا يعمل.",
-    "manualPlaceholder": "أدخل الباركود",
-    "manualButton": "إرسال",
-    "sessionScore": "نقاط الجلسة",
-    "resetScore": "إعادة تعيين النقاط",
-    "signupPromptTitle": "هل تريد حفظ نقاطك؟",
-    "signupPromptDescription": "أنشئ حسابًا لتتبع تقدمك وفتح المزيد من المكافآت!",
-    "cameraPermission": "إذن الكاميرا مطلوب للمسح الضوئي.",
+    "subtitle": "امسح الباركود لزجاجتك البلاستيكية لكسب النقاط!",
     "cameraTab": "الكاميرا",
     "manualTab": "يدوي",
-    "imageSuccess": "تم تحليل الصورة! تم إعادة تدوير الزجاجة البلاستيكية، لقد ربحت {{points}} نقطة!",
-    "imageNotPlastic": "يشير تحليل الصورة إلى أن هذه ليست زجاجة بلاستيكية. يرجى تجربة عنصر آخر."
+    "manualTitle": "إدخال الباركود يدوياً",
+    "manualDescription": "أدخل الباركود يدوياً إذا لم تتمكن الكاميرا من قراءته.",
+    "manualPlaceholder": "أدخل الباركود",
+    "manualButton": "إرسال",
+    "success": "تم مسح الزجاجة بنجاح! لقد ربحت {{points}} نقطة.",
+    "leveledUp": "لقد ارتقيت إلى المستوى {{levelName}}!",
+    "achievementsUnlocked": "لقد فتحت إنجازات: {{achievements}}",
+    "notPlastic": "عذراً، هذا ليس منتجاً بلاستيكياً قابلاً لإعادة التدوير.",
+    "notFound": "لم يتم العثور على معلومات المنتج لهذا الباركود.",
+    "connectionError": "خطأ في الاتصال بخادم المنتج. يرجى المحاولة مرة أخرى.",
+    "sessionScore": "نقاط الجلسة",
+    "resetScore": "إعادة تعيين النقاط",
+    "cameraPermission": "إذا لم تظهر الكاميرا، يرجى التحقق من أذونات الكاميرا في إعدادات متصفحك.",
+    "verifying": "التحقق من المنتج...",
+    "signupPromptTitle": "هل تريد حفظ نقاطك؟",
+    "signupPromptDescription": "قم بإنشاء حساب لتتبع تقدمك وفتح مكافآت حصرية!",
+    "cameraErrorTitle": "خطأ في الكاميرا",
+    "cameraErrorMessage": "تعذر الوصول إلى الكاميرا. يرجى التأكد من منح الأذونات الصحيحة.",
+    "retryCamera": "إعادة محاولة الكاميرا",
+    "noBarcodeDetected": "لم يتم الكشف عن أي باركود. حاول تعديل الكاميرا أو الإضاءة.",
+    "scanFailureTitle": "فشل المسح",
+    "imageSuccess": "تم تحليل الصورة بنجاح! لقد ربحت {{points}} نقطة.",
+    "imageNotPlastic": "عذراً، الصورة لا تشير إلى زجاجة بلاستيكية قابلة لإعادة التدوير.",
+    "stopScanning": "إيقاف المسح"
   },
   "profile": {
     "title": "ملفي الشخصي",
     "totalPoints": "إجمالي النقاط",
-    "bottlesRecycled": "الزجاجات المعاد تدويرها",
+    "bottlesRecycled": "زجاجات تم إعادة تدويرها",
     "recentActivity": "النشاط الأخير",
-    "recentActivityDescription": "آخر 20 عملية مسح لإعادة التدوير.",
+    "recentActivityDescription": "آخر 20 عملية مسح قمت بها.",
     "date": "التاريخ",
     "barcode": "الباركود",
-    "points": "النقاط"
+    "points": "النقاط",
+    "achievements": "الإنجازات"
   },
   "rewards": {
     "title": "المكافآت",
@@ -67,13 +74,21 @@
     "redeem": "استبدال",
     "loginToRedeem": "تسجيل الدخول للاستبدال",
     "allUnlockedTitle": "تهانينا!",
-    "allUnlockedDescription": "لقد فتحت جميع المكافآت المتاحة. أنت بطل حقيقي في إعادة التدوير! تحقق لاحقًا لاكتشاف مكافآت جديدة."
+    "allUnlockedDescription": "لقد فتحت جميع المكافآت المتاحة. أنت بطل حقيقي في إعادة التدوير! عد لاحقاً لاكتشاف مكافآت جديدة."
+  },
+  "leaderboard": {
+    "title": "أفضل المعادين",
+    "subtitle": "شاهد من يقود الحملة في مجتمعنا!",
+    "rank": "الترتيب",
+    "user": "المستخدم",
+    "level": "المستوى",
+    "points": "النقاط"
   },
   "rewardHistory": {
     "title": "سجل المكافآت",
-    "subtitle": "قسائمك المستبدلة والنشطة السابقة.",
-    "cardTitle": "قسائمك",
-    "cardDescription": "قائمة بقسائمك التي تم إنشاؤها.",
+    "subtitle": "تتبع المكافآت التي استبدلتها.",
+    "cardTitle": "سجل استبدال المكافآت",
+    "cardDescription": "آخر 20 مكافأة استبدلتها.",
     "reward": "المكافأة",
     "cost": "التكلفة",
     "value": "القيمة",
@@ -82,17 +97,26 @@
     "statusActive": "نشط",
     "statusRedeemed": "تم الاستبدال",
     "statusExpired": "منتهي الصلاحية",
-    "genericVoucher": "قسيمة تسوق",
-    "errorLoading": "فشل تحميل سجل المكافآت."
+    "errorLoading": "فشل تحميل سجل المكافآت.",
+    "genericVoucher": "قسيمة عامة"
+  },
+  "howItWorks": {
+    "title": "كيف يعمل",
+    "step1Title": "إنشاء حساب",
+    "step1Description": "انضم إلى مجتمعنا في ثوانٍ. ابدأ في كسب النقاط على الفور.",
+    "step2Title": "مسح وإعادة تدوير",
+    "step2Description": "استخدم كاميرا هاتفك لمسح الباركود على الزجاجات البلاستيكية.",
+    "step3Title": "اكسب المكافآت",
+    "step3Description": "اجمع النقاط واستبدلها بقسائم تسوق حصرية والمزيد."
   },
   "achievements": {
     "firstScanName": "أول مسح",
-    "firstScanDescription": "أعد تدوير أول زجاجة لك.",
-    "noviceRecyclerName": "مبتدئ في إعادة التدوير",
+    "firstScanDescription": "أكمل أول عملية مسح لك.",
+    "noviceRecyclerName": "معيد تدوير مبتدئ",
     "noviceRecyclerDescription": "أعد تدوير 10 زجاجات.",
     "pointCollectorName": "جامع النقاط",
     "pointCollectorDescription": "اجمع 100 نقطة.",
-    "dedicatedRecyclerName": "مُعيد تدوير مخلص",
+    "dedicatedRecyclerName": "معيد تدوير مخلص",
     "dedicatedRecyclerDescription": "أعد تدوير 50 زجاجة.",
     "pointsHoarderName": "مخزن النقاط",
     "pointsHoarderDescription": "اجمع 500 نقطة."
@@ -100,14 +124,5 @@
   "footer": {
     "copyrightLine1": "© 2025 NewTech. جميع الحقوق محفوظة.",
     "copyrightLine2": "تطبيق تم تطويره بواسطة NewTech Corp."
-  },
-  "howItWorks": {
-    "title": "كيف يعمل",
-    "step1Title": "1. اختر مسار إعادة التدوير الخاص بك",
-    "step1Description": "امسح الزجاجات بشكل مجهول للحصول على نقاط فورية، أو أنشئ حسابًا لتتبع تقدمك وفتح مزايا حصرية.",
-    "step2Title": "2. امسح الزجاجات البلاستيكية",
-    "step2Description": "استخدم كاميرا هاتفك لمسح الباركود على الزجاجات البلاستيكية التي ترغب في إعادة تدويرها واكسب النقاط.",
-    "step3Title": "3. استمتع بمكافآتك",
-    "step3Description": "استبدل نقاطك المتراكمة بقسائم تسوق (مجهول) أو مكافآت وإنجازات حصرية (لأصحاب الحسابات)."
   }
 }

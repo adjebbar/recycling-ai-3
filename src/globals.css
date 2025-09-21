@@ -104,18 +104,33 @@
 }
 
 /* Custom CSS to hide html5-qrcode camera selection UI elements and messages */
+/* More aggressive hiding for all html5-qrcode generated elements */
+#qr-reader__dashboard_section, /* Main dashboard section */
+#qr-reader__scan_region, /* Scan region itself, if it has extra UI */
+#qr-reader__html5_qrcode_scanner, /* Another potential main container */
+.html5-qrcode-element, /* Generic class if used */
+.html5-qrcode-button, /* Generic button class */
+.html5-qrcode-message, /* Generic message class */
+.html5-qrcode-video-constraints-section, /* Section for video constraints */
+.html5-qrcode-header, /* Any header elements */
+.html5-qrcode-footer, /* Any footer elements */
 .html5-qrcode-select-camera,
 .html5-qrcode-button-camera-permission,
 .html5-qrcode-camera-access-text,
-.html5-qrcode-anchor-tag, /* For permission links */
-.html5-qrcode-info-message, /* For messages like "Select camera" or "No camera found" */
-.html5-qrcode-error-message, /* For general errors */
-.html5-qrcode-code-type, /* Shows what type of code it's scanning for */
-.html5-qrcode-user-message, /* General user messages */
-.html5-qrcode-last-scan-result, /* Might show "No barcode detected" from the library */
-.html5-qrcode-button-stop-scanning, /* Stop scanning button */
-.html5-qrcode-button-start-scanning, /* Start scanning button */
-.html5-qrcode-error, /* General error container */
-.html5-qrcode-info { /* General info container */
+.html5-qrcode-anchor-tag,
+.html5-qrcode-info-message,
+.html5-qrcode-error-message,
+.html5-qrcode-code-type,
+.html5-qrcode-user-message,
+.html5-qrcode-last-scan-result,
+.html5-qrcode-button-stop-scanning,
+.html5-qrcode-button-start-scanning,
+.html5-qrcode-error,
+.html5-qrcode-info,
+#html5-qrcode-button-stop-scanning,
+#html5-qrcode-button-start-scanning,
+#html5-qrcode-div-camera-access-text,
+#html5-qrcode-div-qr-code-value,
+#html5-qrcode-div-last-scan-result {
   display: none !important;
 }

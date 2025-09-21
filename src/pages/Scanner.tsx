@@ -450,7 +450,7 @@ const ScannerPage = () => {
                 </div>
               ) : (
                 // Barcode scanner for mobile
-                <div className="w-full max-w-xs mx-auto aspect-square overflow-hidden rounded-md relative">
+                <div className="w-full max-w-xs mx-auto h-96 overflow-hidden rounded-md relative">
                   <BarcodeScanner 
                     onScanSuccess={processBarcode} 
                     onScanFailure={handleScanFailure}
@@ -540,7 +540,7 @@ const ScannerPage = () => {
                     </div>
                   ) : (
                     // Barcode scanner for desktop
-                    <div className="w-full max-w-xs mx-auto aspect-square overflow-hidden rounded-md relative">
+                    <div className="w-full max-w-xs mx-auto h-96 overflow-hidden rounded-md relative">
                       <BarcodeScanner 
                         onScanSuccess={processBarcode} 
                         onScanFailure={handleScanFailure}

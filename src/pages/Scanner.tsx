@@ -113,13 +113,13 @@ const ScannerPage = () => {
       });
       if (error) {
         console.error("Failed to trigger Pi conveyor:", error.message);
-        showError("Failed to communicate with recycling machine.");
+        // showError("Failed to communicate with recycling machine."); // Removed this line
       } else {
         console.log(`Successfully sent '${result}' to Pi conveyor.`);
       }
     } catch (err) {
       console.error("Error invoking trigger-pi-conveyor edge function:", err);
-      showError("Error communicating with recycling machine.");
+      // showError("Error communicating with recycling machine."); // Removed this line
     }
   };
 

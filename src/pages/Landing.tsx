@@ -13,7 +13,7 @@ import ArrowVector from "@/components/ArrowVector";
 import PlasticBottleVector from "@/components/PlasticBottleVector"; // Import the plastic bottle vector
 
 const LandingHeader = () => (
-  <header className="absolute top-0 left-0 right-0 z-30 py-4">
+  <header className="absolute top-0 left-0 right-0 z-20 py-4">
     <div className="container mx-auto flex justify-between items-center px-4">
       <Link to="/" className="flex items-center space-x-2">
         <Recycle className="h-8 w-8 text-primary" />
@@ -60,20 +60,18 @@ const LandingPage = () => {
         className="fixed inset-0 w-screen h-screen bg-cover bg-top"
         style={{ backgroundImage: `url('/images/3759825_76251.jpg')` }}
       />
-      {/* Background Symbols - now larger, more visible, and colorful */}
-      <div className="fixed inset-0 z-20 pointer-events-none">
-        <PlasticBottleVector className="absolute top-[10%] left-[10%] h-40 w-20 text-blue-500 opacity-70 animate-pulse-once" style={{ animationDelay: '0.5s' }} colorClass="text-blue-500" />
-        <Recycle className="absolute top-[20%] right-[15%] h-24 w-24 text-primary opacity-70 animate-spin-slow" style={{ animationDelay: '1s' }} />
-        <Trash2 className="absolute bottom-[15%] left-[20%] h-32 w-32 text-gray-600 opacity-70 animate-fade-in-up" style={{ animationDelay: '1.5s' }} />
-        <PlasticBottleVector className="absolute top-[50%] right-[5%] h-32 w-16 text-blue-400 opacity-70 animate-pulse-once" style={{ animationDelay: '2s' }} colorClass="text-blue-400" />
-        <Recycle className="absolute bottom-[5%] right-[30%] h-20 w-20 text-primary/80 opacity-70 animate-spin-slow" style={{ animationDelay: '2.5s' }} />
-        <Trash2 className="absolute top-[40%] left-[5%] h-28 w-28 text-gray-500 opacity-70 animate-fade-in-up" style={{ animationDelay: '3s' }} />
-        <PlasticBottleVector className="absolute bottom-[25%] left-[45%] h-36 w-18 text-blue-600 opacity-70 animate-pulse-once" style={{ animationDelay: '3.5s' }} colorClass="text-blue-600" />
+      {/* Background Symbols */}
+      <div className="fixed inset-0 z-5 pointer-events-none">
+        <PlasticBottleVector className="absolute top-1/4 left-1/4 h-20 w-10 text-blue-300/30 animate-pulse-once" style={{ animationDelay: '0.5s' }} />
+        <Recycle className="absolute top-1/3 right-1/4 h-16 w-16 text-primary/30 animate-spin-slow" style={{ animationDelay: '1s' }} />
+        <Trash2 className="absolute bottom-1/4 left-1/3 h-20 w-20 text-gray-400/30 animate-fade-in-up" style={{ animationDelay: '1.5s' }} />
+        <PlasticBottleVector className="absolute top-1/2 right-1/2 h-16 w-8 text-blue-300/20 animate-pulse-once" style={{ animationDelay: '2s' }} />
+        <Recycle className="absolute bottom-1/4 right-1/4 h-12 w-12 text-primary/20 animate-spin-slow" style={{ animationDelay: '2.5s' }} />
       </div>
       {/* Dark overlay for readability */}
       <div className="fixed inset-0 bg-black opacity-50 z-10" />
       
-      <div className="relative z-30"> {/* This div now contains all foreground content */}
+      <div className="relative z-10"> {/* This div now contains all foreground content */}
         <LandingHeader />
         <main>
           {/* Hero Section */}

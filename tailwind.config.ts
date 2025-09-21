@@ -119,9 +119,9 @@ export default {
           "100%": { top: '20%' },
         },
         "scan-line-sweep-horizontal": { // New keyframe for horizontal sweep
-          "0%": { left: '35%' },
-          "50%": { left: '55%' },
-          "100%": { left: '35%' },
+          "0%": { left: '15%' },
+          "50%": { left: '35%' },
+          "100%": { left: '15%' },
         },
         "glow-pulse": {
           "0%, 100%": { filter: "drop-shadow(0 0 5px hsl(var(--primary)))" },

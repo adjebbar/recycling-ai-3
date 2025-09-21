@@ -49,7 +49,8 @@ const LandingPage = () => {
   const animatedRecyclers = useAnimatedCounter(activeRecyclers, 1000);
 
   const CO2_SAVED_PER_BOTTLE_KG = 0.03;
-  const animatedCo2Saved = (animatedBottles * CO2_SAVED_PER_BOTTLE_KG).toFixed(1);
+  const targetCo2Saved = totalBottlesRecycled * CO2_SAVED_PER_BOTTLE_KG;
+  const animatedCo2Saved = useAnimatedCounter(parseFloat(targetCo2Saved.toFixed(1)), 1000);
 
   return (
     <div className="min-h-screen w-full text-foreground overflow-x-hidden">
@@ -189,7 +190,7 @@ const LandingPage = () => {
                       <Leaf className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-4xl font-bold text-primary drop-shadow-md">{animatedCo2Saved} kg</div>
+                      <div className="text-4xl font-bold text-primary drop-shadow-md">{animatedCo2Saved.toLocaleString()} kg</div>
                       <p className="text-foreground">preventing harmful greenhouse gases.</p>
                     </CardContent>
                   </Card>

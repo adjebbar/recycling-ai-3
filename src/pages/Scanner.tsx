@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BarcodeScanner from '@/components/BarcodeScanner';
-import { useNavigate } from 'react-router-dom'; // Corrected import statement
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
@@ -385,7 +385,7 @@ const ScannerPage = () => {
         {isMobile ? (
           // Mobile-specific camera view
           <Card className="w-full max-w-lg overflow-hidden">
-            <CardContent className="p-4 relative">
+            <CardContent className="p-4 relative min-h-[300px] flex items-center justify-center"> {/* Added min-h and flex properties */}
               {cameraInitializationError ? (
                 <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
                   <AlertTriangle className="h-8 w-8 mb-4" />
@@ -473,7 +473,7 @@ const ScannerPage = () => {
             </TabsList>
             <TabsContent value="camera">
               <Card className="overflow-hidden">
-                <CardContent className="p-4 relative">
+                <CardContent className="p-4 relative min-h-[300px] flex items-center justify-center"> {/* Added min-h and flex properties */}
                   {cameraInitializationError ? (
                     <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
                       <AlertTriangle className="h-8 w-8 mb-4" />

@@ -102,3 +102,10 @@
     min-height: 100%;
   }
 }
+
+/* Custom CSS to hide html5-qrcode camera selection UI elements */
+.html5-qrcode-select-camera,
+.html5-qrcode-button-camera-permission,
+.html5-qrcode-camera-access-text {
+  display: none !important;
+}

@@ -62,13 +62,13 @@ const LandingPage = () => {
       />
       {/* Background Symbols - now larger, more visible, and colorful */}
       <div className="fixed inset-0 z-20 pointer-events-none">
-        <PlasticBottleVector className="absolute top-[10%] left-[10%] h-40 w-20 opacity-90 animate-pulse-once" style={{ animationDelay: '0.5s' }} colorClass="text-blue-500" />
+        <PlasticBottleVector className="absolute top-[10%] left-[10%] h-40 w-20 text-blue-500 opacity-70 animate-pulse-once" style={{ animationDelay: '0.5s' }} colorClass="text-blue-500" />
         <Recycle className="absolute top-[20%] right-[15%] h-24 w-24 text-primary opacity-70 animate-spin-slow" style={{ animationDelay: '1s' }} />
         <Trash2 className="absolute bottom-[15%] left-[20%] h-32 w-32 text-gray-600 opacity-70 animate-fade-in-up" style={{ animationDelay: '1.5s' }} />
-        <PlasticBottleVector className="absolute top-[50%] right-[5%] h-32 w-16 opacity-90 animate-pulse-once" style={{ animationDelay: '2s' }} colorClass="text-blue-400" />
+        <PlasticBottleVector className="absolute top-[50%] right-[5%] h-32 w-16 text-blue-400 opacity-70 animate-pulse-once" style={{ animationDelay: '2s' }} colorClass="text-blue-400" />
         <Recycle className="absolute bottom-[5%] right-[30%] h-20 w-20 text-primary/80 opacity-70 animate-spin-slow" style={{ animationDelay: '2.5s' }} />
         <Trash2 className="absolute top-[40%] left-[5%] h-28 w-28 text-gray-500 opacity-70 animate-fade-in-up" style={{ animationDelay: '3s' }} />
-        <PlasticBottleVector className="absolute bottom-[25%] left-[45%] h-36 w-18 opacity-90 animate-pulse-once" style={{ animationDelay: '3.5s' }} colorClass="text-blue-600" />
+        <PlasticBottleVector className="absolute bottom-[25%] left-[45%] h-36 w-18 text-blue-600 opacity-70 animate-pulse-once" style={{ animationDelay: '3.5s' }} colorClass="text-blue-600" />
       </div>
       {/* Dark overlay for readability */}
       <div className="fixed inset-0 bg-black opacity-50 z-10" />

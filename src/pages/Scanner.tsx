@@ -69,7 +69,6 @@ const ScannerPage = () => {
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
-  const isProcessing = useRef(false);
 
   const triggerPiConveyor = async (result: 'accepted' | 'rejected') => {
     try {
@@ -116,11 +115,9 @@ const ScannerPage = () => {
   };
 
   const processBarcode = async (barcode: string) => {
-    if (isProcessing.current || scanResult) return;
-    if (!barcode) return;
-
-    isProcessing.current = true;
+    if (!barcode || barcode === lastScanned) return;
     setLastScanned(barcode);
+    setScanResult(null);
     const loadingToast = showLoading(t('scanner.verifying'));
     try {
       const { data, error: invokeError } = await supabase.functions.invoke('fetch-product-info', { body: { barcode } });
@@ -236,7 +233,6 @@ const ScannerPage = () => {
     setLastScanned(null);
     setImageAnalysisMode(false);
     setCapturedImage(null);
-    isProcessing.current = false;
   };
 
   const renderScanResult = () => {
@@ -279,15 +275,13 @@ const ScannerPage = () => {
           <Button variant="outline" onClick={() => setImageAnalysisMode(false)}>Cancel</Button>
         </div>
       ) : (
-        !scanResult && (
-          <>
-            <BarcodeScanner onScanSuccess={processBarcode} onScanFailure={() => {}} onCameraInitError={handleCameraInitializationError} />
-            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-3/4 h-1/2 border-4 border-primary/50 rounded-2xl shadow-lg" />
-              <div className="absolute top-0 left-0 w-full h-1 bg-primary animate-scan-line-sweep" />
-            </div>
-          </>
-        )
+        <>
+          <BarcodeScanner onScanSuccess={processBarcode} onScanFailure={() => {}} onCameraInitError={handleCameraInitializationError} />
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+            <div className="w-3/4 h-1/2 border-4 border-primary/50 rounded-2xl shadow-lg" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-primary animate-scan-line-sweep" />
+          </div>
+        </>
       )}
       {renderScanResult()}
     </div>

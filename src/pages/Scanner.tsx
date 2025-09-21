@@ -385,7 +385,7 @@ const ScannerPage = () => {
         {isMobile ? (
           // Mobile-specific camera view
           <Card className="w-full max-w-lg overflow-hidden">
-            <CardContent className="p-4 relative min-h-[300px] flex items-center justify-center">
+            <CardContent className="p-4 relative flex items-center justify-center">
               {cameraInitializationError ? (
                 <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
                   <AlertTriangle className="h-8 w-8 mb-4" />
@@ -450,11 +450,13 @@ const ScannerPage = () => {
                 </div>
               ) : (
                 // Barcode scanner for mobile
-                <BarcodeScanner 
-                  onScanSuccess={processBarcode} 
-                  onScanFailure={handleScanFailure}
-                  onCameraInitError={handleCameraInitializationError}
-                />
+                <div className="w-full max-w-xs mx-auto aspect-square overflow-hidden rounded-md relative">
+                  <BarcodeScanner 
+                    onScanSuccess={processBarcode} 
+                    onScanFailure={handleScanFailure}
+                    onCameraInitError={handleCameraInitializationError}
+                  />
+                </div>
               )}
               {renderScanResult()}
               {scanFailureMessage && !scanResult && !imageAnalysisMode && (
@@ -473,7 +475,7 @@ const ScannerPage = () => {
             </TabsList>
             <TabsContent value="camera">
               <Card className="overflow-hidden">
-                <CardContent className="p-4 relative min-h-[300px] flex items-center justify-center">
+                <CardContent className="p-4 relative flex items-center justify-center">
                   {cameraInitializationError ? (
                     <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
                       <AlertTriangle className="h-8 w-8 mb-4" />
@@ -538,11 +540,13 @@ const ScannerPage = () => {
                     </div>
                   ) : (
                     // Barcode scanner for desktop
-                    <BarcodeScanner 
-                      onScanSuccess={processBarcode} 
-                      onScanFailure={handleScanFailure}
-                      onCameraInitError={handleCameraInitializationError}
-                    />
+                    <div className="w-full max-w-xs mx-auto aspect-square overflow-hidden rounded-md relative">
+                      <BarcodeScanner 
+                        onScanSuccess={processBarcode} 
+                        onScanFailure={handleScanFailure}
+                        onCameraInitError={handleCameraInitializationError}
+                      />
+                    </div>
                   )}
                   {renderScanResult()}
                   {scanFailureMessage && !scanResult && !imageAnalysisMode && (

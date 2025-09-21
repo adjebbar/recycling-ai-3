@@ -87,12 +87,12 @@ const LandingPage = () => {
             className="relative min-h-screen flex items-center justify-center text-center pt-20 px-4"
           >
             <div className="container mx-auto relative z-10">
-              <div className="max-w-3xl mx-auto">
+              <div className="max-w-xs sm:max-w-md md:max-w-3xl mx-auto"> {/* Adjusted max-w for responsiveness */}
                 <div className="p-8 rounded-xl shadow-2xl bg-background/50 backdrop-blur-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white">
+                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white text-balance"> {/* Added text-balance */}
                     Recycle Today for a <span className="text-primary-dark animate-blink-text text-stroke-primary">Greener</span> Tomorrow
                   </h1>
-                  <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-sm">
+                  <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-sm text-balance"> {/* Added text-balance */}
                     Scan plastic bottles to earn points instantly. Register later to track your progress and unlock exclusive rewards!
                   </p>
                 </div>

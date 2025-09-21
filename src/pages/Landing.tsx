@@ -2,12 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf } from "lucide-react";
+import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf, Info } from "lucide-react";
 import { Link } from "react-router-dom";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
-import GettingStarted from "@/components/GettingStarted";
+import { HowItWorksDialog } from "@/components/HowItWorksDialog"; // Import the new dialog component
 import SeeItInAction from "@/components/SeeItInAction";
 import ArrowVector from "@/components/ArrowVector";
 
@@ -135,9 +135,14 @@ const LandingPage = () => {
 
           {/* How It Works Section (Getting Started) */}
           <section className="py-16 md:py-24">
-            <div className="container mx-auto px-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-              {/* Removed duplicate h2 here */}
-              <GettingStarted />
+            <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+              <h2 className="text-3xl font-bold mb-6 text-white">How It Works</h2>
+              <HowItWorksDialog>
+                <Button variant="outline" size="lg" className="text-lg px-8 py-6 rounded-full shadow-lg bg-background/50 text-white hover:bg-background/70 hover:text-primary-foreground">
+                  <Info className="mr-2 h-5 w-5" />
+                  See How It Works
+                </Button>
+              </HowItWorksDialog>
             </div>
           </section>
 

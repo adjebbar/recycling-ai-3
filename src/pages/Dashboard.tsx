@@ -5,13 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from '@/context/AuthContext';
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
-import { ScanLine } from "lucide-react";
+import { ScanLine, Info } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import CommunityImpact from "@/components/CommunityImpact";
 import RecyclingBenefits from "@/components/RecyclingBenefits";
 import { useTranslation } from "react-i18next";
 import { levels } from "@/lib/levels";
+import { HowItWorksDialog } from "@/components/HowItWorksDialog"; // Import the new dialog component
 
 const Index = () => {
   const { t } = useTranslation();
@@ -50,6 +51,12 @@ const Index = () => {
                 {t('home.startScanning')}
               </Button>
             </Link>
+            <HowItWorksDialog>
+              <Button variant="outline" size="lg" className="text-lg px-10 py-7 rounded-full shadow-lg bg-background/50 text-foreground hover:bg-background/70 hover:text-primary-foreground">
+                <Info className="mr-3 h-6 w-6" />
+                How It Works
+              </Button>
+            </HowItWorksDialog>
           </div>
         </div>
       </section>

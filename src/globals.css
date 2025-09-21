@@ -103,31 +103,19 @@
   }
 }
 
-/* Hide all children of the scanner containers by default */
-#reader > *,
-#qr-reader > * {
+/* Custom CSS to hide html5-qrcode camera selection UI elements and messages */
+.html5-qrcode-select-camera,
+.html5-qrcode-button-camera-permission,
+.html5-qrcode-camera-access-text,
+.html5-qrcode-anchor-tag, /* For permission links */
+.html5-qrcode-info-message, /* For messages like "Select camera" or "No camera found" */
+.html5-qrcode-error-message, /* For general errors */
+.html5-qrcode-code-type, /* Shows what type of code it's scanning for */
+.html5-qrcode-user-message, /* General user messages */
+.html5-qrcode-last-scan-result, /* Might show "No barcode detected" from the library */
+.html5-qrcode-button-stop-scanning, /* Stop scanning button */
+.html5-qrcode-button-start-scanning, /* Start scanning button */
+.html5-qrcode-error, /* General error container */
+.html5-qrcode-info { /* General info container */
   display: none !important;
-}
-
-/* Explicitly show the video element */
-#reader video,
-#qr-reader video {
-  display: block !important;
-  position: absolute !important; /* Ensure it stays within the bounds */
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important; /* Fill the container */
-}
-
-/* Explicitly show the canvas element (for the scan box) */
-#reader canvas,
-#qr-reader canvas {
-  display: block !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
 }

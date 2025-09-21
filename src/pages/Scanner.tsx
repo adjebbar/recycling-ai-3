@@ -4,11 +4,11 @@ import { useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Camera, CameraOff, Keyboard, CheckCircle2, XCircle, RefreshCw, AlertTriangle, Trophy, Image as ImageIcon, Loader2, StopCircle } from 'lucide-react';
+import { Camera, CameraOff, Keyboard, CheckCircle2, XCircle, RefreshCw, AlertTriangle, Trophy, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import BarcodeScanner, { BarcodeScannerRef } from '@/components/BarcodeScanner'; // Import BarcodeScannerRef
+import BarcodeScanner from '@/components/BarcodeScanner';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -96,32 +96,15 @@ const ScannerPage = () => {
   const [qrCodeValue, setQrCodeValue] = useState<string | null>(null); // This will be the JWT
   const [generatedVoucherCode, setGeneratedVoucherCode] = useState<string | null>(null); // New state for human-readable code
   const [isRedeeming, setIsRedeeming] = useState(false);
-  const [isScanning, setIsScanning] = useState(true); // Track if scanner is active
 
   // New states for image analysis
   const [imageAnalysisMode, setImageAnalysisMode] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null); // Base64 image data
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const barcodeScannerRef = useRef<BarcodeScannerRef>(null); // Ref for BarcodeScanner
 
   const isMobile = useIsMobile(); // Initialize the hook
 
-  const startScanning = () => {
-    setCameraInitializationError(null);
-    setScanFailureMessage(null);
-    setScanResult(null);
-    setLastScanned(null);
-    setImageAnalysisMode(false);
-    setIsScanning(true);
-    barcodeScannerRef.current?.start(); // Call start method on the ref
-  };
-
-  const stopScanning = async () => {
-    await barcodeScannerRef.current?.clear();
-    setIsScanning(false);
-    setScanFailureMessage(null); // Clear scan failure message when stopping
-  };
 
   const triggerPiConveyor = async (result: 'accepted' | 'rejected') => {
     try {
@@ -158,7 +141,6 @@ const ScannerPage = () => {
     showSuccess(successMessage);
     setScanResult({ type: 'success', message: successMessage }); // No image URL from image analysis
     triggerPiConveyor('accepted');
-    await stopScanning(); // Stop scanning after successful recycle
 
     if (!user) {
       const hasShownToast = sessionStorage.getItem('signupToastShown');
@@ -214,7 +196,6 @@ const ScannerPage = () => {
           triggerPiConveyor('rejected');
           // Offer image analysis as fallback
           setImageAnalysisMode(true);
-          await stopScanning(); // Stop scanning if not plastic
         }
       } else {
         const errorMessage = t('scanner.notFound');
@@ -223,7 +204,6 @@ const ScannerPage = () => {
         triggerPiConveyor('rejected');
         // Offer image analysis as fallback
         setImageAnalysisMode(true);
-        await stopScanning(); // Stop scanning if not found
       }
     } catch (err: any) {
       dismissToast(loadingToast);
@@ -233,7 +213,6 @@ const ScannerPage = () => {
       triggerPiConveyor('rejected');
       // Offer image analysis as fallback
       setImageAnalysisMode(true);
-      await stopScanning(); // Stop scanning on error
       console.error(err);
     } finally {
       // Keep scanResult visible for a short period, then clear
@@ -367,7 +346,6 @@ const ScannerPage = () => {
     console.error("Camera initialization error:", error);
     setCameraInitializationError(error);
     showError(t('scanner.cameraInitError'));
-    setIsScanning(false); // Stop scanning state on camera error
   };
 
   const handleScanFailure = (error: string) => {
@@ -407,14 +385,14 @@ const ScannerPage = () => {
         {isMobile ? (
           // Mobile-specific camera view
           <Card className="w-full max-w-lg overflow-hidden">
-            <CardContent className="p-4 relative min-h-[300px] flex flex-col items-center justify-center"> {/* Added min-h and flex properties */}
+            <CardContent className="p-4 relative min-h-[300px] flex items-center justify-center"> {/* Added min-h and flex properties */}
               {cameraInitializationError ? (
                 <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
                   <AlertTriangle className="h-8 w-8 mb-4" />
                   <AlertTitle className="text-xl font-bold">{t('scanner.cameraErrorTitle')}</AlertTitle>
                   <AlertDescription className="mt-2 text-base">
                     {t('scanner.cameraErrorMessage')}
-                    <Button onClick={startScanning} className="mt-6">{t('scanner.retryCamera')}</Button>
+                    <Button onClick={() => setCameraInitializationError(null)} className="mt-6">{t('scanner.retryCamera')}</Button>
                   </AlertDescription>
                 </Alert>
               ) : imageAnalysisMode ? (
@@ -466,38 +444,23 @@ const ScannerPage = () => {
                       "Analyze Image"
                     )}
                   </Button>
-                  <Button variant="outline" onClick={() => { setImageAnalysisMode(false); startScanning(); }}>
+                  <Button variant="outline" onClick={() => setImageAnalysisMode(false)}>
                     Cancel
                   </Button>
                 </div>
               ) : (
                 // Barcode scanner for mobile
-                <>
-                  <BarcodeScanner 
-                    ref={barcodeScannerRef} // Pass the ref
-                    onScanSuccess={processBarcode} 
-                    onScanFailure={handleScanFailure}
-                    onCameraInitError={handleCameraInitializationError}
-                  />
-                  {isScanning && (
-                    <Button 
-                      variant="outline" 
-                      onClick={stopScanning} 
-                      className="mt-4 w-full max-w-[250px]"
-                    >
-                      <StopCircle className="mr-2 h-4 w-4" />
-                      {t('scanner.stopScanning')}
-                    </Button>
-                  )}
-                </>
+                <BarcodeScanner 
+                  onScanSuccess={processBarcode} 
+                  onScanFailure={handleScanFailure}
+                  onCameraInitError={handleCameraInitializationError}
+                />
               )}
               {renderScanResult()}
               {scanFailureMessage && !scanResult && !imageAnalysisMode && (
-                <Alert variant="default" className="mt-4">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>{t('scanner.scanFailureTitle')}</AlertTitle>
-                  <AlertDescription>{scanFailureMessage}</AlertDescription>
-                </Alert>
+                <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
+                  {scanFailureMessage}
+                </p>
               )}
             </CardContent>
           </Card>
@@ -505,19 +468,19 @@ const ScannerPage = () => {
           // Desktop view with tabs
           <Tabs defaultValue="camera" className="w-full max-w-lg">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="camera" onClick={startScanning}><Camera className="mr-2 h-4 w-4" />{t('scanner.cameraTab')}</TabsTrigger>
-              <TabsTrigger value="manual" onClick={stopScanning}><Keyboard className="mr-2 h-4 w-4" />{t('scanner.manualTab')}</TabsTrigger>
+              <TabsTrigger value="camera"><Camera className="mr-2 h-4 w-4" />{t('scanner.cameraTab')}</TabsTrigger>
+              <TabsTrigger value="manual"><Keyboard className="mr-2 h-4 w-4" />{t('scanner.manualTab')}</TabsTrigger>
             </TabsList>
             <TabsContent value="camera">
               <Card className="overflow-hidden">
-                <CardContent className="p-4 relative min-h-[300px] flex flex-col items-center justify-center"> {/* Added min-h and flex properties */}
+                <CardContent className="p-4 relative min-h-[300px] flex items-center justify-center"> {/* Added min-h and flex properties */}
                   {cameraInitializationError ? (
                     <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
                       <AlertTriangle className="h-8 w-8 mb-4" />
                       <AlertTitle className="text-xl font-bold">{t('scanner.cameraErrorTitle')}</AlertTitle>
                       <AlertDescription className="mt-2 text-base">
                         {t('scanner.cameraErrorMessage')}
-                        <Button onClick={startScanning} className="mt-6">{t('scanner.retryCamera')}</Button>
+                        <Button onClick={() => setCameraInitializationError(null)} className="mt-6">{t('scanner.retryCamera')}</Button>
                       </AlertDescription>
                     </Alert>
                   ) : imageAnalysisMode ? (
@@ -569,38 +532,23 @@ const ScannerPage = () => {
                           "Analyze Image"
                         )}
                       </Button>
-                      <Button variant="outline" onClick={() => { setImageAnalysisMode(false); startScanning(); }}>
+                      <Button variant="outline" onClick={() => setImageAnalysisMode(false)}>
                         Cancel
                       </Button>
                     </div>
                   ) : (
                     // Barcode scanner for desktop
-                    <>
-                      <BarcodeScanner 
-                        ref={barcodeScannerRef} // Pass the ref
-                        onScanSuccess={processBarcode} 
-                        onScanFailure={handleScanFailure}
-                        onCameraInitError={handleCameraInitializationError}
-                      />
-                      {isScanning && (
-                        <Button 
-                          variant="outline" 
-                          onClick={stopScanning} 
-                          className="mt-4 w-full max-w-[250px]"
-                        >
-                          <StopCircle className="mr-2 h-4 w-4" />
-                          {t('scanner.stopScanning')}
-                        </Button>
-                      )}
-                    </>
+                    <BarcodeScanner 
+                      onScanSuccess={processBarcode} 
+                      onScanFailure={handleScanFailure}
+                      onCameraInitError={handleCameraInitializationError}
+                    />
                   )}
                   {renderScanResult()}
                   {scanFailureMessage && !scanResult && !imageAnalysisMode && (
-                    <Alert variant="default" className="mt-4">
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertTitle>{t('scanner.scanFailureTitle')}</AlertTitle>
-                      <AlertDescription>{scanFailureMessage}</AlertDescription>
-                    </Alert>
+                    <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
+                      {scanFailureMessage}
+                    </p>
                   )}
                 </CardContent>
               </Card>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 
 interface BarcodeScannerProps {
@@ -9,85 +9,55 @@ interface BarcodeScannerProps {
   onCameraInitError: (error: string) => void; // For camera initialization errors (e.g., permissions)
 }
 
-export interface BarcodeScannerRef {
-  clear: () => Promise<void>;
-  start: () => void; // Add a start method to re-initialize the scanner
-}
+const BarcodeScanner = ({ onScanSuccess, onScanFailure, onCameraInitError }: BarcodeScannerProps) => {
+  const callbacksRef = useRef({ onScanSuccess, onScanFailure, onCameraInitError });
+  callbacksRef.current = { onScanSuccess, onScanFailure, onCameraInitError };
 
-const BarcodeScanner = forwardRef<BarcodeScannerRef, BarcodeScannerProps>(
-  ({ onScanSuccess, onScanFailure, onCameraInitError }, ref) => {
-    const callbacksRef = useRef({ onScanSuccess, onScanFailure, onCameraInitError });
-    callbacksRef.current = { onScanSuccess, onScanFailure, onCameraInitError };
-    const scannerInstanceRef = useRef<Html5QrcodeScanner | null>(null);
-
-    const initializeScanner = () => {
-      const initErrorCallback = (errorMessage: string) => {
-        callbacksRef.current.onCameraInitError(errorMessage);
-      };
-
-      const html5QrcodeScanner = new Html5QrcodeScanner(
-        'reader',
-        {
-          fps: 20,
-          qrbox: { width: 250, height: 150 },
-          supportedScanTypes: [0], // 0 for camera
-          videoConstraints: {
-            facingMode: 'environment'
-          }
-        },
-        /* verbose= */ false
-      );
-      scannerInstanceRef.current = html5QrcodeScanner;
-
-      const successCallback = (decodedText: string) => {
-        callbacksRef.current.onScanSuccess(decodedText);
-      };
-
-      const scanErrorCallback = (errorMessage: string) => {
-        if (callbacksRef.current.onScanFailure) {
-          callbacksRef.current.onScanFailure(errorMessage);
-        } else {
-          console.warn("Barcode scan failure (no handler):", errorMessage);
-        }
-      };
-
-      // @ts-ignore: The html5-qrcode library's render method actually accepts 3 arguments, but TypeScript definitions might be outdated.
-      html5QrcodeScanner.render(successCallback, scanErrorCallback, initErrorCallback);
+  useEffect(() => {
+    const initErrorCallback = (errorMessage: string) => {
+      // This callback is specifically for camera initialization errors (e.g., permissions, camera in use).
+      callbacksRef.current.onCameraInitError(errorMessage);
     };
 
-    useImperativeHandle(ref, () => ({
-      clear: async () => {
-        if (scannerInstanceRef.current) {
-          try {
-            await scannerInstanceRef.current.clear();
-            scannerInstanceRef.current = null; // Clear the instance after stopping
-            console.log("BarcodeScanner: Scanner cleared via imperative handle.");
-          } catch (error) {
-            console.error("BarcodeScanner: Failed to clear scanner via imperative handle:", error);
-          }
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+      'reader',
+      {
+        fps: 20,
+        qrbox: { width: 250, height: 150 },
+        supportedScanTypes: [0], // 0 for camera
+        // Explicitly request the back camera
+        videoConstraints: { // Renamed from cameraConfig to videoConstraints
+          facingMode: 'environment'
         }
       },
-      start: () => {
-        if (!scannerInstanceRef.current) { // Only re-initialize if not already running
-          initializeScanner();
-        }
+      /* verbose= */ false
+    );
+
+    const successCallback = (decodedText: string) => {
+      callbacksRef.current.onScanSuccess(decodedText);
+    };
+
+    const scanErrorCallback = (errorMessage: string) => {
+      // This callback is for errors during scanning, like not finding a code.
+      if (callbacksRef.current.onScanFailure) {
+        callbacksRef.current.onScanFailure(errorMessage);
+      } else {
+        console.warn("Barcode scan failure (no handler):", errorMessage);
       }
-    }));
+    };
 
-    useEffect(() => {
-      initializeScanner();
+    // @ts-ignore: The html5-qrcode library's render method actually accepts 3 arguments, but TypeScript definitions might be outdated.
+    html5QrcodeScanner.render(successCallback, scanErrorCallback, initErrorCallback);
 
-      return () => {
-        if (scannerInstanceRef.current) {
-          scannerInstanceRef.current.clear().catch(error => {
-            console.error("Failed to clear html5-qrcode-scanner on unmount.", error);
-          });
-        }
-      };
-    }, []); // Empty dependency array means this runs once on mount
+    // Cleanup function to stop the scanner when the component unmounts
+    return () => {
+      html5QrcodeScanner.clear().catch(error => {
+        console.error("Failed to clear html5-qrcode-scanner. This is expected on rapid navigation.", error);
+      });
+    };
+  }, []); // Empty dependency array means this runs once on mount
 
-    return <div id="reader" className="w-full" />;
-  }
-);
+  return <div id="reader" className="w-full" />;
+};
 
 export default BarcodeScanner;

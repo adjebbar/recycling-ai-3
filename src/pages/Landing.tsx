@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf, Trash2 } from "lucide-react";
+import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf, Trash2, Globe, Zap } from "lucide-react"; // Added Globe, Zap
 import { Link } from "react-router-dom";
 import React from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -67,6 +67,14 @@ const LandingPage = () => {
         <Trash2 className="absolute bottom-1/4 left-1/3 h-20 w-20 text-gray-400/30 animate-fade-in-up" style={{ animationDelay: '1.5s' }} />
         <PlasticBottleVector className="absolute top-1/2 right-1/2 h-16 w-8 text-blue-300/20 animate-pulse-once" style={{ animationDelay: '2s' }} />
         <Recycle className="absolute bottom-1/4 right-1/4 h-12 w-12 text-primary/20 animate-spin-slow" style={{ animationDelay: '2.5s' }} />
+        
+        {/* New diverse symbols */}
+        <Leaf className="absolute top-[10%] left-[5%] h-10 w-10 text-green-400/20 animate-fade-in-up" style={{ animationDelay: '0.8s' }} />
+        <Globe className="absolute bottom-[10%] right-[5%] h-14 w-14 text-blue-500/20 animate-spin-slow" style={{ animationDelay: '1.8s' }} />
+        <Zap className="absolute top-[60%] left-[10%] h-8 w-8 text-yellow-300/30 animate-pulse-once" style={{ animationDelay: '2.2s' }} />
+        <Recycle className="absolute top-[20%] right-[10%] h-8 w-8 text-primary/20 animate-spin-slow" style={{ animationDelay: '3s' }} />
+        <Trash2 className="absolute bottom-[30%] left-[20%] h-12 w-12 text-gray-400/20 animate-fade-in-up" style={{ animationDelay: '3.5s' }} />
+        <Leaf className="absolute top-[40%] right-[20%] h-12 w-12 text-green-400/20 animate-fade-in-up" style={{ animationDelay: '4s' }} />
       </div>
       {/* Dark overlay for readability */}
       <div className="fixed inset-0 bg-black opacity-50 z-10" />

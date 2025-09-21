@@ -154,7 +154,7 @@ const AdminPage = () => {
         </TabsList>
 
         <TabsContent value="ticket-validation" className="mt-4">
-          <Card className="bg-card/70 backdrop-blur-lg border">
+          <Card className="bg-card/70 backdrop-blur-lg border shadow-lg rounded-xl">
             <CardHeader>
               <CardTitle>Validation des Tickets</CardTitle>
               <CardDescription>
@@ -177,7 +177,7 @@ const AdminPage = () => {
         </TabsContent>
 
         <TabsContent value="community-stats" className="mt-4">
-          <Card className="bg-card/70 backdrop-blur-lg border">
+          <Card className="bg-card/70 backdrop-blur-lg border shadow-lg rounded-xl">
             <CardHeader>
               <CardTitle>Community Stats Management</CardTitle>
               <CardDescription>
@@ -213,7 +213,7 @@ const AdminPage = () => {
         </TabsContent>
 
         <TabsContent value="user-management" className="mt-4">
-          <Card className="bg-card/70 backdrop-blur-lg border">
+          <Card className="bg-card/70 backdrop-blur-lg border shadow-lg rounded-xl">
             <CardHeader>
               <CardTitle>Gestion des Utilisateurs</CardTitle>
               <CardDescription>
@@ -279,7 +279,7 @@ const AdminPage = () => {
         </TabsContent>
 
         <TabsContent value="danger-zone" className="mt-4">
-          <Card className="border-destructive bg-card/70 backdrop-blur-lg border">
+          <Card className="border-destructive bg-card/70 backdrop-blur-lg border shadow-lg rounded-xl">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <AlertTriangle className="mr-2 h-5 w-5 text-destructive" />

@@ -93,7 +93,7 @@ const AdminValidateTicketPage = () => {
       <h1 className="text-3xl font-bold mb-6">Valider un Ticket</h1>
       
       <div className="grid md:grid-cols-2 gap-8">
-        <Card className="bg-card/70 backdrop-blur-lg border">
+        <Card className="bg-card/70 backdrop-blur-lg border shadow-lg rounded-xl">
           <CardHeader>
             <CardTitle>Scanner le QR Code</CardTitle>
             <CardDescription>Présentez le QR code du ticket devant la caméra.</CardDescription>
@@ -137,7 +137,7 @@ const AdminValidateTicketPage = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 backdrop-blur-lg border">
+        <Card className="bg-card/70 backdrop-blur-lg border shadow-lg rounded-xl">
           <CardHeader>
             <CardTitle>Historique des Validations</CardTitle>
             <CardDescription>Les 20 derniers tickets validés.</CardDescription>

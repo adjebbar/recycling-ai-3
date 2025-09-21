@@ -121,7 +121,7 @@ const RewardsPage = () => {
       </div>
 
       {hasUnlockedAllRewards ? (
-        <Card className="max-w-2xl mx-auto bg-card/70 backdrop-blur-lg border text-center p-8">
+        <Card className="max-w-2xl mx-auto bg-card/70 backdrop-blur-lg border text-center p-8 shadow-lg rounded-xl">
           <Trophy className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">{t('rewards.allUnlockedTitle', 'Félicitations !')}</h2>
           <p className="text-muted-foreground">
@@ -132,7 +132,7 @@ const RewardsPage = () => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
           {isLoading ? (
             Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="bg-card/70 backdrop-blur-lg border">
+              <Card key={i} className="bg-card/70 backdrop-blur-lg border shadow-lg rounded-xl">
                 <CardHeader className="items-center text-center">
                   <Skeleton className="h-10 w-10" />
                   <Skeleton className="h-6 w-3/4 mt-2" />
@@ -147,7 +147,7 @@ const RewardsPage = () => {
             ))
           ) : (
             rewards?.filter(reward => reward.name !== 'Clevent App Credit').map((reward) => (
-              <Card key={reward.id} className="flex flex-col bg-card/70 backdrop-blur-lg border text-center">
+              <Card key={reward.id} className="flex flex-col bg-card/70 backdrop-blur-lg border text-center shadow-lg rounded-xl">
                 <CardHeader className="items-center">
                   <div className="text-4xl mb-2">{reward.icon}</div>
                   <CardTitle>{reward.name}</CardTitle>

@@ -113,9 +113,13 @@
 .html5-qrcode-code-type, /* Shows what type of code it's scanning for */
 .html5-qrcode-user-message, /* General user messages */
 .html5-qrcode-last-scan-result, /* Might show "No barcode detected" from the library */
-.html5-qrcode-button-stop-scanning, /* Stop scanning button */
 .html5-qrcode-button-start-scanning, /* Start scanning button */
 .html5-qrcode-error, /* General error container */
 .html5-qrcode-info { /* General info container */
   display: none !important;
+}
+
+/* Style and reposition the "Stop Scanning" button */
+.html5-qrcode-button-stop-scanning {
+  @apply absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4 py-2 rounded-md text-sm font-medium;
 }

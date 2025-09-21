@@ -385,7 +385,7 @@ const ScannerPage = () => {
         {isMobile ? (
           // Mobile-specific camera view
           <Card className="w-full max-w-lg overflow-hidden">
-            <CardContent className="p-4 relative min-h-[300px] flex items-center justify-center"> {/* Added min-h and flex properties */}
+            <CardContent className="p-4 relative min-h-[300px] flex items-center justify-center">
               {cameraInitializationError ? (
                 <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
                   <AlertTriangle className="h-8 w-8 mb-4" />
@@ -473,7 +473,7 @@ const ScannerPage = () => {
             </TabsList>
             <TabsContent value="camera">
               <Card className="overflow-hidden">
-                <CardContent className="p-4 relative min-h-[300px] flex items-center justify-center"> {/* Added min-h and flex properties */}
+                <CardContent className="p-4 relative min-h-[300px] flex items-center justify-center">
                   {cameraInitializationError ? (
                     <Alert variant="destructive" className="flex flex-col items-center text-center p-6">
                       <AlertTriangle className="h-8 w-8 mb-4" />

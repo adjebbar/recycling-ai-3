@@ -80,8 +80,8 @@ const LandingPage = () => {
                 </div>
                 
                 <div className="animate-fade-in-up flex flex-col items-center mt-8" style={{ animationDelay: '0.3s' }}>
-                  <p className="text-orange font-bold text-lg mb-1 animate-bounce">Start Here!</p>
-                  <ArrowVector className="w-8 h-8 text-orange" />
+                  <p className="text-orange font-extrabold text-2xl mb-1 animate-pulse-once drop-shadow-lg uppercase">Start Here!</p>
+                  <ArrowVector className="w-12 h-12 text-orange animate-bounce drop-shadow-lg" />
                 </div>
 
                 <div className="animate-fade-in-up flex justify-center mt-4" style={{ animationDelay: '0.6s' }}>

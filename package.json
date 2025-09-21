@@ -71,7 +71,6 @@
     "@types/node": "^22.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@types/react-hook-form": "*",
     "@types/react-qr-code": "*",
     "@types/react-router-dom": "*",
     "@types/sonner": "*",

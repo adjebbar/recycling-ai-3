@@ -118,6 +118,11 @@ export default {
           "50%": { top: '80%' },
           "100%": { top: '20%' },
         },
+        "scan-line-sweep-horizontal": { // New keyframe for horizontal sweep
+          "0%": { left: '35%' },
+          "50%": { left: '55%' },
+          "100%": { left: '35%' },
+        },
         "glow-pulse": {
           "0%, 100%": { filter: "drop-shadow(0 0 5px hsl(var(--primary)))" },
           "50%": { filter: "drop-shadow(0 0 15px hsl(var(--primary)))" },
@@ -146,6 +151,7 @@ export default {
         "bin-shake": "bin-shake 0.3s ease-in-out",
         "scan-beam-active": "scan-beam-active 1.5s ease-in-out",
         "scan-line-sweep": "scan-line-sweep 2s ease-in-out infinite",
+        "scan-line-sweep-horizontal": "scan-line-sweep-horizontal 2s ease-in-out infinite", // New animation
         "glow-pulse": "glow-pulse 0.5s ease-in-out",
         "blink-text": "blink-text 1.5s infinite alternate",
         "spin-slow": "spin-slow 3s linear infinite", // New animation

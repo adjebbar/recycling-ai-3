@@ -113,8 +113,8 @@ const SeeItInAction = () => {
           <div className="absolute left-0 top-0 w-full h-full">
             {/* Scanning Laser */}
             <div className={cn(
-              "absolute left-[30%] h-28 w-2 bg-gradient-to-b from-transparent via-primary to-transparent shadow-[0_0_15px_hsl(var(--primary))] rounded-full transition-opacity duration-300",
-              phase === 'scanning' ? 'opacity-100 animate-scan-line-sweep' : 'opacity-0'
+              "absolute top-1/2 -translate-y-1/2 w-24 h-2 bg-gradient-to-r from-transparent via-primary to-transparent shadow-[0_0_15px_hsl(var(--primary))] rounded-full transition-opacity duration-300",
+              phase === 'scanning' ? 'opacity-100 animate-scan-line-sweep-horizontal' : 'opacity-0'
             )} />
 
             {/* Bottle */}

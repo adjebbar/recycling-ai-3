@@ -5,14 +5,17 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { showError, showSuccess, showLoading, dismissToast } from '@/utils/toast';
 import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i1next';
 import { supabase } from '@/lib/supabaseClient';
 import { achievementsList } from '@/lib/achievements';
 import { Html5QrcodeScanner } from 'html5-qrcode'; // Import Html5QrcodeScanner type
 
 const POINTS_PER_BOTTLE = 10;
+const IMAGE_ANALYSIS_DELAY_MS = 1500; // 1.5 seconds delay before triggering image analysis
 
-const isPlasticBottle = (product: any): boolean => {
+type ValidationResult = 'accepted' | 'rejected' | 'inconclusive';
+
+const analyzeProductData = (product: any): ValidationResult => {
   const packagingTags = (product.packaging_tags || []).join(' ').replace(/-/g, ' ');
   const packagingText = (product.packaging || '').replace(/,/g, ' ');
 
@@ -25,46 +28,35 @@ const isPlasticBottle = (product: any): boolean => {
     product.ingredients_text,
   ].filter(Boolean).join(' ').toLowerCase();
 
-  console.log("isPlasticBottle: Analyzing searchText:", searchText);
+  console.log("analyzeProductData: Analyzing searchText:", searchText);
+
+  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak'];
+  if (exclusionKeywords.some(k => searchText.includes(k))) {
+    console.log("analyzeProductData: Conclusive rejection based on exclusion keywords.");
+    return 'rejected';
+  }
+
+  const specificPlasticKeywords = ['pet', 'hdpe'];
+  if (specificPlasticKeywords.some(k => searchText.includes(k))) {
+    console.log("analyzeProductData: Conclusive acceptance based on specific plastic type.");
+    return 'accepted';
+  }
+
+  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
+  if (bottleKeywords.some(k => searchText.includes(k))) {
+    console.log("analyzeProductData: Conclusive acceptance based on 'bottle' keyword.");
+    return 'accepted';
+  }
 
   const plasticKeywords = ['plastic', 'plastique', 'polyethylene'];
-  const specificPlasticKeywords = ['pet', 'hdpe'];
-  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
   const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk', 'eau', 'water'];
-  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak'];
-
-  // 1. Critical Exclusion: If it's explicitly not a plastic bottle, reject immediately.
-  if (exclusionKeywords.some(k => searchText.includes(k))) {
-    console.log("isPlasticBottle: Excluded by keyword.");
-    return false;
-  }
-
-  // 2. Positive Identification (New, more robust logic)
-  const hasSpecificPlastic = specificPlasticKeywords.some(k => searchText.includes(k));
-  const hasGeneralPlastic = plasticKeywords.some(k => searchText.includes(k));
-  const hasBottle = bottleKeywords.some(k => searchText.includes(k));
-  const hasDrink = drinkKeywords.some(k => searchText.includes(k));
-
-  // Condition 1: It's explicitly a recyclable plastic type like PET. This is a very strong signal.
-  if (hasSpecificPlastic) {
-    console.log(`isPlasticBottle: Identified by specific plastic type (e.g., PET/HDPE).`);
-    return true;
-  }
-
-  // Condition 2: It's described as a bottle (and wasn't excluded). High confidence.
-  if (hasBottle) {
-    console.log(`isPlasticBottle: Identified by 'bottle' keyword.`);
-    return true;
-  }
-
-  // Condition 3: It's described as a plastic drink container (fallback for items not called 'bottle').
-  if (hasGeneralPlastic && hasDrink) {
-    console.log(`isPlasticBottle: Identified as a plastic drink container.`);
-    return true;
+  if (plasticKeywords.some(k => searchText.includes(k)) && drinkKeywords.some(k => searchText.includes(k))) {
+    console.log("analyzeProductData: Conclusive acceptance based on 'plastic' + 'drink' keywords.");
+    return 'accepted';
   }
   
-  console.log("isPlasticBottle: Not identified as plastic bottle.");
-  return false;
+  console.log("analyzeProductData: Text analysis is inconclusive. Recommending image analysis.");
+  return 'inconclusive';
 };
 
 export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeScanner | null>) => {
@@ -77,7 +69,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     manualBarcode: '',
     scanResult: null as { type: 'success' | 'error'; message: string; imageUrl?: string } | null,
     cameraInitializationError: null as string | null,
-    isImageAnalyzing: false, // New state for live image analysis
+    isImageAnalyzing: false,
     showTicket: false,
     qrCodeValue: null as string | null,
     generatedVoucherCode: null as string | null,
@@ -130,13 +122,54 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     }
   };
 
-  const processBarcode = async (barcode: string, isManual: boolean = false) => {
-    if (!barcode) return;
-
-    if (!isManual && barcode === state.lastScanned) {
-      console.log("Skipping duplicate camera scan:", barcode);
+  const handleAutomaticImageAnalysis = async () => {
+    if (!scannerRef.current) {
+      showError("Scanner not ready for image analysis.");
       return;
     }
+
+    updateState({ isImageAnalyzing: true, scanResult: null });
+    const loadingToast = showLoading("Analyzing image...");
+
+    try {
+      const videoElement = document.querySelector('#reader video') as HTMLVideoElement;
+      if (!videoElement) throw new Error("Video element not found.");
+
+      const canvas = document.createElement('canvas');
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error("Could not get 2D context.");
+
+      context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL('image/jpeg', 0.8);
+
+      const { data, error } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', { body: { imageData } });
+      if (error || data.error) throw new Error(error?.message || data.error);
+      dismissToast(loadingToast);
+
+      if (data.is_plastic_bottle) {
+        await handleSuccessfulRecycle();
+        updateState({ scanResult: { type: 'success', message: t('scanner.imageSuccess', { points: POINTS_PER_BOTTLE }) } });
+      } else {
+        const errorMessage = t('scanner.imageNotPlastic');
+        showError(errorMessage);
+        updateState({ scanResult: { type: 'error', message: errorMessage } });
+        triggerPiConveyor('rejected');
+      }
+    } catch (err: any) {
+      dismissToast(loadingToast);
+      showError(err.message || "Image analysis failed.");
+      updateState({ scanResult: { type: 'error', message: err.message || "Image analysis failed." } });
+      triggerPiConveyor('rejected');
+    } finally {
+      updateState({ isImageAnalyzing: false });
+      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
+    }
+  };
+
+  const processBarcode = async (barcode: string, isManual: boolean = false) => {
+    if (!barcode || (!isManual && barcode === state.lastScanned)) return;
     
     updateState({ lastScanned: barcode, scanResult: null });
     const loadingToast = showLoading(t('scanner.verifying'));
@@ -148,19 +181,34 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
 
       if (data.status === 1 && data.product) {
         const imageUrl = data.product.image_front_url || data.product.image_url;
-        if (isPlasticBottle(data.product)) {
-          await handleSuccessfulRecycle(barcode);
-          updateState({ scanResult: { type: 'success', message: t('scanner.success', { points: POINTS_PER_BOTTLE }), imageUrl } });
-        } else {
-          const errorMessage = t('scanner.notPlastic');
-          showError(errorMessage);
-          updateState({ scanResult: { type: 'error', message: errorMessage, imageUrl } });
-          triggerPiConveyor('rejected');
+        const validation = analyzeProductData(data.product);
+
+        switch (validation) {
+          case 'accepted':
+            await handleSuccessfulRecycle(barcode);
+            updateState({ scanResult: { type: 'success', message: t('scanner.success', { points: POINTS_PER_BOTTLE }), imageUrl } });
+            break;
+          case 'rejected':
+            const rejectMessage = t('scanner.notPlastic');
+            showError(rejectMessage);
+            updateState({ scanResult: { type: 'error', message: rejectMessage, imageUrl } });
+            triggerPiConveyor('rejected');
+            break;
+          case 'inconclusive':
+            if (isManual) {
+              const inconclusiveMessage = "Barcode data is inconclusive. Please use the camera scanner for a visual check.";
+              showError(inconclusiveMessage);
+              updateState({ scanResult: { type: 'error', message: inconclusiveMessage, imageUrl } });
+            } else {
+              toast.info("Barcode data unclear. Analyzing camera feed for confirmation...");
+              setTimeout(handleAutomaticImageAnalysis, IMAGE_ANALYSIS_DELAY_MS);
+            }
+            break;
         }
       } else {
-        const errorMessage = t('scanner.notFound');
-        showError(errorMessage);
-        updateState({ scanResult: { type: 'error', message: errorMessage } });
+        const notFoundMessage = t('scanner.notFound');
+        showError(notFoundMessage);
+        updateState({ scanResult: { type: 'error', message: notFoundMessage } });
         triggerPiConveyor('rejected');
       }
     } catch (err: any) {
@@ -170,14 +218,16 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       updateState({ scanResult: { type: 'error', message: errorMessage } });
       triggerPiConveyor('rejected');
     } finally {
-      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
+      if (!state.isImageAnalyzing) {
+        setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
+      }
     }
   };
 
   const handleRedeem = async () => {
     updateState({ showTicket: true, isRedeeming: true, qrCodeValue: null, generatedVoucherCode: null });
     try {
-      const { data, error } = await supabase.functions.invoke('generate-voucher', { body: { points, userId: user?.id } }); // Pass userId
+      const { data, error } = await supabase.functions.invoke('generate-voucher', { body: { points, userId: user?.id } });
       if (error || data.error) throw new Error(error?.message || data.error);
       updateState({ qrCodeValue: data.voucherToken, generatedVoucherCode: data.voucherCode });
     } catch (err: any) {

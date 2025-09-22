@@ -14,13 +14,17 @@ const POINTS_PER_BOTTLE = 10;
 const IMAGE_ANALYSIS_DELAY_MS = 2000; // 2 seconds delay
 
 const isPlasticBottle = (product: any): boolean => {
+  // Clean and combine all relevant text fields into a single string for searching.
+  const packagingTags = (product.packaging_tags || []).join(' ').replace(/-/g, ' ');
+  const packagingText = (product.packaging || '').replace(/,/g, ' ');
+
   const searchText = [
     product.product_name,
     product.generic_name,
     product.categories,
-    product.packaging,
-    ...(product.packaging_tags || []),
-    ...(product.ingredients_text || []), // Add ingredients text for more context
+    packagingText,
+    packagingTags,
+    product.ingredients_text,
   ].filter(Boolean).join(' ').toLowerCase();
 
   console.log("isPlasticBottle: Analyzing searchText:", searchText);

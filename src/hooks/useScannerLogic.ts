@@ -42,15 +42,15 @@ const analyzeProductData = (product: any): ValidationResult => {
 
   // --- Phase 1: Strict Exclusion (if it's definitely NOT plastic) ---
   const definitiveNonPlasticKeywords = [
-    'glass', 'verre', 'vidrio', // Glass
-    'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', // Metal
-    'carton', 'paper', 'papier', 'wood', 'bois', 'brique', 'tetrapak', // Paper/Cardboard/Wood
-    'ceramic', 'céramique', // Ceramic
-    'jar', 'pot', 'bocal', // Often glass jars
-    'bag', 'sac', 'sachet', 'pouch', 'sachet refermable', // Flexible packaging (usually not bottles)
-    'cup', 'tasse', 'gobelet', 'plate', 'assiette', 'tray', 'barquette', // Non-bottle containers
-    'aerosol', 'spray', 'bombe', // Aerosol cans
-    'film', 'pellicule', 'wrap', 'emballage souple', // Films/wraps
+    'glass', 'verre', 'vidrio', 'cristal', // Glass
+    'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', 'lata', 'hojalata', // Metal
+    'carton', 'paper', 'papier', 'wood', 'bois', 'brique', 'tetrapak', 'cartón', 'papel', 'madera', // Paper/Cardboard/Wood
+    'ceramic', 'céramique', 'cerámica', // Ceramic
+    'jar', 'pot', 'bocal', 'tarro', 'frasco', // Often glass jars
+    'bag', 'sac', 'sachet', 'pouch', 'sachet refermable', 'bolsa', 'saquito', // Flexible packaging (usually not bottles)
+    'cup', 'tasse', 'gobelet', 'plate', 'assiette', 'tray', 'barquette', 'taza', 'vaso', 'plato', 'bandeja', // Non-bottle containers
+    'aerosol', 'spray', 'bombe', 'aerosol', // Aerosol cans
+    'film', 'pellicule', 'wrap', 'emballage souple', 'película', 'envoltura', // Films/wraps
   ];
 
   if (definitiveNonPlasticKeywords.some(k => searchText.includes(k))) {
@@ -85,9 +85,9 @@ const analyzeProductData = (product: any): ValidationResult => {
   const liquidProductKeywords = [
     'water', 'eau', 'agua', 'mineral water', 'eau minérale', 'agua mineral',
     'drink', 'boisson', 'bebida', 'soda', 'jus', 'juice', 'zumo',
-    'milk', 'lait', 'leche', 'yogurt drink', 'boisson lactée',
+    'milk', 'lait', 'leche', 'yogurt drink', 'boisson lactée', 'bebida láctea',
     'oil', 'huile', 'aceite', 'vinegar', 'vinaigre', 'vinagre',
-    'shampoo', 'conditioner', 'gel douche', 'body wash', 'lotion', 'detergent', 'liquide vaisselle',
+    'shampoo', 'conditioner', 'gel douche', 'body wash', 'lotion', 'detergent', 'liquide vaisselle', 'champú', 'acondicionador', 'gel de ducha', 'loción', 'detergente',
   ];
 
   // Check for "bottle" combined with liquid product keywords (often implies plastic if not excluded)
@@ -100,8 +100,8 @@ const analyzeProductData = (product: any): ValidationResult => {
   }
 
   // Check for general "plastic" terms combined with "bottle" or "container"
-  const generalPlasticTerms = ['plastic', 'plastique', 'polymère', 'polymer'];
-  const generalContainerTerms = ['bottle', 'bouteille', 'flacon', 'container', 'récipient', 'envase'];
+  const generalPlasticTerms = ['plastic', 'plastique', 'plastico', 'polymère', 'polymer', 'polímero'];
+  const generalContainerTerms = ['bottle', 'bouteille', 'flacon', 'container', 'récipient', 'envase', 'botella', 'frasco'];
 
   if (
     generalPlasticTerms.some(k => searchText.includes(k)) &&

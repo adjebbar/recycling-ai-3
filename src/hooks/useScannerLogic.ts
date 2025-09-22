@@ -34,10 +34,10 @@ const analyzeProductData = (product: any): ValidationResult => {
   ].filter(Boolean).join(' ');
 
   console.log("analyzeProductData: Final searchText for analysis:", searchText);
-  console.log("analyzeProductData: Raw product.packaging:", product.packaging);
-  console.log("analyzeProductData: Lowercase packaging:", packaging);
-  console.log("analyzeProductData: Raw product.packaging_tags:", product.packaging_tags);
-  console.log("analyzeProductData: Lowercase packaging_tags (joined):", packagingTags);
+  console.log("DEBUG: Raw product.packaging:", product.packaging);
+  console.log("DEBUG: Lowercase packaging:", packaging);
+  console.log("DEBUG: Raw product.packaging_tags:", product.packaging_tags);
+  console.log("DEBUG: Lowercase packaging_tags (joined):", packagingTags);
 
 
   // --- Phase 1: Strict Exclusion (if it's definitely NOT plastic) ---
@@ -61,7 +61,21 @@ const analyzeProductData = (product: any): ValidationResult => {
   // --- Phase 2: Strong Positive Identification (if it's definitely a plastic bottle) ---
   // Direct check for 'plastic' in packaging fields (high priority)
   const directPlasticTerms = ['plastic', 'plastique', 'plastico'];
-  if (directPlasticTerms.some(k => packaging.includes(k)) || directPlasticTerms.some(k => packagingTags.includes(k))) {
+  console.log("DEBUG: Checking directPlasticTerms:", directPlasticTerms);
+
+  const isPlasticInPackaging = directPlasticTerms.some(k => {
+    const found = packaging.includes(k);
+    console.log(`DEBUG: packaging.includes('${k}') = ${found}`);
+    return found;
+  });
+
+  const isPlasticInPackagingTags = directPlasticTerms.some(k => {
+    const found = packagingTags.includes(k);
+    console.log(`DEBUG: packagingTags.includes('${k}') = ${found}`);
+    return found;
+  });
+
+  if (isPlasticInPackaging || isPlasticInPackagingTags) {
     console.log("analyzeProductData: ACCEPTED - Found 'plastic' directly in packaging fields (multi-language).");
     return 'accepted';
   }

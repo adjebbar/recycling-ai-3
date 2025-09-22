@@ -4,18 +4,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Camera, Keyboard } from 'lucide-react';
+import { Camera, Keyboard, Loader2 } from 'lucide-react'; // Added Loader2
 import BarcodeScanner from '@/components/BarcodeScanner';
-import { ImageAnalysis } from './ImageAnalysis.tsx';
 import { useTranslation } from 'react-i18next';
+import { Html5QrcodeScanner } from 'html5-qrcode'; // Import Html5QrcodeScanner type
 
 interface DesktopScannerProps {
   state: any;
   actions: any;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  scannerRef: React.MutableRefObject<Html5QrcodeScanner | null>; // Pass scannerRef
 }
 
-export const DesktopScanner = ({ state, actions, fileInputRef }: DesktopScannerProps) => {
+export const DesktopScanner = ({ state, actions, scannerRef }: DesktopScannerProps) => {
   const { t } = useTranslation();
 
   return (
@@ -27,24 +27,20 @@ export const DesktopScanner = ({ state, actions, fileInputRef }: DesktopScannerP
       <TabsContent value="camera">
         <Card className="overflow-hidden">
           <CardContent className="p-4 relative flex items-center justify-center">
-            {state.imageAnalysisMode ? (
-              <ImageAnalysis
-                capturedImage={state.capturedImage}
-                isAnalyzing={state.isAnalyzingImage}
-                onCapture={actions.handleImageCapture}
-                onAnalyze={actions.handleImageAnalysis}
-                onCancel={() => actions.updateState({ imageAnalysisMode: false })}
-                fileInputRef={fileInputRef}
+            <div className="w-full max-w-xs mx-auto h-96 overflow-hidden rounded-md relative flex items-center justify-center">
+              <BarcodeScanner
+                onScanSuccess={actions.processBarcode}
+                onScanFailure={() => {}}
+                onCameraInitError={(error: string) => actions.updateState({ cameraInitializationError: error })}
+                scannerRef={scannerRef} // Pass the scannerRef
               />
-            ) : (
-              <div className="w-full max-w-xs mx-auto h-96 overflow-hidden rounded-md relative flex items-center justify-center">
-                <BarcodeScanner
-                  onScanSuccess={actions.processBarcode}
-                  onScanFailure={() => {}} // Removed setting scanFailureMessage
-                  onCameraInitError={(error: string) => actions.updateState({ cameraInitializationError: error })}
-                />
-              </div>
-            )}
+              {state.isImageAnalyzing && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm z-20">
+                  <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
+                  <p className="text-xl font-semibold text-foreground">{t('scanner.analyzingImage')}</p>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </TabsContent>

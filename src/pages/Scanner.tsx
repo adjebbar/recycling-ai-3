@@ -2,17 +2,20 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { CameraOff, Gift } from 'lucide-react';
+import { Gift } from 'lucide-react';
 import { useScannerLogic } from '@/hooks/useScannerLogic';
 import { ScannerView } from '@/components/scanner/ScannerView.tsx';
 import { AnonymousUserActions } from '@/components/scanner/AnonymousUserActions.tsx';
 import { RewardTicketDialog } from '@/components/RewardTicketDialog';
 import { Button } from '@/components/ui/button';
+import { useRef } from 'react';
+import { Html5QrcodeScanner } from 'html5-qrcode'; // Import Html5QrcodeScanner type
 
 const ScannerPage = () => {
   const { t } = useTranslation();
-  const { user, points } = useAuth(); // Get points from AuthContext
-  const { state, fileInputRef, actions } = useScannerLogic(); // useScannerLogic also gets points from useAuth, but we'll use the direct one for clarity in UI
+  const { user, points } = useAuth();
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null); // Create a ref for the scanner instance
+  const { state, actions } = useScannerLogic(scannerRef); // Pass the scannerRef to the hook
 
   return (
     <div className="min-h-[calc(100vh-4rem)] w-full text-foreground">
@@ -22,10 +25,9 @@ const ScannerPage = () => {
           <p className="text-muted-foreground mb-6">{t('scanner.subtitle')}</p>
         </div>
 
-        <ScannerView state={state} actions={actions} fileInputRef={fileInputRef} />
+        <ScannerView state={state} actions={actions} scannerRef={scannerRef} />
 
         {user ? (
-          // For logged-in users, show a redeem button
           <div className="mt-4 w-full max-w-lg flex justify-center">
             <Button
               variant="default"
@@ -39,9 +41,8 @@ const ScannerPage = () => {
             </Button>
           </div>
         ) : (
-          // For anonymous users, show the AnonymousUserActions component
           <AnonymousUserActions
-            points={points} // This will be anonymousPoints from AuthContext when user is null
+            points={points}
             isRedeeming={state.isRedeeming}
             onRedeem={actions.handleRedeem}
             onReset={actions.resetAnonymousPoints}
@@ -49,16 +50,16 @@ const ScannerPage = () => {
         )}
 
         <RewardTicketDialog
-          open={state.showTicket}
-          onOpenChange={(open) => actions.updateState({ showTicket: open })}
+          open={!!state.qrCodeValue} // Open when QR code value is available
+          onOpenChange={(open) => {
+            if (!open) actions.handleRedeemAndClose();
+          }}
           qrCodeValue={state.qrCodeValue}
           voucherCode={state.generatedVoucherCode}
           isLoading={state.isRedeeming}
-          points={points} // This will be the correct points (user's or anonymous)
+          points={points}
           onRedeemAndClose={actions.handleRedeemAndClose}
         />
-
-        {/* The 'camera permission' message has been removed from here. */}
       </div>
     </div>
   );

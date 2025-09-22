@@ -11,6 +11,7 @@ import { achievementsList } from '@/lib/achievements';
 import { Html5QrcodeScanner } from 'html5-qrcode'; // Import Html5QrcodeScanner type
 
 const POINTS_PER_BOTTLE = 10;
+const IMAGE_ANALYSIS_DELAY_MS = 2000; // 2 seconds delay
 
 const isPlasticBottle = (product: any): boolean => {
   const searchText = [
@@ -213,16 +214,16 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
           showError(errorMessage);
           updateState({ scanResult: { type: 'error', message: errorMessage, imageUrl } });
           triggerPiConveyor('rejected');
-          // If barcode analysis fails, automatically try image analysis
-          handleAutomaticImageAnalysis();
+          // If barcode analysis fails, automatically try image analysis after a delay
+          setTimeout(handleAutomaticImageAnalysis, IMAGE_ANALYSIS_DELAY_MS);
         }
       } else { // Product not found by barcode
         const errorMessage = t('scanner.notFound');
         showError(errorMessage);
         updateState({ scanResult: { type: 'error', message: errorMessage } });
         triggerPiConveyor('rejected');
-        // If barcode analysis fails, automatically try image analysis
-        handleAutomaticImageAnalysis();
+        // If barcode analysis fails, automatically try image analysis after a delay
+        setTimeout(handleAutomaticImageAnalysis, IMAGE_ANALYSIS_DELAY_MS);
       }
     } catch (err: any) {
       dismissToast(loadingToast);
@@ -230,8 +231,8 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       showError(errorMessage);
       updateState({ scanResult: { type: 'error', message: errorMessage } });
       triggerPiConveyor('rejected');
-      // If barcode analysis fails, automatically try image analysis
-      handleAutomaticImageAnalysis();
+      // If barcode analysis fails, automatically try image analysis after a delay
+      setTimeout(handleAutomaticImageAnalysis, IMAGE_ANALYSIS_DELAY_MS);
     } finally {
       setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000); // Increased timeout
     }

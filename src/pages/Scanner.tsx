@@ -30,7 +30,7 @@ const ScannerPage = () => {
         {user ? (
           <div className="mt-4 w-full max-w-lg flex justify-center">
             <Button
-              variant="default"
+              variant={points === 0 ? "secondary" : "default"}
               size="lg"
               onClick={actions.handleRedeem}
               disabled={points === 0 || state.isRedeeming}

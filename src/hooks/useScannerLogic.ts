@@ -185,8 +185,15 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     }
   };
 
-  const processBarcode = async (barcode: string) => {
-    if (!barcode || barcode === state.lastScanned) return;
+  const processBarcode = async (barcode: string, isManual: boolean = false) => {
+    if (!barcode) return;
+
+    // Prevent duplicate processing for camera scans, but allow for manual input
+    if (!isManual && barcode === state.lastScanned) {
+      console.log("Skipping duplicate camera scan:", barcode);
+      return;
+    }
+    
     updateState({ lastScanned: barcode, scanResult: null });
     const loadingToast = showLoading(t('scanner.verifying'));
 
@@ -259,7 +266,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       resetAnonymousPoints,
       handleManualSubmit: (e: React.FormEvent) => {
         e.preventDefault();
-        processBarcode(state.manualBarcode.trim());
+        processBarcode(state.manualBarcode.trim(), true); // Pass true for manual scan
         updateState({ manualBarcode: '' });
       },
     },

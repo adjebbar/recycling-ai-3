@@ -12,48 +12,65 @@ interface BarcodeScannerProps {
 const BarcodeScanner = ({ onScanSuccess, onScanFailure, onCameraInitError }: BarcodeScannerProps) => {
   const callbacksRef = useRef({ onScanSuccess, onScanFailure, onCameraInitError });
   callbacksRef.current = { onScanSuccess, onScanFailure, onCameraInitError };
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null); // Ref to store scanner instance
+  const mounted = useRef(false); // Track if component has truly mounted
 
   useEffect(() => {
-    const initErrorCallback = (errorMessage: string) => {
-      // This callback is specifically for camera initialization errors (e.g., permissions, camera in use).
-      callbacksRef.current.onCameraInitError(errorMessage);
-    };
+    // In React StrictMode, effects run twice (mount -> unmount -> mount).
+    // We only want to initialize the scanner once per actual component lifecycle.
+    if (!mounted.current) {
+      mounted.current = true; // Mark as truly mounted after the first render cycle
+      console.log("BarcodeScanner: Initializing scanner for the first time.");
 
-    const html5QrcodeScanner = new Html5QrcodeScanner(
-      'reader',
-      {
-        fps: 20,
-        qrbox: { width: 250, height: 150 },
-        supportedScanTypes: [0], // 0 for camera
-        // Explicitly request the back camera
-        videoConstraints: { // Renamed from cameraConfig to videoConstraints
-          facingMode: 'environment'
+      const initErrorCallback = (errorMessage: string) => {
+        console.error("BarcodeScanner: Camera initialization error:", errorMessage);
+        callbacksRef.current.onCameraInitError(errorMessage);
+      };
+
+      const html5QrcodeScanner = new Html5QrcodeScanner(
+        'reader',
+        {
+          fps: 20,
+          qrbox: { width: 250, height: 150 },
+          supportedScanTypes: [0], // 0 for camera
+          // Explicitly request the back camera
+          videoConstraints: {
+            facingMode: 'environment'
+          }
+        },
+        /* verbose= */ false
+      );
+      scannerRef.current = html5QrcodeScanner; // Store scanner instance
+
+      const successCallback = (decodedText: string) => {
+        console.log("BarcodeScanner: Scan success:", decodedText);
+        callbacksRef.current.onScanSuccess(decodedText);
+      };
+
+      const scanErrorCallback = (errorMessage: string) => {
+        // This callback is for errors during scanning, like not finding a code.
+        if (callbacksRef.current.onScanFailure) {
+          callbacksRef.current.onScanFailure(errorMessage);
+        } else {
+          console.warn("BarcodeScanner: Scan failure (no handler):", errorMessage);
         }
-      },
-      /* verbose= */ false
-    );
+      };
 
-    const successCallback = (decodedText: string) => {
-      callbacksRef.current.onScanSuccess(decodedText);
-    };
-
-    const scanErrorCallback = (errorMessage: string) => {
-      // This callback is for errors during scanning, like not finding a code.
-      if (callbacksRef.current.onScanFailure) {
-        callbacksRef.current.onScanFailure(errorMessage);
-      } else {
-        console.warn("Barcode scan failure (no handler):", errorMessage);
-      }
-    };
-
-    // @ts-ignore: The html5-qrcode library's render method actually accepts 3 arguments, but TypeScript definitions might be outdated.
-    html5QrcodeScanner.render(successCallback, scanErrorCallback, initErrorCallback);
+      // @ts-ignore: The html5-qrcode library's render method actually accepts 3 arguments, but TypeScript definitions might be outdated.
+      html5QrcodeScanner.render(successCallback, scanErrorCallback, initErrorCallback);
+    }
 
     // Cleanup function to stop the scanner when the component unmounts
     return () => {
-      html5QrcodeScanner.clear().catch(error => {
-        console.error("Failed to clear html5-qrcode-scanner. This is expected on rapid navigation.", error);
-      });
+      // This cleanup runs on unmount (and also after the first mount in StrictMode)
+      if (scannerRef.current) {
+        console.log("BarcodeScanner: Clearing scanner.");
+        scannerRef.current.clear().catch(error => {
+          console.error("BarcodeScanner: Failed to clear html5-qrcode-scanner.", error);
+        });
+        scannerRef.current = null;
+      }
+      mounted.current = false; // Reset for next mount if component is truly unmounted
     };
   }, []); // Empty dependency array means this runs once on mount
 

@@ -22,6 +22,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from '@/lib/supabaseClient';
 import { useRewardHistory } from "@/hooks/useRewardHistory";
 import { Trophy } from "lucide-react";
+import { RewardTicketDialog } from "@/components/RewardTicketDialog"; // Ensure this is imported
 
 const RewardsPage = () => {
   const { t } = useTranslation();
@@ -32,6 +33,7 @@ const RewardsPage = () => {
   const [generatedQrCodeValue, setGeneratedQrCodeValue] = useState<string | null>(null);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [redeemedRewardName, setRedeemedRewardName] = useState<string | null>(null);
+  const [pendingRedemption, setPendingRedemption] = useState<{ cost: number; rewardId: number; rewardName: string } | null>(null);
   const queryClient = useQueryClient();
 
   const hasUnlockedAllRewards = useMemo(() => {
@@ -59,11 +61,10 @@ const RewardsPage = () => {
     setGeneratedVoucherCode(null);
     setGeneratedQrCodeValue(null);
     setRedeemedRewardName(rewardName);
+    setPendingRedemption({ cost, rewardId, rewardName }); // Store pending redemption details
 
     try {
-      await deductPoints(cost);
-      showSuccess(`You redeemed ${cost} points for ${rewardName}!`);
-
+      // Points are NOT deducted here, they will be deducted upon confirmation in the dialog
       const { data, error } = await supabase.functions.invoke('generate-voucher', {
         body: { points: cost, userId: user.id, rewardId: rewardId },
       });
@@ -87,21 +88,40 @@ const RewardsPage = () => {
 
       setGeneratedVoucherCode(data.voucherCode);
       setGeneratedQrCodeValue(data.voucherToken);
-      await refetchProfile();
-      await queryClient.invalidateQueries({ queryKey: ['rewardHistory', user.id] });
+      // refetchProfile and invalidateQueries will be called after points deduction
     } catch (err: any) {
       const errorMessage = err.message || "An unknown error occurred.";
       console.error("Failed to redeem reward or generate voucher:", err);
       showError(`Redemption Error: ${errorMessage}`);
       setRedeemedRewardName(null);
+      setPendingRedemption(null); // Clear pending redemption on error
     } finally {
       setIsRedeeming(false);
     }
   };
 
-  const closeVoucherDialog = () => {
-    setGeneratedVoucherCode(null);
-    setRedeemedRewardName(null);
+  const handleConfirmRedeemAndClose = async () => {
+    if (pendingRedemption && user) {
+      try {
+        await deductPoints(pendingRedemption.cost);
+        showSuccess(`You redeemed ${pendingRedemption.cost} points for ${pendingRedemption.rewardName}!`);
+        await refetchProfile();
+        await queryClient.invalidateQueries({ queryKey: ['rewardHistory', user.id] });
+      } catch (error) {
+        console.error("Error confirming redemption:", error);
+        showError("Failed to finalize reward redemption.");
+      } finally {
+        setPendingRedemption(null);
+        setGeneratedVoucherCode(null);
+        setGeneratedQrCodeValue(null);
+        setRedeemedRewardName(null);
+      }
+    } else {
+      // This path should ideally not be hit for logged-in users if pendingRedemption is set correctly
+      setGeneratedVoucherCode(null);
+      setGeneratedQrCodeValue(null);
+      setRedeemedRewardName(null);
+    }
   };
 
   const isLoading = isLoadingRewards || isLoadingHistory;
@@ -189,23 +209,18 @@ const RewardsPage = () => {
         </div>
       )}
 
-      {/* Dialog to show the generated code */}
-      <AlertDialog open={!!generatedVoucherCode} onOpenChange={closeVoucherDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Your {redeemedRewardName} Code</AlertDialogTitle>
-            <AlertDialogDescription>
-              Use the code below to claim your reward.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="my-4 p-4 bg-muted rounded-md text-center">
-            <p className="text-2xl font-mono font-bold tracking-widest">{generatedVoucherCode}</p>
-          </div>
-          <AlertDialogFooter>
-            <Button onClick={closeVoucherDialog}>Close</Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Dialog to show the generated voucher */}
+      <RewardTicketDialog
+        open={!!generatedQrCodeValue} // Open when QR code value is available
+        onOpenChange={(open) => {
+          if (!open) handleConfirmRedeemAndClose(); // Call confirmation logic when dialog is closed
+        }}
+        qrCodeValue={generatedQrCodeValue}
+        voucherCode={generatedVoucherCode}
+        isLoading={isRedeeming}
+        points={pendingRedemption?.cost || 0} // Pass the cost of the redeemed reward
+        onRedeemAndClose={handleConfirmRedeemAndClose}
+      />
     </div>
   );
 };

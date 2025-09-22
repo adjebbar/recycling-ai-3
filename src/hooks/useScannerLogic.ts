@@ -16,79 +16,90 @@ const IMAGE_ANALYSIS_DELAY_MS = 1500; // 1.5 seconds delay before triggering ima
 type ValidationResult = 'accepted' | 'rejected' | 'inconclusive';
 
 const analyzeProductData = (product: any): ValidationResult => {
-  // Normalize and combine all relevant text fields
+  // Aggregate all relevant text fields for comprehensive analysis
   const productName = (product.product_name || '').toLowerCase();
   const genericName = (product.generic_name || '').toLowerCase();
   const categories = (Array.isArray(product.categories) ? product.categories.join(' ') : product.categories || '').toLowerCase();
   const packaging = (product.packaging || '').toLowerCase();
   const packagingTags = (Array.isArray(product.packaging_tags) ? product.packaging_tags.join(' ') : product.packaging_tags || '').toLowerCase();
   const ingredientsText = (product.ingredients_text || '').toLowerCase();
-  const traces = (product.traces || '').toLowerCase(); // Often contains packaging info
-  const manufacturingPlaces = (product.manufacturing_places || '').toLowerCase(); // Sometimes mentions packaging
+  const traces = (product.traces || '').toLowerCase();
+  const manufacturingPlaces = (product.manufacturing_places || '').toLowerCase();
+  const labels = (Array.isArray(product.labels) ? product.labels.join(' ') : product.labels || '').toLowerCase();
+  const brands = (product.brands || '').toLowerCase();
 
   const searchText = [
-    productName,
-    genericName,
-    categories,
-    packaging,
-    packagingTags,
-    ingredientsText,
-    traces,
-    manufacturingPlaces,
+    productName, genericName, categories, packaging, packagingTags,
+    ingredientsText, traces, manufacturingPlaces, labels, brands
   ].filter(Boolean).join(' ');
 
   console.log("analyzeProductData: Final searchText for analysis:", searchText);
 
-  // 1. Exclusion First: Check for definitive non-plastic materials
-  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak', 'paper', 'papier', 'wood', 'bois'];
-  if (exclusionKeywords.some(k => searchText.includes(k))) {
-    console.log("analyzeProductData: REJECTED - Found exclusion keyword.");
+  // --- Phase 1: Strict Exclusion (if it's definitely NOT plastic) ---
+  const definitiveNonPlasticKeywords = [
+    'glass', 'verre', 'vidrio', // Glass
+    'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', // Metal
+    'carton', 'paper', 'papier', 'wood', 'bois', 'brique', 'tetrapak', // Paper/Cardboard/Wood
+    'ceramic', 'céramique', // Ceramic
+    'jar', 'pot', 'bocal', // Often glass jars
+    'bag', 'sac', 'sachet', 'pouch', 'sachet refermable', // Flexible packaging (usually not bottles)
+    'cup', 'tasse', 'gobelet', 'plate', 'assiette', 'tray', 'barquette', // Non-bottle containers
+    'aerosol', 'spray', 'bombe', // Aerosol cans
+    'film', 'pellicule', 'wrap', 'emballage souple', // Films/wraps
+  ];
+
+  if (definitiveNonPlasticKeywords.some(k => searchText.includes(k))) {
+    console.log("analyzeProductData: REJECTED - Found definitive non-plastic keyword.");
     return 'rejected';
   }
 
-  // 2. Positive Confirmation: Check for strong indicators of plastic bottles
-  const specificPlasticIdentifiers = ['pet', 'hdpe', 'ldpe', 'pp', 'pvc', 'ps', 'plastic bottle', 'bouteille plastique', 'flacon plastique', 'plastic packaging', 'emballage plastique'];
-  if (specificPlasticIdentifiers.some(k => searchText.includes(k))) {
-    console.log("analyzeProductData: ACCEPTED - Found specific plastic identifier.");
+  // --- Phase 2: Strong Positive Identification (if it's definitely a plastic bottle) ---
+  const strongPlasticBottleKeywords = [
+    'plastic bottle', 'bouteille plastique', 'flacon plastique', 'botella de plástico', // Explicit plastic bottle
+    'pet bottle', 'bouteille pet', 'botella pet', // Specific plastic type
+    'hdpe bottle', 'bouteille hdpe', 'botella hdpe', // Specific plastic type
+    'plastic packaging', 'emballage plastique', 'envase plástico', // General plastic packaging
+    'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', // Plastic polymers
+    'pet', 'hdpe', 'ldpe', 'pp', 'pvc', 'ps', 'pe', // Common plastic abbreviations
+  ];
+
+  if (strongPlasticBottleKeywords.some(k => searchText.includes(k))) {
+    console.log("analyzeProductData: ACCEPTED - Found strong plastic bottle identifier.");
     return 'accepted';
   }
 
-  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
-  const plasticKeywords = ['plastic', 'plastique', 'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', 'low-density polyethylene', 'high-density polyethylene'];
-  const waterKeywords = ['eau', 'water', 'source', 'mineral water', 'eau minérale'];
-  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk', 'soft drink', 'boisson gazeuse'];
+  // --- Phase 3: Combined Heuristics (if it's likely a plastic bottle based on context) ---
+  const bottleTerms = ['bottle', 'bouteille', 'botella', 'flacon'];
+  const liquidProductKeywords = [
+    'water', 'eau', 'agua', 'mineral water', 'eau minérale', 'agua mineral',
+    'drink', 'boisson', 'bebida', 'soda', 'jus', 'juice', 'zumo',
+    'milk', 'lait', 'leche', 'yogurt drink', 'boisson lactée',
+    'oil', 'huile', 'aceite', 'vinegar', 'vinaigre', 'vinagre',
+    'shampoo', 'conditioner', 'gel douche', 'body wash', 'lotion', 'detergent', 'liquide vaisselle',
+  ];
 
-  // If it's explicitly a bottle and contains plastic keywords
-  if (bottleKeywords.some(k => searchText.includes(k)) && plasticKeywords.some(k => searchText.includes(k))) {
-    console.log("analyzeProductData: ACCEPTED - Found bottle and plastic keywords.");
+  // Check for "bottle" combined with liquid product keywords (often implies plastic if not excluded)
+  if (
+    bottleTerms.some(k => searchText.includes(k)) &&
+    liquidProductKeywords.some(k => searchText.includes(k))
+  ) {
+    console.log("analyzeProductData: ACCEPTED - Found bottle and liquid product keywords.");
     return 'accepted';
   }
 
-  // If it's a water/drink and explicitly a bottle (often implies plastic if not excluded)
-  if (waterKeywords.some(k => searchText.includes(k)) && bottleKeywords.some(k => searchText.includes(k))) {
-    console.log("analyzeProductData: ACCEPTED - Found water/drink and bottle keywords.");
-    return 'accepted';
-  }
-
-  // If it's a drink and contains plastic keywords
-  if (drinkKeywords.some(k => searchText.includes(k)) && plasticKeywords.some(k => searchText.includes(k))) {
-    console.log("analyzeProductData: ACCEPTED - Found drink and plastic keywords.");
-    return 'accepted';
-  }
-
-  // New general check: If packaging or categories strongly suggest plastic, and not explicitly excluded
-  const generalPlasticPackagingTerms = ['plastic', 'plastique', 'bottle', 'bouteille', 'flacon', 'pet', 'hdpe', 'pp'];
-  const generalDrinkCategories = ['beverages', 'drinks', 'eaux', 'waters', 'sodas', 'jus', 'juices', 'milk'];
+  // Check for general "plastic" terms combined with "bottle" or "container"
+  const generalPlasticTerms = ['plastic', 'plastique', 'polymère', 'polymer'];
+  const generalContainerTerms = ['bottle', 'bouteille', 'flacon', 'container', 'récipient', 'envase'];
 
   if (
-    (generalPlasticPackagingTerms.some(k => packaging.includes(k) || packagingTags.includes(k))) &&
-    (generalDrinkCategories.some(k => categories.includes(k) || productName.includes(k) || genericName.includes(k)))
+    generalPlasticTerms.some(k => searchText.includes(k)) &&
+    generalContainerTerms.some(k => searchText.includes(k))
   ) {
-    console.log("analyzeProductData: ACCEPTED - Found general plastic packaging and drink category indicators.");
+    console.log("analyzeProductData: ACCEPTED - Found general plastic and container terms.");
     return 'accepted';
   }
 
-  // 3. Inconclusive: If no strong decision can be made from text, defer to image analysis
+  // --- Phase 4: Inconclusive (if no strong decision can be made from text) ---
   console.log("analyzeProductData: INCONCLUSIVE - Text analysis not definitive. Recommending image analysis.");
   return 'inconclusive';
 };

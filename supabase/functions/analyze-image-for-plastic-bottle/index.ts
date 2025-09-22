@@ -1,5 +1,5 @@
 // @ts-ignore
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -30,11 +30,9 @@ serve(async (req) => {
     // For example, using Google Cloud Vision API, AWS Rekognition, or a custom ML model.
     // The AI service would return a classification (e.g., 'plastic bottle', 'glass bottle', 'can').
 
-    // For demonstration purposes, we'll simulate a result.
-    // Let's assume a simple heuristic for simulation:
-    // If the base64 string contains 'plastic' (unlikely in actual image data but for demo)
-    // or if we want to randomly succeed/fail for testing.
-    const isPlasticBottle = Math.random() > 0.5; // 50% chance of being a plastic bottle for demo
+    // FIX: Removing random simulation. For demonstration, we'll now always assume it's a plastic bottle.
+    // This ensures consistency after a barcode scan is inconclusive.
+    const isPlasticBottle = true; // Always assume it's a plastic bottle for now
 
     // You could also add a delay to simulate network latency for AI processing
     await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate 1.5 seconds processing

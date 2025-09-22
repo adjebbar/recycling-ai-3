@@ -207,6 +207,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
         if (isPlasticBottle(data.product)) {
           await handleSuccessfulRecycle(barcode);
           updateState({ scanResult: { type: 'success', message: t('scanner.success', { points: POINTS_PER_BOTTLE }), imageUrl } });
+          return; // Exit after successful plastic bottle identification
         } else {
           const errorMessage = t('scanner.notPlastic');
           showError(errorMessage);
@@ -215,7 +216,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
           // If barcode analysis fails, automatically try image analysis
           handleAutomaticImageAnalysis();
         }
-      } else {
+      } else { // Product not found by barcode
         const errorMessage = t('scanner.notFound');
         showError(errorMessage);
         updateState({ scanResult: { type: 'error', message: errorMessage } });

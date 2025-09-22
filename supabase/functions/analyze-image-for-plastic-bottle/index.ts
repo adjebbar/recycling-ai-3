@@ -14,29 +14,36 @@ serve(async (req) => {
   }
 
   try {
-    const { imageData } = await req.json(); // Expecting base64 image data
-    if (!imageData) {
-      console.error('Error: Image data is required in request body.');
-      return new Response(JSON.stringify({ error: 'Image data is required' }), {
+    const { imageData, imageUrl } = await req.json(); // Now accepts imageUrl
+    let imageToAnalyze: string | null = null;
+
+    if (imageData) {
+      imageToAnalyze = imageData; // Base64 from client camera
+      console.log("Received base64 image data for analysis (simulated).");
+    } else if (imageUrl) {
+      console.log(`Received image URL for analysis: ${imageUrl}`);
+      // Fetch the image from the URL
+      const imageResponse = await fetch(imageUrl);
+      if (!imageResponse.ok) {
+        throw new Error(`Failed to fetch image from URL: ${imageResponse.statusText}`);
+      }
+      const imageBuffer = await imageResponse.arrayBuffer();
+      // Convert ArrayBuffer to base64
+      imageToAnalyze = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
+      console.log("Fetched image from URL and converted to base64.");
+    } else {
+      console.error('Error: Image data or image URL is required in request body.');
+      return new Response(JSON.stringify({ error: 'Image data or image URL is required' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
       });
     }
 
-    console.log("Received image data for analysis (simulated).");
-
     // --- SIMULATED AI IMAGE ANALYSIS ---
-    // In a real application, you would send `imageData` to an external AI service here.
-    // For example, using Google Cloud Vision API, AWS Rekognition, or a custom ML model.
-    // The AI service would return a classification (e.g., 'plastic bottle', 'glass bottle', 'can').
-
+    // In a real application, you would send `imageToAnalyze` to an external AI service here.
     // For demonstration purposes, we'll simulate a result.
-    // Let's assume a simple heuristic for simulation:
-    // If the base64 string contains 'plastic' (unlikely in actual image data but for demo)
-    // or if we want to randomly succeed/fail for testing.
     const isPlasticBottle = Math.random() > 0.5; // 50% chance of being a plastic bottle for demo
 
-    // You could also add a delay to simulate network latency for AI processing
     await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate 1.5 seconds processing
 
     console.log(`Simulated image analysis result: is_plastic_bottle = ${isPlasticBottle}`);

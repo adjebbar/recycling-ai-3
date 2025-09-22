@@ -172,14 +172,43 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     }
   };
 
-  const handleAutomaticImageAnalysis = async () => {
+  const handleImageAnalysisFromProductData = async (imageUrl: string, barcode?: string) => {
+    updateState({ isImageAnalyzing: true, scanResult: null });
+    const loadingToast = showLoading("Analyzing product image...");
+
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', { body: { imageUrl } });
+      if (error || data.error) throw new Error(error?.message || data.error);
+      dismissToast(loadingToast);
+
+      if (data.is_plastic_bottle) {
+        await handleSuccessfulRecycle(barcode);
+        updateState({ scanResult: { type: 'success', message: t('scanner.imageSuccess', { points: POINTS_PER_BOTTLE }), imageUrl } });
+      } else {
+        const errorMessage = t('scanner.imageNotPlastic');
+        showError(errorMessage);
+        updateState({ scanResult: { type: 'error', message: errorMessage, imageUrl } });
+        triggerPiConveyor('rejected');
+      }
+    } catch (err: any) {
+      dismissToast(loadingToast);
+      showError(err.message || "Image analysis failed.");
+      updateState({ scanResult: { type: 'error', message: err.message || "Image analysis failed.", imageUrl } }); // Fixed here
+      triggerPiConveyor('rejected');
+    } finally {
+      updateState({ isImageAnalyzing: false });
+      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
+    }
+  };
+
+  const handleAutomaticImageAnalysisFromLiveCamera = async () => {
     if (!scannerRef.current) {
       showError("Scanner not ready for image analysis.");
       return;
     }
 
     updateState({ isImageAnalyzing: true, scanResult: null });
-    const loadingToast = showLoading("Analyzing image...");
+    const loadingToast = showLoading("Analyzing image from camera...");
 
     try {
       const videoElement = document.querySelector('#reader video') as HTMLVideoElement;
@@ -245,13 +274,16 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
             triggerPiConveyor('rejected');
             break;
           case 'inconclusive':
-            if (isManual) {
-              const inconclusiveMessage = "Barcode data is inconclusive. Please use the camera scanner for a visual check.";
+            if (imageUrl) {
+              toast.info("Barcode data unclear. Analyzing product image for confirmation...");
+              await handleImageAnalysisFromProductData(imageUrl, barcode);
+            } else if (isManual) {
+              const inconclusiveMessage = "Barcode data is inconclusive and no product image is available. Please use the camera scanner for a visual check.";
               showError(inconclusiveMessage);
               updateState({ scanResult: { type: 'error', message: inconclusiveMessage, imageUrl } });
             } else {
               toast.info("Barcode data unclear. Analyzing camera feed for confirmation...");
-              setTimeout(handleAutomaticImageAnalysis, IMAGE_ANALYSIS_DELAY_MS);
+              setTimeout(handleAutomaticImageAnalysisFromLiveCamera, IMAGE_ANALYSIS_DELAY_MS);
             }
             break;
         }

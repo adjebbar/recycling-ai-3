@@ -7,23 +7,23 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  console.log(`analyze-image-for-plastic-bottle function invoked. Method: ${req.method}`);
+  console.log(`[analyze-image-for-plastic-bottle] function invoked. Method: ${req.method}`);
   if (req.method === 'OPTIONS') {
-    console.log("Responding to OPTIONS request.");
+    console.log("[analyze-image-for-plastic-bottle] Responding to OPTIONS request.");
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { imageData } = await req.json(); // Expecting base64 image data
     if (!imageData) {
-      console.error('Error: Image data is required in request body.');
+      console.error('[analyze-image-for-plastic-bottle] Error: Image data is required in request body.');
       return new Response(JSON.stringify({ error: 'Image data is required' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
       });
     }
 
-    console.log("Received image data for analysis (simulated).");
+    console.log("[analyze-image-for-plastic-bottle] Received image data for analysis (simulated).");
 
     // --- SIMULATED AI IMAGE ANALYSIS ---
     // IMPORTANT: In a real application, this is where you would integrate with an actual AI image recognition service
@@ -36,7 +36,7 @@ serve(async (req) => {
     // Simuler la latence réseau pour le traitement de l'IA
     await new Promise(resolve => setTimeout(resolve, 1500)); // Simuler 1.5 secondes de traitement
 
-    console.log(`Simulated image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
+    console.log(`[analyze-image-for-plastic-bottle] Simulated image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
 
     return new Response(JSON.stringify({ is_plastic_bottle: isPlasticBottle }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -44,7 +44,7 @@ serve(async (req) => {
     });
 
   } catch (error: any) {
-    console.error('Error in analyze-image-for-plastic-bottle function:', error.message);
+    console.error('[analyze-image-for-plastic-bottle] Error in function:', error.message);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,

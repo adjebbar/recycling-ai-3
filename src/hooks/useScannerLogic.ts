@@ -19,14 +19,15 @@ const isPlasticBottle = (product: any): boolean => {
     product.categories,
     product.packaging,
     ...(product.packaging_tags || []),
+    ...(product.ingredients_text ? [product.ingredients_text] : []), // Add ingredients for more keywords
   ].filter(Boolean).join(' ').toLowerCase();
 
   console.log("isPlasticBottle: Analyzing searchText:", searchText);
 
-  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc', 'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', 'bpa-free'];
-  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon', 'container', 'récipient'];
-  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'eau', 'water', 'jus', 'juice', 'limonade', 'cola', 'milk', 'lait', 'soft drink', 'energy drink'];
-  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak', 'paper', 'papier', 'wood', 'bois'];
+  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc', 'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', 'bpa-free', 'bottle plastic', 'plastic bottle', 'plastique recyclé', 'recycled plastic'];
+  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon', 'container', 'récipient', 'packaging', 'emballage', 'pack', 'flask', 'carafe'];
+  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'eau', 'water', 'jus', 'juice', 'limonade', 'cola', 'milk', 'lait', 'soft drink', 'energy drink', 'yogurt', 'yaourt', 'smoothie', 'iced tea', 'thé glacé', 'sport drink'];
+  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak', 'paper', 'papier', 'wood', 'bois', 'ceramic', 'céramique', 'bag', 'sachet', 'cup', 'tasse', 'pot', 'jar', 'bocal'];
 
   // 1. Check for strong exclusion keywords first
   if (exclusionKeywords.some(k => searchText.includes(k))) {
@@ -137,6 +138,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
 
     updateState({ isImageAnalyzing: true, scanResult: null });
     const loadingToast = showLoading("Analyzing image...");
+    console.log("handleAutomaticImageAnalysis: Starting image analysis process.");
 
     try {
       const videoElement = await new Promise<HTMLVideoElement>((resolve, reject) => {
@@ -151,24 +153,27 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
           return reject(new Error("Video element not found within scanner container."));
         }
 
-        if (video.readyState >= 2) { // HAVE_CURRENT_DATA or higher
-          console.log("handleAutomaticImageAnalysis: Video element already ready.");
-          resolve(video);
-        } else {
-          console.log("handleAutomaticImageAnalysis: Waiting for video 'canplay' event.");
-          const onCanPlay = () => {
-            video.removeEventListener('canplay', onCanPlay);
-            console.log("handleAutomaticImageAnalysis: Video 'canplay' event fired.");
+        const checkVideoReady = () => {
+          if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) { // HAVE_CURRENT_DATA and valid dimensions
+            console.log("handleAutomaticImageAnalysis: Video element ready with dimensions:", video.videoWidth, "x", video.videoHeight);
             resolve(video);
-          };
-          video.addEventListener('canplay', onCanPlay);
-          // Add a timeout in case 'canplay' never fires
-          setTimeout(() => {
-            video.removeEventListener('canplay', onCanPlay);
-            console.error("handleAutomaticImageAnalysis: Video stream did not become ready in time for image capture.");
-            reject(new Error("Video stream did not become ready in time for image capture."));
-          }, 5000); // 5 seconds timeout
-        }
+          } else {
+            console.log("handleAutomaticImageAnalysis: Video not yet ready or dimensions invalid. ReadyState:", video.readyState, "Dimensions:", video.videoWidth, "x", video.videoHeight);
+            setTimeout(checkVideoReady, 100); // Re-check after a short delay
+          }
+        };
+
+        console.log("handleAutomaticImageAnalysis: Waiting for video 'canplay' event or ready state.");
+        video.addEventListener('canplay', checkVideoReady, { once: true });
+        // Also start checking immediately in case 'canplay' already fired or video is already ready
+        checkVideoReady();
+
+        // Add a timeout in case video never becomes ready
+        setTimeout(() => {
+          video.removeEventListener('canplay', checkVideoReady);
+          console.error("handleAutomaticImageAnalysis: Video stream did not become ready in time for image capture.");
+          reject(new Error("Video stream did not become ready in time for image capture."));
+        }, 7000); // Increased timeout to 7 seconds
       });
 
       const canvas = document.createElement('canvas');
@@ -183,17 +188,18 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
 
       context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
       const imageData = canvas.toDataURL('image/jpeg', 0.8);
+      console.log("handleAutomaticImageAnalysis: Image captured successfully. Invoking edge function.");
 
-      console.log("handleAutomaticImageAnalysis: Image captured, invoking edge function.");
       const { data, error } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', { body: { imageData } });
       if (error || data.error) {
         console.error("handleAutomaticImageAnalysis: Edge function error:", error?.message || data.error);
         throw new Error(error?.message || data.error);
       }
       dismissToast(loadingToast);
+      console.log("handleAutomaticImageAnalysis: Edge function response received:", data);
 
       if (data.is_plastic_bottle) {
-        console.log("handleAutomaticImageAnalysis: Plastic bottle detected by AI simulation.");
+        console.log("handleAutomaticImageAnalysis: Plastic bottle detected by AI simulation. Proceeding to successful recycle.");
         await handleSuccessfulRecycle();
         updateState({ scanResult: { type: 'success', message: t('scanner.imageSuccess', { points: POINTS_PER_BOTTLE }) } });
       } else {
@@ -205,14 +211,13 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       }
     } catch (err: any) {
       dismissToast(loadingToast);
-      console.error("handleAutomaticImageAnalysis: Caught error:", err.message);
+      console.error("handleAutomaticImageAnalysis: Caught error during image analysis:", err.message);
       showError(err.message || "An unknown error occurred during image analysis.");
       updateState({ scanResult: { type: 'error', message: err.message || "Image analysis failed." } });
       triggerPiConveyor('rejected');
     } finally {
       updateState({ isImageAnalyzing: false });
-      // Keep scanResult visible for a bit longer after image analysis
-      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000); // Increased timeout
+      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
     }
   };
 
@@ -220,43 +225,50 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     if (!barcode || barcode === state.lastScanned) return;
     updateState({ lastScanned: barcode, scanResult: null });
     const loadingToast = showLoading(t('scanner.verifying'));
+    console.log("processBarcode: Processing barcode:", barcode);
 
     try {
       const { data, error } = await supabase.functions.invoke('fetch-product-info', { body: { barcode } });
-      if (error || data.error) throw new Error(error?.message || data.error);
+      if (error || data.error) {
+        console.error("processBarcode: Error fetching product info from edge function:", error?.message || data.error);
+        throw new Error(error?.message || data.error);
+      }
       dismissToast(loadingToast);
+      console.log("processBarcode: Product info received:", data);
 
       if (data.status === 1 && data.product) {
+        console.log("processBarcode: Product found. Raw product data:", data.product);
         const imageUrl = data.product.image_front_url || data.product.image_url;
         if (isPlasticBottle(data.product)) {
+          console.log("processBarcode: isPlasticBottle returned TRUE. Proceeding to successful recycle.");
           await handleSuccessfulRecycle(barcode);
           updateState({ scanResult: { type: 'success', message: t('scanner.success', { points: POINTS_PER_BOTTLE }), imageUrl } });
         } else {
+          console.log("processBarcode: isPlasticBottle returned FALSE. Falling back to image analysis.");
           const errorMessage = t('scanner.notPlastic');
           showError(errorMessage);
           updateState({ scanResult: { type: 'error', message: errorMessage, imageUrl } });
           triggerPiConveyor('rejected');
-          // If barcode analysis fails, automatically try image analysis
-          handleAutomaticImageAnalysis();
+          handleAutomaticImageAnalysis(); // Fallback to image analysis
         }
       } else {
+        console.log("processBarcode: Product not found or API status not 1. Falling back to image analysis.");
         const errorMessage = t('scanner.notFound');
         showError(errorMessage);
         updateState({ scanResult: { type: 'error', message: errorMessage } });
         triggerPiConveyor('rejected');
-        // If barcode analysis fails, automatically try image analysis
-        handleAutomaticImageAnalysis();
+        handleAutomaticImageAnalysis(); // Fallback to image analysis
       }
     } catch (err: any) {
       dismissToast(loadingToast);
+      console.error("processBarcode: Caught error during barcode processing:", err.message);
       const errorMessage = err.message || t('scanner.connectionError');
       showError(errorMessage);
       updateState({ scanResult: { type: 'error', message: errorMessage } });
       triggerPiConveyor('rejected');
-      // If barcode analysis fails, automatically try image analysis
-      handleAutomaticImageAnalysis();
+      handleAutomaticImageAnalysis(); // Fallback to image analysis
     } finally {
-      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000); // Increased timeout
+      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
     }
   };
 

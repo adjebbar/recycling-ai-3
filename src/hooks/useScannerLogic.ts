@@ -27,7 +27,8 @@ const isPlasticBottle = (product: any): boolean => {
 
   console.log("isPlasticBottle: Analyzing searchText:", searchText);
 
-  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene'];
+  const plasticKeywords = ['plastic', 'plastique', 'polyethylene'];
+  const specificPlasticKeywords = ['pet', 'hdpe'];
   const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
   const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk', 'eau', 'water'];
   const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak'];
@@ -38,15 +39,27 @@ const isPlasticBottle = (product: any): boolean => {
     return false;
   }
 
-  // 2. Positive Identification: Check for positive indicators.
-  const hasPlastic = plasticKeywords.some(k => searchText.includes(k));
+  // 2. Positive Identification (New, more robust logic)
+  const hasSpecificPlastic = specificPlasticKeywords.some(k => searchText.includes(k));
+  const hasGeneralPlastic = plasticKeywords.some(k => searchText.includes(k));
   const hasBottle = bottleKeywords.some(k => searchText.includes(k));
   const hasDrink = drinkKeywords.some(k => searchText.includes(k));
 
-  // Accept if it's a bottle OR if it's a plastic drink container.
-  // This is more flexible and covers cases where one keyword might be missing.
-  if (hasBottle || (hasPlastic && hasDrink)) {
-    console.log(`isPlasticBottle: Identified as plastic bottle. Reason: hasBottle=${hasBottle}, hasPlastic=${hasPlastic}, hasDrink=${hasDrink}`);
+  // Condition 1: It's explicitly a recyclable plastic type like PET. This is a very strong signal.
+  if (hasSpecificPlastic) {
+    console.log(`isPlasticBottle: Identified by specific plastic type (e.g., PET/HDPE).`);
+    return true;
+  }
+
+  // Condition 2: It's described as a bottle (and wasn't excluded). High confidence.
+  if (hasBottle) {
+    console.log(`isPlasticBottle: Identified by 'bottle' keyword.`);
+    return true;
+  }
+
+  // Condition 3: It's described as a plastic drink container (fallback for items not called 'bottle').
+  if (hasGeneralPlastic && hasDrink) {
+    console.log(`isPlasticBottle: Identified as a plastic drink container.`);
     return true;
   }
   

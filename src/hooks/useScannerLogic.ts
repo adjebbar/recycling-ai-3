@@ -236,7 +236,8 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
           case 'rejected':
             const rejectMessage = t('scanner.notPlastic');
             showError(rejectMessage);
-            updateState({ scanResult: { type: 'error', message: rejectMessage, imageUrl } });
+            // Do NOT include imageUrl for rejected items
+            updateState({ scanResult: { type: 'error', message: rejectMessage } }); 
             triggerPiConveyor('rejected');
             break;
           case 'inconclusive':

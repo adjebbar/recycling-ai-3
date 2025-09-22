@@ -245,7 +245,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
 
   const handleRedeemAndClose = () => {
     resetAnonymousPoints();
-    updateState({ showTicket: false });
+    updateState({ showTicket: false, qrCodeValue: null, generatedVoucherCode: null }); // Reset qrCodeValue and generatedVoucherCode
   };
 
   return {

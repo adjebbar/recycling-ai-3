@@ -105,10 +105,8 @@
 
 /* Custom CSS to hide html5-qrcode camera selection UI elements and messages */
 .html5-qrcode-select-camera,
-.html5-qrcode-select-camera__select, /* Added this */
-.html5-qrcode-select-camera__label, /* Added this */
 .html5-qrcode-button-camera-permission,
-.html5-qrcode-camera-access-text, /* For permission links */
+.html5-qrcode-camera-access-text,
 .html5-qrcode-anchor-tag, /* For permission links */
 .html5-qrcode-info-message, /* For messages like "Select camera" or "No camera found" */
 .html5-qrcode-error-message, /* For general errors */

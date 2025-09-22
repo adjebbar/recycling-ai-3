@@ -2,19 +2,19 @@
 
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import BarcodeScanner from '@/components/BarcodeScanner';
+import { ImageAnalysis } from './ImageAnalysis.tsx';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Loader2 } from 'lucide-react'; // Added Loader2
+import { AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Html5QrcodeScanner } from 'html5-qrcode'; // Import Html5QrcodeScanner type
 
 interface MobileScannerProps {
   state: any;
   actions: any;
-  scannerRef: React.MutableRefObject<Html5QrcodeScanner | null>; // Pass scannerRef
+  fileInputRef: React.RefObject<HTMLInputElement>;
 }
 
-export const MobileScanner = ({ state, actions, scannerRef }: MobileScannerProps) => {
+export const MobileScanner = ({ state, actions, fileInputRef }: MobileScannerProps) => {
   const { t } = useTranslation();
 
   if (state.cameraInitializationError) {
@@ -30,21 +30,27 @@ export const MobileScanner = ({ state, actions, scannerRef }: MobileScannerProps
     );
   }
 
+  if (state.imageAnalysisMode) {
+    return (
+      <ImageAnalysis
+        capturedImage={state.capturedImage}
+        isAnalyzing={state.isAnalyzingImage}
+        onCapture={actions.handleImageCapture}
+        onAnalyze={actions.handleImageAnalysis}
+        onCancel={() => actions.updateState({ imageAnalysisMode: false })}
+        fileInputRef={fileInputRef}
+      />
+    );
+  }
+
   return (
     <div className="w-full max-w-xs mx-auto">
-      <AspectRatio ratio={3 / 4} className="bg-muted rounded-md overflow-hidden relative flex items-center justify-center">
+      <AspectRatio ratio={3 / 4} className="bg-muted rounded-md overflow-hidden relative">
         <BarcodeScanner
           onScanSuccess={actions.processBarcode}
-          onScanFailure={() => {}}
+          onScanFailure={(error: string) => actions.updateState({ scanFailureMessage: t('scanner.noBarcodeDetected') })}
           onCameraInitError={(error: string) => actions.updateState({ cameraInitializationError: error })}
-          scannerRef={scannerRef} // Pass the scannerRef
         />
-        {state.isImageAnalyzing && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm z-20">
-            <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
-            <p className="text-xl font-semibold text-foreground">{t('scanner.analyzingImage')}</p>
-          </div>
-        )}
       </AspectRatio>
     </div>
   );

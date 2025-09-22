@@ -1,5 +1,5 @@
 // @ts-ignore
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,15 +26,18 @@ serve(async (req) => {
     console.log("Received image data for analysis (simulated).");
 
     // --- SIMULATED AI IMAGE ANALYSIS ---
-    // IMPORTANT: In a real application, this is where you would integrate with an actual AI image recognition service
-    // (e.g., Google Cloud Vision API, AWS Rekognition, custom ML model).
-    // This service would analyze the `imageData` and return a confident classification.
-    // For this demonstration, we are SIMULATING a successful identification of a plastic bottle.
-    const isPlasticBottle = true; // Pour la démonstration, nous supposons toujours que c'est une bouteille en plastique.
-                                  // Dans un scénario réel, ce serait le résultat d'un modèle d'IA robuste.
+    // In a real application, you would send `imageData` to an external AI service here.
+    // For example, using Google Cloud Vision API, AWS Rekognition, or a custom ML model.
+    // The AI service would return a classification (e.g., 'plastic bottle', 'glass bottle', 'can').
 
-    // Simuler la latence réseau pour le traitement de l'IA
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simuler 1.5 secondes de traitement
+    // For demonstration purposes, we'll simulate a result.
+    // Let's assume a simple heuristic for simulation:
+    // If the base64 string contains 'plastic' (unlikely in actual image data but for demo)
+    // or if we want to randomly succeed/fail for testing.
+    const isPlasticBottle = Math.random() > 0.5; // 50% chance of being a plastic bottle for demo
+
+    // You could also add a delay to simulate network latency for AI processing
+    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate 1.5 seconds processing
 
     console.log(`Simulated image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
 

@@ -2,20 +2,16 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { Gift } from 'lucide-react';
+import { CameraOff } from 'lucide-react';
 import { useScannerLogic } from '@/hooks/useScannerLogic';
 import { ScannerView } from '@/components/scanner/ScannerView.tsx';
 import { AnonymousUserActions } from '@/components/scanner/AnonymousUserActions.tsx';
 import { RewardTicketDialog } from '@/components/RewardTicketDialog';
-import { Button } from '@/components/ui/button';
-import { useRef } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode'; // Import Html5QrcodeScanner type
 
 const ScannerPage = () => {
   const { t } = useTranslation();
-  const { user, points } = useAuth();
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null); // Create a ref for the scanner instance
-  const { state, actions } = useScannerLogic(scannerRef); // Pass the scannerRef to the hook
+  const { user } = useAuth();
+  const { state, points, fileInputRef, actions } = useScannerLogic();
 
   return (
     <div className="min-h-[calc(100vh-4rem)] w-full text-foreground">
@@ -25,22 +21,9 @@ const ScannerPage = () => {
           <p className="text-muted-foreground mb-6">{t('scanner.subtitle')}</p>
         </div>
 
-        <ScannerView state={state} actions={actions} scannerRef={scannerRef} />
+        <ScannerView state={state} actions={actions} fileInputRef={fileInputRef} />
 
-        {user ? (
-          <div className="mt-4 w-full max-w-lg flex justify-center">
-            <Button
-              variant="default"
-              size="lg"
-              onClick={actions.handleRedeem}
-              disabled={points === 0 || state.isRedeeming}
-              className="w-full"
-            >
-              <Gift className="mr-2 h-5 w-5" />
-              {state.isRedeeming ? t('scanner.generatingVoucher') : t('scanner.redeemPoints', { count: points })}
-            </Button>
-          </div>
-        ) : (
+        {!user && (
           <AnonymousUserActions
             points={points}
             isRedeeming={state.isRedeeming}
@@ -50,16 +33,16 @@ const ScannerPage = () => {
         )}
 
         <RewardTicketDialog
-          open={!!state.qrCodeValue} // Open when QR code value is available
-          onOpenChange={(open) => {
-            if (!open) actions.handleRedeemAndClose();
-          }}
+          open={state.showTicket}
+          onOpenChange={(open) => actions.updateState({ showTicket: open })}
           qrCodeValue={state.qrCodeValue}
           voucherCode={state.generatedVoucherCode}
           isLoading={state.isRedeeming}
           points={points}
           onRedeemAndClose={actions.handleRedeemAndClose}
         />
+
+        {/* The 'camera permission' message has been removed from here. */}
       </div>
     </div>
   );

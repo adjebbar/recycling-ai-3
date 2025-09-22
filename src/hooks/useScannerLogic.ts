@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabaseClient';
 import { achievementsList } from '@/lib/achievements';
-import { Html5QrcodeScanner } from 'html5-qrcode'; // Import Html5QrcodeScanner type
 
 const POINTS_PER_BOTTLE = 10;
 
@@ -34,7 +33,7 @@ const isPlasticBottle = (product: any): boolean => {
   return false;
 };
 
-export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeScanner | null>) => {
+export const useScannerLogic = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { addPoints, user, points, resetAnonymousPoints } = useAuth();
@@ -44,12 +43,17 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     manualBarcode: '',
     scanResult: null as { type: 'success' | 'error'; message: string; imageUrl?: string } | null,
     cameraInitializationError: null as string | null,
-    isImageAnalyzing: false, // New state for live image analysis
+    scanFailureMessage: null as string | null,
     showTicket: false,
     qrCodeValue: null as string | null,
     generatedVoucherCode: null as string | null,
     isRedeeming: false,
+    imageAnalysisMode: false,
+    capturedImage: null as string | null,
+    isAnalyzingImage: false,
   });
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateState = (newState: Partial<typeof state>) => {
     setState(prevState => ({ ...prevState, ...newState }));
@@ -97,97 +101,9 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     }
   };
 
-  const handleAutomaticImageAnalysis = async () => {
-    if (!scannerRef.current) {
-      console.error("handleAutomaticImageAnalysis: scannerRef.current is null. Scanner not ready.");
-      showError("Scanner not ready for image analysis. Please try scanning again.");
-      return;
-    }
-
-    updateState({ isImageAnalyzing: true, scanResult: null });
-    const loadingToast = showLoading("Analyzing image...");
-
-    try {
-      const videoElement = await new Promise<HTMLVideoElement>((resolve, reject) => {
-        const scannerContainer = document.getElementById('reader');
-        if (!scannerContainer) {
-          console.error("handleAutomaticImageAnalysis: Scanner container 'reader' not found.");
-          return reject(new Error("Scanner container 'reader' not found."));
-        }
-        const video = scannerContainer.querySelector('video');
-        if (!video) {
-          console.error("handleAutomaticImageAnalysis: Video element not found within scanner container.");
-          return reject(new Error("Video element not found within scanner container."));
-        }
-
-        if (video.readyState >= 2) { // HAVE_CURRENT_DATA or higher
-          console.log("handleAutomaticImageAnalysis: Video element already ready.");
-          resolve(video);
-        } else {
-          console.log("handleAutomaticImageAnalysis: Waiting for video 'canplay' event.");
-          const onCanPlay = () => {
-            video.removeEventListener('canplay', onCanPlay);
-            console.log("handleAutomaticImageAnalysis: Video 'canplay' event fired.");
-            resolve(video);
-          };
-          video.addEventListener('canplay', onCanPlay);
-          // Add a timeout in case 'canplay' never fires
-          setTimeout(() => {
-            video.removeEventListener('canplay', onCanPlay);
-            console.error("handleAutomaticImageAnalysis: Video stream did not become ready in time for image capture.");
-            reject(new Error("Video stream did not become ready in time for image capture."));
-          }, 5000); // 5 seconds timeout
-        }
-      });
-
-      const canvas = document.createElement('canvas');
-      canvas.width = videoElement.videoWidth;
-      canvas.height = videoElement.videoHeight;
-      const context = canvas.getContext('2d');
-
-      if (!context) {
-        console.error("handleAutomaticImageAnalysis: Could not get 2D context for canvas.");
-        throw new Error("Could not get 2D context for canvas.");
-      }
-
-      context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-      const imageData = canvas.toDataURL('image/jpeg', 0.8);
-
-      console.log("handleAutomaticImageAnalysis: Image captured, invoking edge function.");
-      const { data, error } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', { body: { imageData } });
-      if (error || data.error) {
-        console.error("handleAutomaticImageAnalysis: Edge function error:", error?.message || data.error);
-        throw new Error(error?.message || data.error);
-      }
-      dismissToast(loadingToast);
-
-      if (data.is_plastic_bottle) {
-        console.log("handleAutomaticImageAnalysis: Plastic bottle detected by AI simulation.");
-        await handleSuccessfulRecycle();
-        updateState({ scanResult: { type: 'success', message: t('scanner.imageSuccess', { points: POINTS_PER_BOTTLE }) } });
-      } else {
-        console.log("handleAutomaticImageAnalysis: Not a plastic bottle (simulated rejection).");
-        const errorMessage = t('scanner.imageNotPlastic');
-        showError(errorMessage);
-        updateState({ scanResult: { type: 'error', message: errorMessage } });
-        triggerPiConveyor('rejected');
-      }
-    } catch (err: any) {
-      dismissToast(loadingToast);
-      console.error("handleAutomaticImageAnalysis: Caught error:", err.message);
-      showError(err.message || "An unknown error occurred during image analysis.");
-      updateState({ scanResult: { type: 'error', message: err.message || "Image analysis failed." } });
-      triggerPiConveyor('rejected');
-    } finally {
-      updateState({ isImageAnalyzing: false });
-      // Keep scanResult visible for a bit longer after image analysis
-      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000); // Increased timeout
-    }
-  };
-
   const processBarcode = async (barcode: string) => {
     if (!barcode || barcode === state.lastScanned) return;
-    updateState({ lastScanned: barcode, scanResult: null });
+    updateState({ lastScanned: barcode, scanFailureMessage: null, scanResult: null });
     const loadingToast = showLoading(t('scanner.verifying'));
 
     try {
@@ -203,36 +119,60 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
         } else {
           const errorMessage = t('scanner.notPlastic');
           showError(errorMessage);
-          updateState({ scanResult: { type: 'error', message: errorMessage, imageUrl } });
+          updateState({ scanResult: { type: 'error', message: errorMessage, imageUrl }, imageAnalysisMode: true });
           triggerPiConveyor('rejected');
-          // If barcode analysis fails, automatically try image analysis
-          handleAutomaticImageAnalysis();
         }
       } else {
         const errorMessage = t('scanner.notFound');
         showError(errorMessage);
-        updateState({ scanResult: { type: 'error', message: errorMessage } });
+        updateState({ scanResult: { type: 'error', message: errorMessage }, imageAnalysisMode: true });
         triggerPiConveyor('rejected');
-        // If barcode analysis fails, automatically try image analysis
-        handleAutomaticImageAnalysis();
       }
     } catch (err: any) {
       dismissToast(loadingToast);
       const errorMessage = err.message || t('scanner.connectionError');
       showError(errorMessage);
-      updateState({ scanResult: { type: 'error', message: errorMessage } });
+      updateState({ scanResult: { type: 'error', message: errorMessage }, imageAnalysisMode: true });
       triggerPiConveyor('rejected');
-      // If barcode analysis fails, automatically try image analysis
-      handleAutomaticImageAnalysis();
     } finally {
-      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000); // Increased timeout
+      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 3000);
+    }
+  };
+
+  const handleImageAnalysis = async () => {
+    if (!state.capturedImage) return;
+    updateState({ isAnalyzingImage: true, scanResult: null });
+    const loadingToast = showLoading("Analyzing image...");
+
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', { body: { imageData: state.capturedImage } });
+      if (error || data.error) throw new Error(error?.message || data.error);
+      dismissToast(loadingToast);
+
+      if (data.is_plastic_bottle) {
+        await handleSuccessfulRecycle();
+        updateState({ scanResult: { type: 'success', message: t('scanner.imageSuccess', { points: POINTS_PER_BOTTLE }) } });
+      } else {
+        const errorMessage = t('scanner.imageNotPlastic');
+        showError(errorMessage);
+        updateState({ scanResult: { type: 'error', message: errorMessage } });
+        triggerPiConveyor('rejected');
+      }
+    } catch (err: any) {
+      dismissToast(loadingToast);
+      showError(err.message);
+      updateState({ scanResult: { type: 'error', message: err.message } });
+      triggerPiConveyor('rejected');
+    } finally {
+      updateState({ isAnalyzingImage: false, capturedImage: null, imageAnalysisMode: false });
+      setTimeout(() => updateState({ scanResult: null }), 3000);
     }
   };
 
   const handleRedeem = async () => {
     updateState({ showTicket: true, isRedeeming: true, qrCodeValue: null, generatedVoucherCode: null });
     try {
-      const { data, error } = await supabase.functions.invoke('generate-voucher', { body: { points, userId: user?.id } }); // Pass userId
+      const { data, error } = await supabase.functions.invoke('generate-voucher', { body: { points } });
       if (error || data.error) throw new Error(error?.message || data.error);
       updateState({ qrCodeValue: data.voucherToken, generatedVoucherCode: data.voucherCode });
     } catch (err: any) {
@@ -251,9 +191,11 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
   return {
     state,
     points,
+    fileInputRef,
     actions: {
       updateState,
       processBarcode,
+      handleImageAnalysis,
       handleRedeem,
       handleRedeemAndClose,
       resetAnonymousPoints,
@@ -261,6 +203,14 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
         e.preventDefault();
         processBarcode(state.manualBarcode.trim());
         updateState({ manualBarcode: '' });
+      },
+      handleImageCapture: (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => updateState({ capturedImage: reader.result as string });
+          reader.readAsDataURL(file);
+        }
       },
     },
   };

@@ -218,16 +218,11 @@ const LandingPage = () => {
             <div className="container mx-auto px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <h2 className="text-3xl md:text-4xl font-bold text-white">Ready to Make a Difference?</h2>
               <p className="text-white mt-2 mb-6 max-w-xl mx-auto">Start scanning now to earn points, and consider creating an account to track your full recycling journey and unlock more rewards!</p>
-              <div className="flex justify-center space-x-4"> {/* Added space-x-4 for spacing between buttons */}
+              <div className="flex justify-center">
                 <Link to="/signup">
                   <Button size="lg" className="text-lg px-10 py-7 rounded-full shadow-lg shadow-primary/50 bg-primary hover:bg-primary/90 text-primary-foreground">
                     <Recycle className="mr-3 h-6 w-6" />
                     Create Account
-                  </Button>
-                </Link>
-                <Link to="/login"> {/* New Login button */}
-                  <Button size="lg" variant="outline" className="text-lg px-10 py-7 rounded-full shadow-lg shadow-white/20 text-white border-white hover:bg-white/10">
-                    Login
                   </Button>
                 </Link>
               </div>

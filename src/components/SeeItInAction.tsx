@@ -44,6 +44,7 @@ type AnimationPhase = 'idle' | 'bottleIn' | 'scanning' | 'verifying' | 'reward' 
 const SeeItInAction = () => {
   const [phase, setPhase] = useState<AnimationPhase>('idle');
   const [binEffect, setBinEffect] = useState(false);
+  const [showTicketAnimation, setShowTicketAnimation] = useState(false); // New state for ticket
 
   useEffect(() => {
     const timers: NodeJS.Timeout[] = [];
@@ -55,8 +56,8 @@ const SeeItInAction = () => {
       setPhase('bottleIn');
       timers.push(setTimeout(() => { if (isMounted) setPhase('scanning'); }, 500));
       timers.push(setTimeout(() => { if (isMounted) setPhase('verifying'); }, 2500));
-      timers.push(setTimeout(() => { if (isMounted) setPhase('reward'); }, 3500));
-      timers.push(setTimeout(() => { if (isMounted) setPhase('recycling'); }, 4500));
+      timers.push(setTimeout(() => { if (isMounted) { setPhase('reward'); setShowTicketAnimation(true); } }, 3500)); // Show ticket with reward
+      timers.push(setTimeout(() => { if (isMounted) { setPhase('recycling'); setShowTicketAnimation(false); } }, 4500)); // Hide ticket when recycling starts
       timers.push(setTimeout(() => {
         if (isMounted) {
           setPhase('recycled');
@@ -126,9 +127,16 @@ const SeeItInAction = () => {
             )}>
               <PlasticBottle />
               {phase === 'reward' && (
-                <Badge variant="secondary" className="absolute -top-4 left-1/2 -translate-x-1/2 text-lg bg-primary/20 text-primary-foreground animate-point-burst">
-                  +10 Points
-                </Badge>
+                <>
+                  <Badge variant="secondary" className="absolute -top-4 left-1/2 -translate-x-1/2 text-lg bg-primary/20 text-primary-foreground animate-point-burst">
+                    +10 Points
+                  </Badge>
+                  {showTicketAnimation && (
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-8 bg-yellow-300 text-yellow-900 px-3 py-1 rounded-md text-sm font-bold shadow-md animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                      $0.1 Ticket
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

@@ -45,7 +45,7 @@ export const MobileScanner = ({ state, actions, fileInputRef }: MobileScannerPro
 
   return (
     <div className="w-full max-w-xs mx-auto">
-      <AspectRatio ratio={3 / 4} className="bg-muted rounded-md overflow-hidden relative">
+      <AspectRatio ratio={3 / 4} className="bg-muted rounded-md overflow-hidden relative flex items-center justify-center">
         <BarcodeScanner
           onScanSuccess={actions.processBarcode}
           onScanFailure={(error: string) => actions.updateState({ scanFailureMessage: t('scanner.noBarcodeDetected') })}

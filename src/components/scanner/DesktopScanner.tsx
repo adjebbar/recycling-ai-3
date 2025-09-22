@@ -37,7 +37,7 @@ export const DesktopScanner = ({ state, actions, fileInputRef }: DesktopScannerP
                 fileInputRef={fileInputRef}
               />
             ) : (
-              <div className="w-full max-w-xs mx-auto h-96 overflow-hidden rounded-md relative">
+              <div className="w-full max-w-xs mx-auto h-96 overflow-hidden rounded-md relative flex items-center justify-center">
                 <BarcodeScanner
                   onScanSuccess={actions.processBarcode}
                   onScanFailure={(error: string) => actions.updateState({ scanFailureMessage: t('scanner.noBarcodeDetected') })}

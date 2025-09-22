@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 interface MobileScannerProps {
   state: any;
   actions: any;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement>; // Add fileInputRef prop
 }
 
 export const MobileScanner = ({ state, actions, fileInputRef }: MobileScannerProps) => {
@@ -38,7 +38,7 @@ export const MobileScanner = ({ state, actions, fileInputRef }: MobileScannerPro
         onCapture={actions.handleImageCapture}
         onAnalyze={actions.handleImageAnalysis}
         onCancel={() => actions.updateState({ imageAnalysisMode: false })}
-        fileInputRef={fileInputRef}
+        fileInputRef={fileInputRef} // Pass fileInputRef
       />
     );
   }

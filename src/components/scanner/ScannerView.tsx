@@ -2,14 +2,14 @@
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileScanner } from './MobileScanner.tsx';
-import { DesktopScanner } from './DesktopScanner.tsx';
+import { DesktopScanner } from './DesktopScanner.tsx'; // Corrected import path
 import { ScanResultOverlay } from './ScanResultOverlay.tsx';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface ScannerViewProps {
   state: any;
   actions: any;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement>; // Add fileInputRef prop
 }
 
 export const ScannerView = ({ state, actions, fileInputRef }: ScannerViewProps) => {

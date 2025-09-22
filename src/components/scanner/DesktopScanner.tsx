@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 interface DesktopScannerProps {
   state: any;
   actions: any;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement>; // Add fileInputRef prop
 }
 
 export const DesktopScanner = ({ state, actions, fileInputRef }: DesktopScannerProps) => {
@@ -34,7 +34,7 @@ export const DesktopScanner = ({ state, actions, fileInputRef }: DesktopScannerP
                 onCapture={actions.handleImageCapture}
                 onAnalyze={actions.handleImageAnalysis}
                 onCancel={() => actions.updateState({ imageAnalysisMode: false })}
-                fileInputRef={fileInputRef}
+                fileInputRef={fileInputRef} // Pass fileInputRef
               />
             ) : (
               <div className="w-full max-w-xs mx-auto h-96 overflow-hidden rounded-md relative">

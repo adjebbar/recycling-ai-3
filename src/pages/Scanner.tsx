@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from 'react'; // Import useRef
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { CameraOff } from 'lucide-react';
@@ -7,11 +8,18 @@ import { useScannerLogic } from '@/hooks/useScannerLogic';
 import { ScannerView } from '@/components/scanner/ScannerView.tsx';
 import { AnonymousUserActions } from '@/components/scanner/AnonymousUserActions.tsx';
 import { RewardTicketDialog } from '@/components/RewardTicketDialog';
+import { Html5QrcodeScanner } from 'html5-qrcode'; // Import Html5QrcodeScanner type for the ref
 
 const ScannerPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { state, points, fileInputRef, actions } = useScannerLogic();
+
+  // Create a ref for the Html5QrcodeScanner instance
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  // Create a ref for the file input used in image analysis
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { state, points, actions } = useScannerLogic(scannerRef); // Pass scannerRef to the hook
 
   return (
     <div className="min-h-[calc(100vh-4rem)] w-full text-foreground">

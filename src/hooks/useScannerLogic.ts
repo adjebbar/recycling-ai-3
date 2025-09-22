@@ -23,6 +23,8 @@ const analyzeProductData = (product: any): ValidationResult => {
   const packaging = (product.packaging || '').toLowerCase();
   const packagingTags = (Array.isArray(product.packaging_tags) ? product.packaging_tags.join(' ') : product.packaging_tags || '').toLowerCase();
   const ingredientsText = (product.ingredients_text || '').toLowerCase();
+  const traces = (product.traces || '').toLowerCase(); // Often contains packaging info
+  const manufacturingPlaces = (product.manufacturing_places || '').toLowerCase(); // Sometimes mentions packaging
 
   const searchText = [
     productName,
@@ -31,27 +33,30 @@ const analyzeProductData = (product: any): ValidationResult => {
     packaging,
     packagingTags,
     ingredientsText,
+    traces,
+    manufacturingPlaces,
   ].filter(Boolean).join(' ');
 
   console.log("analyzeProductData: Final searchText for analysis:", searchText);
 
   // 1. Exclusion First: Check for definitive non-plastic materials
-  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak'];
+  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak', 'paper', 'papier', 'wood', 'bois'];
   if (exclusionKeywords.some(k => searchText.includes(k))) {
     console.log("analyzeProductData: REJECTED - Found exclusion keyword.");
     return 'rejected';
   }
 
   // 2. Positive Confirmation: Check for strong indicators of plastic bottles
-  const specificPlasticIdentifiers = ['pet', 'hdpe', 'plastic bottle', 'bouteille plastique'];
+  const specificPlasticIdentifiers = ['pet', 'hdpe', 'ldpe', 'pp', 'pvc', 'ps', 'plastic bottle', 'bouteille plastique', 'flacon plastique', 'plastic packaging', 'emballage plastique'];
   if (specificPlasticIdentifiers.some(k => searchText.includes(k))) {
     console.log("analyzeProductData: ACCEPTED - Found specific plastic identifier.");
     return 'accepted';
   }
 
   const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
-  const plasticKeywords = ['plastic', 'plastique', 'polyethylene'];
-  const waterKeywords = ['eau', 'water', 'source']; // Added 'source' for Cristaline
+  const plasticKeywords = ['plastic', 'plastique', 'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', 'low-density polyethylene', 'high-density polyethylene'];
+  const waterKeywords = ['eau', 'water', 'source', 'mineral water', 'eau minérale'];
+  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk', 'soft drink', 'boisson gazeuse'];
 
   // If it's explicitly a bottle and contains plastic keywords
   if (bottleKeywords.some(k => searchText.includes(k)) && plasticKeywords.some(k => searchText.includes(k))) {
@@ -66,9 +71,20 @@ const analyzeProductData = (product: any): ValidationResult => {
   }
 
   // If it's a drink and contains plastic keywords
-  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk'];
   if (drinkKeywords.some(k => searchText.includes(k)) && plasticKeywords.some(k => searchText.includes(k))) {
     console.log("analyzeProductData: ACCEPTED - Found drink and plastic keywords.");
+    return 'accepted';
+  }
+
+  // New general check: If packaging or categories strongly suggest plastic, and not explicitly excluded
+  const generalPlasticPackagingTerms = ['plastic', 'plastique', 'bottle', 'bouteille', 'flacon', 'pet', 'hdpe', 'pp'];
+  const generalDrinkCategories = ['beverages', 'drinks', 'eaux', 'waters', 'sodas', 'jus', 'juices', 'milk'];
+
+  if (
+    (generalPlasticPackagingTerms.some(k => packaging.includes(k) || packagingTags.includes(k))) &&
+    (generalDrinkCategories.some(k => categories.includes(k) || productName.includes(k) || genericName.includes(k)))
+  ) {
+    console.log("analyzeProductData: ACCEPTED - Found general plastic packaging and drink category indicators.");
     return 'accepted';
   }
 

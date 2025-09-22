@@ -2,16 +2,17 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { CameraOff } from 'lucide-react';
+import { CameraOff, Gift } from 'lucide-react';
 import { useScannerLogic } from '@/hooks/useScannerLogic';
 import { ScannerView } from '@/components/scanner/ScannerView.tsx';
 import { AnonymousUserActions } from '@/components/scanner/AnonymousUserActions.tsx';
 import { RewardTicketDialog } from '@/components/RewardTicketDialog';
+import { Button } from '@/components/ui/button';
 
 const ScannerPage = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { state, points, fileInputRef, actions } = useScannerLogic();
+  const { user, points } = useAuth(); // Get points from AuthContext
+  const { state, fileInputRef, actions } = useScannerLogic(); // useScannerLogic also gets points from useAuth, but we'll use the direct one for clarity in UI
 
   return (
     <div className="min-h-[calc(100vh-4rem)] w-full text-foreground">
@@ -23,9 +24,24 @@ const ScannerPage = () => {
 
         <ScannerView state={state} actions={actions} fileInputRef={fileInputRef} />
 
-        {!user && (
+        {user ? (
+          // For logged-in users, show a redeem button
+          <div className="mt-4 w-full max-w-lg flex justify-center">
+            <Button
+              variant="default"
+              size="lg"
+              onClick={actions.handleRedeem}
+              disabled={points === 0 || state.isRedeeming}
+              className="w-full"
+            >
+              <Gift className="mr-2 h-5 w-5" />
+              {state.isRedeeming ? t('scanner.generatingVoucher') : t('scanner.redeemPoints', { count: points })}
+            </Button>
+          </div>
+        ) : (
+          // For anonymous users, show the AnonymousUserActions component
           <AnonymousUserActions
-            points={points}
+            points={points} // This will be anonymousPoints from AuthContext when user is null
             isRedeeming={state.isRedeeming}
             onRedeem={actions.handleRedeem}
             onReset={actions.resetAnonymousPoints}
@@ -38,7 +54,7 @@ const ScannerPage = () => {
           qrCodeValue={state.qrCodeValue}
           voucherCode={state.generatedVoucherCode}
           isLoading={state.isRedeeming}
-          points={points}
+          points={points} // This will be the correct points (user's or anonymous)
           onRedeemAndClose={actions.handleRedeemAndClose}
         />
 

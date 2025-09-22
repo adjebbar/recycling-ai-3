@@ -21,16 +21,47 @@ const isPlasticBottle = (product: any): boolean => {
     ...(product.packaging_tags || []),
   ].filter(Boolean).join(' ').toLowerCase();
 
-  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene'];
-  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
-  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'eau', 'water', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk'];
-  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak'];
+  console.log("isPlasticBottle: Analyzing searchText:", searchText);
 
-  if (exclusionKeywords.some(k => searchText.includes(k))) return false;
-  if (plasticKeywords.some(k => searchText.includes(k)) && bottleKeywords.some(k => searchText.includes(k))) return true;
-  if (drinkKeywords.some(k => searchText.includes(k)) && bottleKeywords.some(k => searchText.includes(k))) return true;
-  if ((searchText.includes('eau') || searchText.includes('water')) && !exclusionKeywords.some(k => searchText.includes(k))) return true;
+  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc', 'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', 'bpa-free'];
+  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon', 'container', 'récipient'];
+  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'eau', 'water', 'jus', 'juice', 'limonade', 'cola', 'milk', 'lait', 'soft drink', 'energy drink'];
+  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak', 'paper', 'papier', 'wood', 'bois'];
 
+  // 1. Check for strong exclusion keywords first
+  if (exclusionKeywords.some(k => searchText.includes(k))) {
+    console.log("isPlasticBottle: Excluded by keyword.");
+    return false;
+  }
+
+  // 2. Check for explicit plastic bottle indicators
+  if (product.packaging_tags?.some((tag: string) => tag.includes('plastic-bottle'))) {
+    console.log("isPlasticBottle: Detected by plastic-bottle packaging tag.");
+    return true;
+  }
+
+  // 3. Check for combination of plastic material and bottle shape
+  const hasPlasticKeyword = plasticKeywords.some(k => searchText.includes(k));
+  const hasBottleKeyword = bottleKeywords.some(k => searchText.includes(k));
+  if (hasPlasticKeyword && hasBottleKeyword) {
+    console.log("isPlasticBottle: Detected by plastic + bottle keywords.");
+    return true;
+  }
+
+  // 4. Check for common drinks in bottles (assuming plastic if not explicitly excluded)
+  const hasDrinkKeyword = drinkKeywords.some(k => searchText.includes(k));
+  if (hasDrinkKeyword && hasBottleKeyword) {
+    console.log("isPlasticBottle: Detected by drink + bottle keywords.");
+    return true;
+  }
+
+  // 5. Fallback for common water/soda products if no strong indicators or exclusions
+  if ((searchText.includes('eau') || searchText.includes('water') || searchText.includes('soda')) && !exclusionKeywords.some(k => searchText.includes(k))) {
+    console.log("isPlasticBottle: Detected by water/soda fallback.");
+    return true;
+  }
+
+  console.log("isPlasticBottle: No plastic bottle indicators found.");
   return false;
 };
 

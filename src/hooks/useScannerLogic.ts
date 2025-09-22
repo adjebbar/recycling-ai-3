@@ -21,47 +21,16 @@ const isPlasticBottle = (product: any): boolean => {
     ...(product.packaging_tags || []),
   ].filter(Boolean).join(' ').toLowerCase();
 
-  console.log("isPlasticBottle: Analyzing searchText:", searchText);
+  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene'];
+  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
+  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'eau', 'water', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk'];
+  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak'];
 
-  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc', 'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', 'bpa-free', 'bottle-grade', 'plastic-packaging'];
-  const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon', 'container', 'récipient', 'jug', 'carafe', 'bidon'];
-  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'eau', 'water', 'jus', 'juice', 'limonade', 'cola', 'milk', 'lait', 'soft drink', 'energy drink', 'iced tea', 'thé glacé', 'sport drink'];
-  const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak', 'paper', 'papier', 'wood', 'bois', 'ceramic', 'céramique', 'porcelain', 'porcelaine'];
+  if (exclusionKeywords.some(k => searchText.includes(k))) return false;
+  if (plasticKeywords.some(k => searchText.includes(k)) && bottleKeywords.some(k => searchText.includes(k))) return true;
+  if (drinkKeywords.some(k => searchText.includes(k)) && bottleKeywords.some(k => searchText.includes(k))) return true;
+  if ((searchText.includes('eau') || searchText.includes('water')) && !exclusionKeywords.some(k => searchText.includes(k))) return true;
 
-  // 1. Check for strong exclusion keywords first
-  if (exclusionKeywords.some(k => searchText.includes(k))) {
-    console.log("isPlasticBottle: Excluded by keyword:", searchText);
-    return false;
-  }
-
-  // 2. Check for explicit plastic bottle indicators
-  if (product.packaging_tags?.some((tag: string) => tag.includes('plastic-bottle'))) {
-    console.log("isPlasticBottle: Detected by plastic-bottle packaging tag.");
-    return true;
-  }
-
-  // 3. Check for combination of plastic material and bottle shape
-  const hasPlasticKeyword = plasticKeywords.some(k => searchText.includes(k));
-  const hasBottleKeyword = bottleKeywords.some(k => searchText.includes(k));
-  if (hasPlasticKeyword && hasBottleKeyword) {
-    console.log("isPlasticBottle: Detected by plastic + bottle keywords.");
-    return true;
-  }
-
-  // 4. Check for common drinks in bottles (assuming plastic if not explicitly excluded)
-  const hasDrinkKeyword = drinkKeywords.some(k => searchText.includes(k));
-  if (hasDrinkKeyword && hasBottleKeyword) {
-    console.log("isPlasticBottle: Detected by drink + bottle keywords.");
-    return true;
-  }
-
-  // 5. Fallback for common water/soda products if no strong indicators or exclusions
-  if ((searchText.includes('eau') || searchText.includes('water') || searchText.includes('soda')) && !exclusionKeywords.some(k => searchText.includes(k))) {
-    console.log("isPlasticBottle: Detected by water/soda fallback.");
-    return true;
-  }
-
-  console.log("isPlasticBottle: No plastic bottle indicators found for barcode. Falling back to image analysis.");
   return false;
 };
 
@@ -223,13 +192,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
 
     try {
       const { data, error } = await supabase.functions.invoke('fetch-product-info', { body: { barcode } });
-      if (error || data.error) {
-        dismissToast(loadingToast);
-        // If barcode API call fails, immediately fallback to image analysis
-        console.error("Barcode analysis: Error fetching product info. Initiating image analysis fallback.", error?.message || data.error);
-        await handleAutomaticImageAnalysis();
-        return; // Exit after initiating fallback
-      }
+      if (error || data.error) throw new Error(error?.message || data.error);
       dismissToast(loadingToast);
 
       if (data.status === 1 && data.product) {
@@ -238,27 +201,32 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
           await handleSuccessfulRecycle(barcode);
           updateState({ scanResult: { type: 'success', message: t('scanner.success', { points: POINTS_PER_BOTTLE }), imageUrl } });
         } else {
-          // Barcode analysis failed to confirm plastic bottle, proceed to image analysis
-          console.log("Barcode analysis: Not identified as plastic bottle. Initiating image analysis fallback.");
-          await handleAutomaticImageAnalysis(); // This will set its own scanResult and toast
+          const errorMessage = t('scanner.notPlastic');
+          showError(errorMessage);
+          updateState({ scanResult: { type: 'error', message: errorMessage, imageUrl } });
+          triggerPiConveyor('rejected');
+          // If barcode analysis fails, automatically try image analysis
+          handleAutomaticImageAnalysis();
         }
       } else {
-        // Product not found by barcode, proceed to image analysis
-        console.log("Barcode analysis: Product not found. Initiating image analysis fallback.");
-        await handleAutomaticImageAnalysis(); // This will set its own scanResult and toast
+        const errorMessage = t('scanner.notFound');
+        showError(errorMessage);
+        updateState({ scanResult: { type: 'error', message: errorMessage } });
+        triggerPiConveyor('rejected');
+        // If barcode analysis fails, automatically try image analysis
+        handleAutomaticImageAnalysis();
       }
     } catch (err: any) {
       dismissToast(loadingToast);
       const errorMessage = err.message || t('scanner.connectionError');
-      showError(errorMessage); // Show error for connection/API issues
+      showError(errorMessage);
       updateState({ scanResult: { type: 'error', message: errorMessage } });
       triggerPiConveyor('rejected');
-      // For any barcode processing error, also try image analysis as a last resort
-      console.error("Barcode analysis: Error during processing. Initiating image analysis fallback.", err);
-      await handleAutomaticImageAnalysis(); // This will set its own scanResult and toast
+      // If barcode analysis fails, automatically try image analysis
+      handleAutomaticImageAnalysis();
+    } finally {
+      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000); // Increased timeout
     }
-    // The setTimeout for clearing scanResult is now handled by handleAutomaticImageAnalysis
-    // or the next scan, ensuring the final result is visible.
   };
 
   const handleRedeem = async () => {
@@ -277,11 +245,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
 
   const handleRedeemAndClose = () => {
     resetAnonymousPoints();
-    updateState({ 
-      showTicket: false,
-      qrCodeValue: null, // Reset QR code value to close the dialog
-      generatedVoucherCode: null, // Reset generated voucher code
-    });
+    updateState({ showTicket: false });
   };
 
   return {

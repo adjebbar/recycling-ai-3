@@ -54,17 +54,22 @@ const analyzeProductData = (product: any): ValidationResult => {
   }
 
   // --- Phase 2: Strong Positive Identification (if it's definitely a plastic bottle) ---
+  // Direct check for 'plastic' in packaging fields (high priority)
+  if (packaging.includes('plastic') || packagingTags.includes('plastic')) {
+    console.log("analyzeProductData: ACCEPTED - Found 'plastic' directly in packaging fields.");
+    return 'accepted';
+  }
+
   const strongPlasticBottleKeywords = [
     'plastic bottle', 'bouteille plastique', 'flacon plastique', 'botella de plástico', // Explicit plastic bottle
     'pet bottle', 'bouteille pet', 'botella pet', // Specific plastic type
     'hdpe bottle', 'bouteille hdpe', 'botella hdpe', // Specific plastic type
-    'plastic packaging', 'emballage plastique', 'envase plástico', // General plastic packaging
     'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', // Plastic polymers
     'pet', 'hdpe', 'ldpe', 'pp', 'pvc', 'ps', 'pe', // Common plastic abbreviations
   ];
 
   if (strongPlasticBottleKeywords.some(k => searchText.includes(k))) {
-    console.log("analyzeProductData: ACCEPTED - Found strong plastic bottle identifier.");
+    console.log("analyzeProductData: ACCEPTED - Found strong plastic bottle identifier in general text.");
     return 'accepted';
   }
 
@@ -236,7 +241,6 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
           case 'rejected':
             const rejectMessage = t('scanner.notPlastic');
             showError(rejectMessage);
-            // Do NOT include imageUrl for rejected items
             updateState({ scanResult: { type: 'error', message: rejectMessage } }); 
             triggerPiConveyor('rejected');
             break;

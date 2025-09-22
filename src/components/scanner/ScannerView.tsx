@@ -24,11 +24,7 @@ export const ScannerView = ({ state, actions, fileInputRef }: ScannerViewProps) 
           <DesktopScanner state={state} actions={actions} fileInputRef={fileInputRef} />
         )}
         <ScanResultOverlay scanResult={state.scanResult} />
-        {state.scanFailureMessage && !state.scanResult && !state.imageAnalysisMode && (
-          <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
-            {state.scanFailureMessage}
-          </p>
-        )}
+        {/* Removed the conditional rendering of state.scanFailureMessage */}
       </CardContent>
     </Card>
   );

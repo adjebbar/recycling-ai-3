@@ -22,16 +22,40 @@ const isPlasticBottle = (product: any): boolean => {
     ...(product.packaging_tags || []),
   ].filter(Boolean).join(' ').toLowerCase();
 
-  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene'];
+  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene', 'bouteille plastique'];
   const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
-  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'eau', 'water', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk'];
+  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk'];
+  const waterKeywords = ['eau', 'water'];
   const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak'];
 
-  if (exclusionKeywords.some(k => searchText.includes(k))) return false;
-  if (plasticKeywords.some(k => searchText.includes(k)) && bottleKeywords.some(k => searchText.includes(k))) return true;
-  if (drinkKeywords.some(k => searchText.includes(k)) && bottleKeywords.some(k => searchText.includes(k))) return true;
-  if ((searchText.includes('eau') || searchText.includes('water')) && !exclusionKeywords.some(k => searchText.includes(k))) return true;
+  // 1. Exclude if any explicit exclusion keyword is found
+  if (exclusionKeywords.some(k => searchText.includes(k))) {
+    console.log("Excluded by keyword:", searchText);
+    return false;
+  }
 
+  // 2. Check if it's a bottle
+  const isBottle = bottleKeywords.some(k => searchText.includes(k));
+  
+  // 3. Check for plastic indicators or common beverage types
+  const isPlastic = plasticKeywords.some(k => searchText.includes(k));
+  const isDrink = drinkKeywords.some(k => searchText.includes(k));
+  const isWater = waterKeywords.some(k => searchText.includes(k));
+
+  // A product is considered a plastic bottle if it's a bottle AND (it's explicitly plastic OR it's a drink OR it's water)
+  if (isBottle && (isPlastic || isDrink || isWater)) {
+    console.log("Identified as plastic bottle:", searchText);
+    return true;
+  }
+
+  // Fallback: if it's a drink or water, and not explicitly excluded, assume it's a plastic bottle (common case)
+  // This is a bit more permissive but covers many common scenarios where "bottle" or "plastic" might be missing
+  if ((isDrink || isWater) && !isBottle) { // If it's a drink/water but "bottle" keyword is missing
+    console.log("Identified as plastic bottle (drink/water fallback):", searchText);
+    return true;
+  }
+
+  console.log("Not identified as plastic bottle:", searchText);
   return false;
 };
 

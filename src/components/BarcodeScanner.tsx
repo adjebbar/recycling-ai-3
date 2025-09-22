@@ -13,49 +13,67 @@ interface BarcodeScannerProps {
 const BarcodeScanner = ({ onScanSuccess, onScanFailure, onCameraInitError, scannerRef }: BarcodeScannerProps) => {
   const callbacksRef = useRef({ onScanSuccess, onScanFailure, onCameraInitError });
   callbacksRef.current = { onScanSuccess, onScanFailure, onCameraInitError };
+  const internalScannerRef = useRef<Html5QrcodeScanner | null>(null); // Internal ref to store scanner instance
+  const mounted = useRef(false); // Track if component has truly mounted
 
   useEffect(() => {
-    const scanner = new Html5QrcodeScanner(
-      'reader',
-      {
-        fps: 20,
-        qrbox: { width: 250, height: 150 },
-        supportedScanTypes: [0], // 0 for camera
-        videoConstraints: {
-          facingMode: 'environment'
-        }
-      },
-      /* verbose= */ false
-    );
+    if (!mounted.current) {
+      mounted.current = true; // Mark as truly mounted after the first render cycle
+      console.log("BarcodeScanner: Initializing scanner for the first time.");
 
-    if (scannerRef) {
-      scannerRef.current = scanner;
+      const initErrorCallback = (errorMessage: string) => {
+        console.error("BarcodeScanner: Camera initialization error:", errorMessage);
+        callbacksRef.current.onCameraInitError(errorMessage);
+      };
+
+      const html5QrcodeScanner = new Html5QrcodeScanner(
+        'reader',
+        {
+          fps: 20,
+          qrbox: { width: 250, height: 150 },
+          supportedScanTypes: [0], // 0 for camera
+          videoConstraints: {
+            facingMode: 'environment'
+          }
+        },
+        /* verbose= */ false
+      );
+      internalScannerRef.current = html5QrcodeScanner; // Store scanner instance internally
+      if (scannerRef) {
+        scannerRef.current = html5QrcodeScanner; // Expose to parent if ref is provided
+      }
+
+      const successCallback = (decodedText: string) => {
+        console.log("BarcodeScanner: Scan success:", decodedText);
+        callbacksRef.current.onScanSuccess(decodedText);
+      };
+
+      const scanErrorCallback = (errorMessage: string) => {
+        if (callbacksRef.current.onScanFailure) {
+          callbacksRef.current.onScanFailure(errorMessage);
+        } else {
+          console.warn("BarcodeScanner: Scan failure (no handler):", errorMessage);
+        }
+      };
+
+      // @ts-ignore: The html5-qrcode library's render method actually accepts 3 arguments, but TypeScript definitions might be outdated.
+      html5QrcodeScanner.render(successCallback, scanErrorCallback, initErrorCallback);
     }
 
-    const successCallback = (decodedText: string) => callbacksRef.current.onScanSuccess(decodedText);
-    const errorCallback = (errorMessage: string) => {
-      if (callbacksRef.current.onScanFailure) {
-        callbacksRef.current.onScanFailure(errorMessage);
-      }
-    };
-
-    // @ts-ignore
-    scanner.render(successCallback, errorCallback, callbacksRef.current.onCameraInitError);
-
     return () => {
-      // This cleanup function is designed to be safe with React 18's Strict Mode.
-      // It checks if the scanner's UI element is still in the DOM before trying to clear it.
-      const readerElement = document.getElementById('reader');
-      if (readerElement) {
-        scanner.clear().catch(error => {
-          console.error("BarcodeScanner: Failed to clear scanner on unmount.", error);
+      if (internalScannerRef.current) {
+        console.log("BarcodeScanner: Clearing scanner.");
+        internalScannerRef.current.clear().catch(error => {
+          console.error("BarcodeScanner: Failed to clear html5-qrcode-scanner.", error);
         });
+        internalScannerRef.current = null;
+        if (scannerRef) {
+          scannerRef.current = null; // Clear exposed ref as well
+        }
       }
-      if (scannerRef) {
-        scannerRef.current = null;
-      }
+      mounted.current = false; // Reset for next mount if component is truly unmounted
     };
-  }, []); // Empty dependency array ensures this runs only once on mount.
+  }, [scannerRef]); // Add scannerRef to dependencies to re-run if it changes
 
   return <div id="reader" className="w-full" />;
 };

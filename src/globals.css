@@ -115,7 +115,9 @@
 .html5-qrcode-last-scan-result, /* Might show "No barcode detected" from the library */
 .html5-qrcode-button-start-scanning, /* Start scanning button */
 .html5-qrcode-error, /* General error container */
-.html5-qrcode-info { /* General info container */
+.html5-qrcode-info, /* General info container */
+.html5-qrcode-status-message /* Added to hide 'camera, facing front' and similar status messages */
+{
   display: none !important;
 }
 

@@ -42,12 +42,7 @@ const ScannerPage = () => {
           onRedeemAndClose={actions.handleRedeemAndClose}
         />
 
-        <div className="text-center mt-6 max-w-lg w-full">
-          <p className="text-sm text-muted-foreground flex items-center justify-center">
-            <CameraOff className="w-4 h-4 mr-2" />
-            {t('scanner.cameraPermission')}
-          </p>
-        </div>
+        {/* The 'camera permission' message has been removed from here. */}
       </div>
     </div>
   );

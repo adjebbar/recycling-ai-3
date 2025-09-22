@@ -25,7 +25,7 @@ const analyzeProductData = (product: any): ValidationResult => {
   const ingredientsText = (product.ingredients_text || '').toLowerCase();
   const traces = (product.traces || '').toLowerCase();
   const manufacturingPlaces = (product.manufacturing_places || '').toLowerCase();
-  const labels = (product.labels || '').toLowerCase(); // Labels can be a string or array, ensure it's handled
+  const labels = (Array.isArray(product.labels) ? product.labels.join(' ') : product.labels || '').toLowerCase();
   const brands = (product.brands || '').toLowerCase();
 
   const searchText = [
@@ -60,8 +60,9 @@ const analyzeProductData = (product: any): ValidationResult => {
 
   // --- Phase 2: Strong Positive Identification (if it's definitely a plastic bottle) ---
   // Direct check for 'plastic' in packaging fields (high priority)
-  if (packaging.includes('plastic') || packagingTags.includes('plastic')) {
-    console.log("analyzeProductData: ACCEPTED - Found 'plastic' directly in packaging fields.");
+  const directPlasticTerms = ['plastic', 'plastique', 'plastico'];
+  if (directPlasticTerms.some(k => packaging.includes(k)) || directPlasticTerms.some(k => packagingTags.includes(k))) {
+    console.log("analyzeProductData: ACCEPTED - Found 'plastic' directly in packaging fields (multi-language).");
     return 'accepted';
   }
 

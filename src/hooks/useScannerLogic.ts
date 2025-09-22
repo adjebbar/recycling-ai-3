@@ -20,9 +20,12 @@ const isPlasticBottle = (product: any): boolean => {
     product.categories,
     product.packaging,
     ...(product.packaging_tags || []),
+    ...(product.ingredients_text || []), // Add ingredients text for more context
   ].filter(Boolean).join(' ').toLowerCase();
 
-  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene', 'bouteille plastique'];
+  console.log("isPlasticBottle: Analyzing searchText:", searchText);
+
+  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene', 'bouteille plastique', 'bouteille en plastique'];
   const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
   const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk'];
   const waterKeywords = ['eau', 'water'];
@@ -30,32 +33,42 @@ const isPlasticBottle = (product: any): boolean => {
 
   // 1. Exclude if any explicit exclusion keyword is found
   if (exclusionKeywords.some(k => searchText.includes(k))) {
-    console.log("Excluded by keyword:", searchText);
+    console.log("isPlasticBottle: Excluded by keyword.");
     return false;
   }
 
-  // 2. Check if it's a bottle
-  const isBottle = bottleKeywords.some(k => searchText.includes(k));
-  
-  // 3. Check for plastic indicators or common beverage types
-  const isPlastic = plasticKeywords.some(k => searchText.includes(k));
-  const isDrink = drinkKeywords.some(k => searchText.includes(k));
-  const isWater = waterKeywords.some(k => searchText.includes(k));
+  // 2. Check for strong positive indicators
+  const hasPlasticKeyword = plasticKeywords.some(k => searchText.includes(k));
+  const hasBottleKeyword = bottleKeywords.some(k => searchText.includes(k));
+  const hasDrinkKeyword = drinkKeywords.some(k => searchText.includes(k));
+  const hasWaterKeyword = waterKeywords.some(k => searchText.includes(k));
 
-  // A product is considered a plastic bottle if it's a bottle AND (it's explicitly plastic OR it's a drink OR it's water)
-  if (isBottle && (isPlastic || isDrink || isWater)) {
-    console.log("Identified as plastic bottle:", searchText);
+  // If it explicitly mentions plastic and bottle
+  if (hasPlasticKeyword && hasBottleKeyword) {
+    console.log("isPlasticBottle: Identified as plastic bottle (explicit plastic + bottle).");
     return true;
   }
 
-  // Fallback: if it's a drink or water, and not explicitly excluded, assume it's a plastic bottle (common case)
+  // If it's a bottle and contains drink/water keywords (common plastic beverage bottles)
+  if (hasBottleKeyword && (hasDrinkKeyword || hasWaterKeyword)) {
+    console.log("isPlasticBottle: Identified as plastic bottle (bottle + drink/water).");
+    return true;
+  }
+
+  // If it's a drink/water and contains plastic keywords (e.g., "plastic cup of juice" but we assume bottle for recycling context)
+  if ((hasDrinkKeyword || hasWaterKeyword) && hasPlasticKeyword) {
+    console.log("isPlasticBottle: Identified as plastic bottle (drink/water + plastic).");
+    return true;
+  }
+
+  // Fallback: if it's a drink or water, and not explicitly excluded, assume it's a plastic bottle
   // This is a bit more permissive but covers many common scenarios where "bottle" or "plastic" might be missing
-  if ((isDrink || isWater) && !isBottle) { // If it's a drink/water but "bottle" keyword is missing
-    console.log("Identified as plastic bottle (drink/water fallback):", searchText);
+  if ((hasDrinkKeyword || hasWaterKeyword) && !hasPlasticKeyword && !hasBottleKeyword) {
+    console.log("isPlasticBottle: Identified as plastic bottle (drink/water fallback).");
     return true;
   }
 
-  console.log("Not identified as plastic bottle:", searchText);
+  console.log("isPlasticBottle: Not identified as plastic bottle.");
   return false;
 };
 
@@ -238,16 +251,20 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
           showError(errorMessage);
           updateState({ scanResult: { type: 'error', message: errorMessage, imageUrl } });
           triggerPiConveyor('rejected');
-          // If barcode analysis fails, automatically try image analysis after a delay
-          setTimeout(handleAutomaticImageAnalysis, IMAGE_ANALYSIS_DELAY_MS);
+          // Only attempt image analysis if it's NOT a manual scan
+          if (!isManual) {
+            setTimeout(handleAutomaticImageAnalysis, IMAGE_ANALYSIS_DELAY_MS);
+          }
         }
       } else { // Product not found by barcode
         const errorMessage = t('scanner.notFound');
         showError(errorMessage);
         updateState({ scanResult: { type: 'error', message: errorMessage } });
         triggerPiConveyor('rejected');
-        // If barcode analysis fails, automatically try image analysis after a delay
-        setTimeout(handleAutomaticImageAnalysis, IMAGE_ANALYSIS_DELAY_MS);
+        // Only attempt image analysis if it's NOT a manual scan
+        if (!isManual) {
+          setTimeout(handleAutomaticImageAnalysis, IMAGE_ANALYSIS_DELAY_MS);
+        }
       }
     } catch (err: any) {
       dismissToast(loadingToast);
@@ -255,10 +272,12 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       showError(errorMessage);
       updateState({ scanResult: { type: 'error', message: errorMessage } });
       triggerPiConveyor('rejected');
-      // If barcode analysis fails, automatically try image analysis after a delay
-      setTimeout(handleAutomaticImageAnalysis, IMAGE_ANALYSIS_DELAY_MS);
+      // Only attempt image analysis if it's NOT a manual scan
+      if (!isManual) {
+        setTimeout(handleAutomaticImageAnalysis, IMAGE_ANALYSIS_DELAY_MS);
+      }
     } finally {
-      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000); // Increased timeout
+      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
     }
   };
 

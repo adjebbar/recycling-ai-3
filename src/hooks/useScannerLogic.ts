@@ -14,7 +14,6 @@ const POINTS_PER_BOTTLE = 10;
 const IMAGE_ANALYSIS_DELAY_MS = 2000; // 2 seconds delay
 
 const isPlasticBottle = (product: any): boolean => {
-  // Clean and combine all relevant text fields into a single string for searching.
   const packagingTags = (product.packaging_tags || []).join(' ').replace(/-/g, ' ');
   const packagingText = (product.packaging || '').replace(/,/g, ' ');
 
@@ -29,49 +28,29 @@ const isPlasticBottle = (product: any): boolean => {
 
   console.log("isPlasticBottle: Analyzing searchText:", searchText);
 
-  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene', 'bouteille plastique', 'bouteille en plastique'];
+  const plasticKeywords = ['plastic', 'plastique', 'pet', 'hdpe', 'polyethylene'];
   const bottleKeywords = ['bottle', 'bouteille', 'botella', 'flacon'];
-  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk'];
-  const waterKeywords = ['eau', 'water'];
+  const drinkKeywords = ['boisson', 'beverage', 'drink', 'soda', 'jus', 'juice', 'limonade', 'cola', 'lait', 'milk', 'eau', 'water'];
   const exclusionKeywords = ['glass', 'verre', 'vidrio', 'metal', 'métal', 'conserve', 'can', 'canette', 'aluminium', 'steel', 'acier', 'carton', 'brick', 'brique', 'tetrapak'];
 
-  // 1. Exclude if any explicit exclusion keyword is found
+  // 1. Critical Exclusion: If it's explicitly not a plastic bottle, reject immediately.
   if (exclusionKeywords.some(k => searchText.includes(k))) {
     console.log("isPlasticBottle: Excluded by keyword.");
     return false;
   }
 
-  // 2. Check for strong positive indicators
-  const hasPlasticKeyword = plasticKeywords.some(k => searchText.includes(k));
-  const hasBottleKeyword = bottleKeywords.some(k => searchText.includes(k));
-  const hasDrinkKeyword = drinkKeywords.some(k => searchText.includes(k));
-  const hasWaterKeyword = waterKeywords.some(k => searchText.includes(k));
+  // 2. Positive Identification: Check for positive indicators.
+  const hasPlastic = plasticKeywords.some(k => searchText.includes(k));
+  const hasBottle = bottleKeywords.some(k => searchText.includes(k));
+  const hasDrink = drinkKeywords.some(k => searchText.includes(k));
 
-  // If it explicitly mentions plastic and bottle
-  if (hasPlasticKeyword && hasBottleKeyword) {
-    console.log("isPlasticBottle: Identified as plastic bottle (explicit plastic + bottle).");
+  // Accept if it's a bottle OR if it's a plastic drink container.
+  // This is more flexible and covers cases where one keyword might be missing.
+  if (hasBottle || (hasPlastic && hasDrink)) {
+    console.log(`isPlasticBottle: Identified as plastic bottle. Reason: hasBottle=${hasBottle}, hasPlastic=${hasPlastic}, hasDrink=${hasDrink}`);
     return true;
   }
-
-  // If it's a bottle and contains drink/water keywords (common plastic beverage bottles)
-  if (hasBottleKeyword && (hasDrinkKeyword || hasWaterKeyword)) {
-    console.log("isPlasticBottle: Identified as plastic bottle (bottle + drink/water).");
-    return true;
-  }
-
-  // If it's a drink/water and contains plastic keywords (e.g., "plastic cup of juice" but we assume bottle for recycling context)
-  if ((hasDrinkKeyword || hasWaterKeyword) && hasPlasticKeyword) {
-    console.log("isPlasticBottle: Identified as plastic bottle (drink/water + plastic).");
-    return true;
-  }
-
-  // Fallback: if it's a drink or water, and not explicitly excluded, assume it's a plastic bottle
-  // This is a bit more permissive but covers many common scenarios where "bottle" or "plastic" might be missing
-  if ((hasDrinkKeyword || hasWaterKeyword) && !hasPlasticKeyword && !hasBottleKeyword) {
-    console.log("isPlasticBottle: Identified as plastic bottle (drink/water fallback).");
-    return true;
-  }
-
+  
   console.log("isPlasticBottle: Not identified as plastic bottle.");
   return false;
 };

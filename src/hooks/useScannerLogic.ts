@@ -25,7 +25,7 @@ const analyzeProductData = (product: any): ValidationResult => {
   const ingredientsText = (product.ingredients_text || '').toLowerCase();
   const traces = (product.traces || '').toLowerCase();
   const manufacturingPlaces = (product.manufacturing_places || '').toLowerCase();
-  const labels = (product.labels || '').toLowerCase(); // Labels can be a string or array, ensure it's handled
+  const labels = (Array.isArray(product.labels) ? product.labels.join(' ') : product.labels || '').toLowerCase();
   const brands = (product.brands || '').toLowerCase();
 
   const searchText = [
@@ -34,11 +34,6 @@ const analyzeProductData = (product: any): ValidationResult => {
   ].filter(Boolean).join(' ');
 
   console.log("analyzeProductData: Final searchText for analysis:", searchText);
-  console.log("analyzeProductData: Raw product.packaging:", product.packaging);
-  console.log("analyzeProductData: Lowercase packaging:", packaging);
-  console.log("analyzeProductData: Raw product.packaging_tags:", product.packaging_tags);
-  console.log("analyzeProductData: Lowercase packaging_tags (joined):", packagingTags);
-
 
   // --- Phase 1: Strict Exclusion (if it's definitely NOT plastic) ---
   const definitiveNonPlasticKeywords = [
@@ -69,7 +64,6 @@ const analyzeProductData = (product: any): ValidationResult => {
     'plastic bottle', 'bouteille plastique', 'flacon plastique', 'botella de plástico', // Explicit plastic bottle
     'pet bottle', 'bouteille pet', 'botella pet', // Specific plastic type
     'hdpe bottle', 'bouteille hdpe', 'botella hdpe', // Specific plastic type
-    'plastic packaging', 'emballage plastique', 'envase plástico', // General plastic packaging
     'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', // Plastic polymers
     'pet', 'hdpe', 'ldpe', 'pp', 'pvc', 'ps', 'pe', // Common plastic abbreviations
   ];
@@ -199,7 +193,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     } catch (err: any) {
       dismissToast(loadingToast);
       showError(err.message || "Image analysis failed.");
-      updateState({ scanResult: { type: 'error', message: err.message || "Image analysis failed.", imageUrl } });
+      updateState({ scanResult: { type: 'error', message: err.message || "Image analysis failed.", imageUrl } }); // Fixed here
       triggerPiConveyor('rejected');
     } finally {
       updateState({ isImageAnalyzing: false });
@@ -265,7 +259,6 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       dismissToast(loadingToast);
 
       if (data.status === 1 && data.product) {
-        console.log("processBarcode: Product data received from API:", data.product); // Added log
         const imageUrl = data.product.image_front_url || data.product.image_url;
         const validation = analyzeProductData(data.product);
 

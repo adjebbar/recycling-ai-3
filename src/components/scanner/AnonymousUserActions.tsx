@@ -25,12 +25,7 @@ export const AnonymousUserActions = ({ points, isRedeeming, onRedeem, onReset }:
           <p className="text-2xl font-bold text-primary">{animatedPoints}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant={points === 0 ? "secondary" : "default"}
-            size="sm"
-            onClick={onRedeem}
-            disabled={points === 0 || isRedeeming}
-          >
+          <Button variant="default" size="sm" onClick={onRedeem} disabled={points === 0 || isRedeeming}>
             <Trophy className="mr-2 h-4 w-4" />
             {isRedeeming ? "Generating..." : "Redeem"}
           </Button>

@@ -39,8 +39,29 @@ const analyzeProductData = (product: any): ValidationResult => {
   console.log("DEBUG: Raw product.packaging_tags:", product.packaging_tags);
   console.log("DEBUG: Lowercase packaging_tags (joined):", packagingTags);
 
+  // --- Phase 1: Strong Positive Identification (if it's definitely a plastic bottle) ---
+  // Direct check for 'plastic' in packaging fields (highest priority for acceptance)
+  const directPlasticTerms = ['plastic', 'plastique', 'plastico'];
+  console.log("DEBUG: Checking directPlasticTerms in packaging/packagingTags:", directPlasticTerms);
 
-  // --- Phase 1: Strict Exclusion (if it's definitely NOT plastic) ---
+  const isPlasticInPackaging = directPlasticTerms.some(k => {
+    const found = packaging.includes(k);
+    console.log(`DEBUG: packaging.includes('${k}') for packaging='${packaging}' = ${found}`);
+    return found;
+  });
+
+  const isPlasticInPackagingTags = directPlasticTerms.some(k => {
+    const found = packagingTags.includes(k);
+    console.log(`DEBUG: packagingTags.includes('${k}') for packagingTags='${packagingTags}' = ${found}`);
+    return found;
+  });
+
+  if (isPlasticInPackaging || isPlasticInPackagingTags) {
+    console.log("analyzeProductData: ACCEPTED - Found 'plastic' directly in packaging fields (multi-language).");
+    return 'accepted';
+  }
+
+  // --- Phase 2: Strict Exclusion (if it's definitely NOT plastic, after checking for explicit plastic) ---
   const definitiveNonPlasticKeywords = [
     'glass', 'verre', 'vidrio', 'cristal', // Glass
     'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', 'lata', 'hojalata', // Metal
@@ -54,44 +75,8 @@ const analyzeProductData = (product: any): ValidationResult => {
   ];
 
   if (definitiveNonPlasticKeywords.some(k => searchText.includes(k))) {
-    console.log("analyzeProductData: REJECTED - Found definitive non-plastic keyword.");
+    console.log("analyzeProductData: REJECTED - Found definitive non-plastic keyword in searchText.");
     return 'rejected';
-  }
-
-  // --- Phase 2: Strong Positive Identification (if it's definitely a plastic bottle) ---
-  // Direct check for 'plastic' in packaging fields (high priority)
-  const directPlasticTerms = ['plastic', 'plastique', 'plastico'];
-  console.log("DEBUG: Checking directPlasticTerms:", directPlasticTerms);
-
-  const isPlasticInPackaging = directPlasticTerms.some(k => {
-    const found = packaging.includes(k);
-    console.log(`DEBUG: packaging.includes('${k}') = ${found}`);
-    return found;
-  });
-
-  const isPlasticInPackagingTags = directPlasticTerms.some(k => {
-    const found = packagingTags.includes(k);
-    console.log(`DEBUG: packagingTags.includes('${k}') = ${found}`);
-    return found;
-  });
-
-  if (isPlasticInPackaging || isPlasticInPackagingTags) {
-    console.log("analyzeProductData: ACCEPTED - Found 'plastic' directly in packaging fields (multi-language).");
-    return 'accepted';
-  }
-
-  const strongPlasticBottleKeywords = [
-    'plastic bottle', 'bouteille plastique', 'flacon plastique', 'botella de plástico', // Explicit plastic bottle
-    'pet bottle', 'bouteille pet', 'botella pet', // Specific plastic type
-    'hdpe bottle', 'bouteille hdpe', 'botella hdpe', // Specific plastic type
-    'plastic packaging', 'emballage plastique', 'envase plástico', // General plastic packaging
-    'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', // Plastic polymers
-    'pet', 'hdpe', 'ldpe', 'pp', 'pvc', 'ps', 'pe', // Common plastic abbreviations
-  ];
-
-  if (strongPlasticBottleKeywords.some(k => searchText.includes(k))) {
-    console.log("analyzeProductData: ACCEPTED - Found strong plastic bottle identifier in general text.");
-    return 'accepted';
   }
 
   // --- Phase 3: Combined Heuristics (if it's likely a plastic bottle based on context) ---
@@ -113,7 +98,20 @@ const analyzeProductData = (product: any): ValidationResult => {
     return 'accepted';
   }
 
-  // Check for general "plastic" terms combined with "bottle" or "container"
+  const strongPlasticBottleKeywords = [
+    'plastic bottle', 'bouteille plastique', 'flacon plastique', 'botella de plástico', // Explicit plastic bottle
+    'pet bottle', 'bouteille pet', 'botella pet', // Specific plastic type
+    'hdpe bottle', 'bouteille hdpe', 'botella hdpe', // Specific plastic type
+    'plastic packaging', 'emballage plastique', 'envase plástico', // General plastic packaging
+    'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', // Plastic polymers
+    'pet', 'hdpe', 'ldpe', 'pp', 'pvc', 'ps', 'pe', // Common plastic abbreviations
+  ];
+
+  if (strongPlasticBottleKeywords.some(k => searchText.includes(k))) {
+    console.log("analyzeProductData: ACCEPTED - Found strong plastic bottle identifier in general text.");
+    return 'accepted';
+  }
+
   const generalPlasticTerms = ['plastic', 'plastique', 'plastico', 'polymère', 'polymer', 'polímero'];
   const generalContainerTerms = ['bottle', 'bouteille', 'flacon', 'container', 'récipient', 'envase', 'botella', 'frasco'];
 

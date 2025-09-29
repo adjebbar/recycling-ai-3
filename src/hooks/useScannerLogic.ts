@@ -27,10 +27,11 @@ const analyzeProductData = (product: any): ValidationResult => {
   const manufacturingPlaces = (product.manufacturing_places || '').toLowerCase();
   const labels = (Array.isArray(product.labels) ? product.labels.join(' ') : product.labels || '').toLowerCase();
   const brands = (product.brands || '').toLowerCase();
+  const quantity = (product.quantity || '').toLowerCase(); // Added quantity
 
   const searchText = [
     productName, genericName, categories, packaging, packagingTags,
-    ingredientsText, traces, manufacturingPlaces, labels, brands
+    ingredientsText, traces, manufacturingPlaces, labels, brands, quantity
   ].filter(Boolean).join(' ');
 
   console.log("analyzeProductData: Final searchText for analysis:", searchText);
@@ -41,7 +42,7 @@ const analyzeProductData = (product: any): ValidationResult => {
 
   // --- Phase 1: Strong Positive Identification (if it's definitely a plastic bottle) ---
   // Direct check for 'plastic' in packaging fields (highest priority for acceptance)
-  const directPlasticTerms = ['plastic', 'plastique', 'plastico'];
+  const directPlasticTerms = ['plastic', 'plastique', 'plastico', 'pet', 'hdpe', 'ldpe', 'pp', 'pvc', 'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', 'polyéthylène', 'polypropylène', 'polystyrène', 'chlorure de polyvinyle', 'polyethylene terephthalate'];
   console.log("DEBUG: Checking directPlasticTerms in packaging/packagingTags:", directPlasticTerms);
 
   const isPlasticInPackaging = directPlasticTerms.some(k => {
@@ -72,6 +73,8 @@ const analyzeProductData = (product: any): ValidationResult => {
     'cup', 'tasse', 'gobelet', 'plate', 'assiette', 'tray', 'barquette', 'taza', 'vaso', 'plato', 'bandeja', // Non-bottle containers
     'aerosol', 'spray', 'bombe', 'aerosol', // Aerosol cans
     'film', 'pellicule', 'wrap', 'emballage souple', 'película', 'envoltura', // Films/wraps
+    'box', 'boîte', 'caja', // Boxes
+    'pouch', 'sachet', 'bolsa', // Pouches/bags
   ];
 
   if (definitiveNonPlasticKeywords.some(k => searchText.includes(k))) {
@@ -80,7 +83,7 @@ const analyzeProductData = (product: any): ValidationResult => {
   }
 
   // --- Phase 3: Combined Heuristics (if it's likely a plastic bottle based on context) ---
-  const bottleTerms = ['bottle', 'bouteille', 'botella', 'flacon'];
+  const bottleTerms = ['bottle', 'bouteille', 'botella', 'flacon', 'container', 'récipient', 'envase'];
   const liquidProductKeywords = [
     'water', 'eau', 'agua', 'mineral water', 'eau minérale', 'agua mineral',
     'drink', 'boisson', 'bebida', 'soda', 'jus', 'juice', 'zumo',
@@ -105,6 +108,7 @@ const analyzeProductData = (product: any): ValidationResult => {
     'plastic packaging', 'emballage plastique', 'envase plástico', // General plastic packaging
     'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', // Plastic polymers
     'pet', 'hdpe', 'ldpe', 'pp', 'pvc', 'ps', 'pe', // Common plastic abbreviations
+    'water bottle', 'bouteille d\'eau', 'botella de agua', // Common water bottle terms
   ];
 
   if (strongPlasticBottleKeywords.some(k => searchText.includes(k))) {
@@ -281,6 +285,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
         console.log("processBarcode: Product data received from API:", data.product); // Added log
         const imageUrl = data.product.image_front_url || data.product.image_url;
         const validation = analyzeProductData(data.product);
+        console.log("processBarcode: Product validation result:", validation); // Log the validation result
 
         switch (validation) {
           case 'accepted':

@@ -36,18 +36,19 @@ serve(async (req) => {
       });
     }
 
-    // Use the correct, modern endpoint: /run/predict
-    const predictEndpoint = `${yolov8ApiUrl.replace(/\/$/, "")}/run/predict`;
+    // CORRECTIF : Extraire l'origine (base URL) pour éviter de concaténer les chemins
+    const url = new URL(yolov8ApiUrl);
+    const baseUrl = url.origin; // ex: "https://djaber2025-yolov8-bottle-detector.hf.space"
+    const predictEndpoint = `${baseUrl}/run/predict`;
+    
     console.log(`[yolov8-detect-bottle] Sending POST request to Hugging Face API: ${predictEndpoint}`);
 
     const response = await fetch(predictEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // Add the required Authorization header
         'Authorization': `Bearer ${huggingFaceToken}`,
       },
-      // Use the simple payload format required by the API
       body: JSON.stringify({
         data: [imageSource],
       }),
@@ -61,7 +62,6 @@ serve(async (req) => {
     const responseData = await response.json();
     console.log("[yolov8-detect-bottle] Raw API response data:", JSON.stringify(responseData, null, 2));
 
-    // The API returns the result directly in the 'data' array
     if (!responseData.data || !Array.isArray(responseData.data) || responseData.data.length === 0) {
       throw new Error('Invalid response format from Hugging Face API.');
     }

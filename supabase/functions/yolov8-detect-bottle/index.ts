@@ -67,13 +67,17 @@ serve(async (req) => {
 
     console.log(`[yolov8-detect-bottle] Base64 image string length: ${base64ImageString.length}`);
 
-    console.log("[yolov8-detect-bottle] Sending request to YOLOv8 API (Hugging Face Gradio)...");
-    const yolov8Response = await fetch(yolov8ApiUrl, {
+    console.log("[yolov8-detect-bottle] Sending request to YOLOv8 API (Hugging Face Gradio) using /run/predict endpoint...");
+    // Use the /run/predict endpoint and include fn_index
+    const yolov8Response = await fetch(`${yolov8ApiUrl}/run/predict`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: [base64ImageString] }), // Gradio API expects JSON with 'data' array
+      body: JSON.stringify({
+        fn_index: 0, // Assuming the first function in the Gradio app is the prediction function
+        data: [base64ImageString]
+      }),
     });
     console.log(`[yolov8-detect-bottle] YOLOv8 API response status: ${yolov8Response.status}`);
 
@@ -86,7 +90,8 @@ serve(async (req) => {
     const yolov8Data = await yolov8Response.json();
     console.log("[yolov8-detect-bottle] YOLOv8 API full response (truncated for log):", JSON.stringify(yolov8Data, null, 2).substring(0, 500) + "...");
 
-    // Gradio output is [boolean, image_base64_string]
+    // Gradio output for /run/predict typically has the result in `data` array
+    // The first element of the `data` array should be the boolean result
     const isPlasticBottle = yolov8Data.data && typeof yolov8Data.data[0] === 'boolean' ? yolov8Data.data[0] : false;
     
     console.log(`[yolov8-detect-bottle] Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);

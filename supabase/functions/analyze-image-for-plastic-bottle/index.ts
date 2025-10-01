@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { imageData, imageUrl } = await req.json(); // Now accepts imageUrl
+    const { imageData, imageUrl, productName } = await req.json(); // Now accepts productName
     let imageToAnalyze: string | null = null;
 
     if (imageData) {
@@ -39,14 +39,36 @@ serve(async (req) => {
       });
     }
 
-    // --- SIMULATED AI IMAGE ANALYSIS ---
-    // In a real application, you would send `imageToAnalyze` to an external AI service here.
-    // For demonstration purposes, we'll simulate a result.
-    const isPlasticBottle = Math.random() > 0.5; // 50% chance of being a plastic bottle for demo
+    // --- START: SIMULATED DEEP LEARNING OBJECT DETECTION ---
+    // In a real application, you would send `imageToAnalyze` (base64 or URL)
+    // to an external AI service (e.g., Google Cloud Vision, AWS Rekognition, custom model API) here.
+    // The AI service would return a classification (e.g., "plastic bottle", "glass jar", "aluminum can").
 
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate 1.5 seconds processing
+    let isPlasticBottle = false;
+    const lowerCaseProductName = (productName || '').toLowerCase();
+    console.log(`Simulated AI: Analyzing image with product name context: "${lowerCaseProductName}"`);
+
+    // Heuristics for simulated AI based on product name
+    const strongPlasticKeywords = ['plastic bottle', 'bouteille plastique', 'botella de plástico', 'pet bottle', 'hdpe bottle', 'water bottle', 'soda bottle', 'juice bottle', 'shampoo bottle'];
+    const strongNonPlasticKeywords = ['glass jar', 'metal can', 'aluminum can', 'verre', 'métal', 'canette', 'boîte de conserve', 'carton'];
+
+    if (strongPlasticKeywords.some(k => lowerCaseProductName.includes(k))) {
+      isPlasticBottle = true;
+      console.log("Simulated AI: Product name strongly suggests plastic bottle.");
+    } else if (strongNonPlasticKeywords.some(k => lowerCaseProductName.includes(k))) {
+      isPlasticBottle = false;
+      console.log("Simulated AI: Product name strongly suggests non-plastic.");
+    } else {
+      // If product name is inconclusive, use a biased random chance for the image analysis
+      // Assume a slightly higher chance of being plastic if it reached image analysis
+      isPlasticBottle = Math.random() > 0.3; // 70% chance of being plastic in ambiguous cases
+      console.log(`Simulated AI: Product name inconclusive, using biased random chance. Result: ${isPlasticBottle}`);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate 2 seconds processing time for AI
 
     console.log(`Simulated image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
+    // --- END: SIMULATED DEEP LEARNING OBJECT DETECTION ---
 
     return new Response(JSON.stringify({ is_plastic_bottle: isPlasticBottle }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

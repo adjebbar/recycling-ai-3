@@ -170,12 +170,12 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     }
   };
 
-  const handleImageAnalysisFromProductData = async (imageUrl: string, barcode?: string) => {
+  const handleImageAnalysisFromProductData = async (imageUrl: string, barcode?: string, productName?: string) => {
     updateState({ isImageAnalyzing: true, scanResult: null });
     const loadingToast = showLoading("Analyzing product image...");
 
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', { body: { imageUrl } });
+      const { data, error } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', { body: { imageUrl, productName } }); // Pass productName
       if (error || data.error) throw new Error(error?.message || data.error);
       dismissToast(loadingToast);
 
@@ -221,6 +221,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
       const imageData = canvas.toDataURL('image/jpeg', 0.8);
 
+      // No product name available for live camera image analysis
       const { data, error } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', { body: { imageData } });
       if (error || data.error) throw new Error(error?.message || data.error);
       dismissToast(loadingToast);
@@ -260,6 +261,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       if (data.status === 1 && data.product) {
         console.log("processBarcode: Product data received from API:", data.product); // Added log
         const imageUrl = data.product.image_front_url || data.product.image_url;
+        const productName = data.product.product_name; // Get product name
         const validation = analyzeProductData(data.product);
         console.log("processBarcode: Product validation result:", validation); // Log the validation result
 
@@ -278,7 +280,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
             imageAnalysisTriggered = true; // Set flag
             if (imageUrl) {
               toast.info("Barcode data unclear. Analyzing product image for confirmation...");
-              await handleImageAnalysisFromProductData(imageUrl, barcode);
+              await handleImageAnalysisFromProductData(imageUrl, barcode, productName); // Pass productName
             } else if (isManual) {
               const inconclusiveMessage = "Barcode data is inconclusive and no product image is available. Please use the camera scanner for a visual check.";
               showError(inconclusiveMessage);

@@ -12,7 +12,6 @@ declare const Deno: any;
 serve(async (req) => {
   console.log(`analyze-image-for-plastic-bottle function invoked. Method: ${req.method}`);
   if (req.method === 'OPTIONS') {
-    console.log("Responding to OPTIONS request.");
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -38,17 +37,15 @@ serve(async (req) => {
     }
 
     const roboflowApiKey = Deno.env.get('ROBOFLOW_API_KEY');
-    const roboflowWorkflowId = Deno.env.get('ROBOFLOW_WORKFLOW_ID'); 
 
-    if (!roboflowApiKey || !roboflowWorkflowId) {
-      console.error('ROBOFLOW_API_KEY or ROBOFLOW_WORKFLOW_ID is not set in environment variables.');
-      throw new Error('ROBOFLOW_API_KEY and ROBOFLOW_WORKFLOW_ID must be set in environment variables.');
+    if (!roboflowApiKey) {
+      console.error('ROBOFLOW_API_KEY is not set in environment variables.');
+      throw new Error('ROBOFLOW_API_KEY must be set in environment variables.');
     }
     console.log(`Roboflow API key found: ${roboflowApiKey ? 'YES' : 'NO'}`);
-    console.log(`Roboflow Workflow ID from env: ${roboflowWorkflowId}`);
 
-    // The Roboflow Workflow API endpoint is https://api.roboflow.com/workflow/{workflow_id}
-    const roboflowApiUrl = `https://api.roboflow.com/workflow/${roboflowWorkflowId}?api_key=${roboflowApiKey}`;
+    // Use the specific endpoint for the 'detect-bottles' workflow
+    const roboflowApiUrl = `https://serverless.roboflow.com/detect-bottles?api_key=${roboflowApiKey}`;
     console.log(`Constructed Roboflow API URL for POST: ${roboflowApiUrl}`);
 
     const requestBody = JSON.stringify({
@@ -60,49 +57,43 @@ serve(async (req) => {
     console.log("Roboflow Request Body (first 200 chars):", requestBody.substring(0, 200));
 
 
-    console.log("Sending request to Roboflow Workflow API...");
+    console.log("Sending request to Roboflow API...");
     const roboflowResponse = await fetch(roboflowApiUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', // Keep Content-Type as application/json for base64/URL
       },
       body: requestBody,
     });
 
     if (!roboflowResponse.ok) {
       const errorText = await roboflowResponse.text();
-      console.error(`Roboflow Workflow API responded with status: ${roboflowResponse.status}, body: ${errorText}`);
-      throw new Error(`Roboflow Workflow API error: ${roboflowResponse.status} - ${errorText}`);
+      console.error(`Roboflow API responded with status: ${roboflowResponse.status}, body: ${errorText}`);
+      throw new Error(`Roboflow API error: ${roboflowResponse.status} - ${errorText}`);
     }
 
     const roboflowData = await roboflowResponse.json();
     // Log the entire Roboflow response for debugging
-    console.log("Roboflow Workflow API full response:", JSON.stringify(roboflowData, null, 2));
+    console.log("Roboflow API full response:", JSON.stringify(roboflowData, null, 2));
 
     let isPlasticBottle = false;
     const confidenceThreshold = 0.7; // 70% confidence
 
-    // Check for predictions in the workflow_steps or directly in results.predictions
-    if (roboflowData.results && roboflowData.results.predictions && Array.isArray(roboflowData.results.predictions)) {
-      isPlasticBottle = roboflowData.results.predictions.some((prediction: any) =>
+    // The response structure for this endpoint might be different.
+    // Assuming it returns a 'predictions' array directly in the root or a 'detections' array.
+    // We'll check for common object detection output formats.
+    if (roboflowData.predictions && Array.isArray(roboflowData.predictions)) {
+      isPlasticBottle = roboflowData.predictions.some((prediction: any) =>
         prediction.class.toLowerCase().includes('plastic bottle') && prediction.confidence > confidenceThreshold
       );
-      if (isPlasticBottle) console.log("Plastic bottle identified via Roboflow workflow predictions.");
-    } else if (roboflowData.results && roboflowData.results.workflow_steps && Array.isArray(roboflowData.results.workflow_steps)) {
-      for (const step of roboflowData.results.workflow_steps) {
-        if (step.predictions && Array.isArray(step.predictions)) {
-          const foundInStep = step.predictions.some((prediction: any) =>
-            prediction.class.toLowerCase().includes('plastic bottle') && prediction.confidence > confidenceThreshold
-          );
-          if (foundInStep) {
-            isPlasticBottle = true;
-            console.log(`Plastic bottle identified in workflow step: ${step.type} via Roboflow workflow predictions.`);
-            break;
-          }
-        }
-      }
+      if (isPlasticBottle) console.log("Plastic bottle identified via Roboflow predictions.");
+    } else if (roboflowData.detections && Array.isArray(roboflowData.detections)) {
+      isPlasticBottle = roboflowData.detections.some((detection: any) =>
+        detection.class.toLowerCase().includes('plastic bottle') && detection.confidence > confidenceThreshold
+      );
+      if (isPlasticBottle) console.log("Plastic bottle identified via Roboflow detections.");
     } else {
-      console.warn("Roboflow workflow response did not contain expected 'results.predictions' or 'results.workflow_steps' structure.");
+      console.warn("Roboflow response did not contain expected 'predictions' or 'detections' structure.");
     }
 
     console.log(`Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);

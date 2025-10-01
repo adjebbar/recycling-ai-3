@@ -31,32 +31,14 @@ serve(async (req) => {
     }
     console.log(`[yolov8-detect-bottle] YOLOv8 API URL from env: ${yolov8ApiUrl}`);
 
-    let base64ImageString: string;
+    let imagePath: string; // This will hold either the imageUrl or the base64 data URI
 
     if (imageData) {
-      console.log("[yolov8-detect-bottle] Using provided imageData (base64).");
-      base64ImageString = imageData; // imageData is already a data URI
+      console.log("[yolov8-detect-bottle] Using provided imageData (base64 data URI).");
+      imagePath = imageData;
     } else if (imageUrl) {
-      console.log(`[yolov8-detect-bottle] Fetching image from imageUrl: ${imageUrl}`);
-      
-      const imageFetchResponse = await fetch(imageUrl);
-      if (!imageFetchResponse.ok) {
-        const errorBody = await imageFetchResponse.text();
-        console.error(`[yolov8-detect-bottle] Failed to fetch image from URL: ${imageFetchResponse.status} - ${errorBody}`);
-        throw new Error(`Failed to fetch image from URL: ${imageFetchResponse.statusText}`);
-      }
-      const imageBlob = await imageFetchResponse.blob();
-      console.log(`[yolov8-detect-bottle] Fetched image type: ${imageBlob.type}`);
-      
-      // Convert blob to base64 data URI
-      const arrayBuffer = await imageBlob.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      let binary = '';
-      for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      base64ImageString = `data:${imageBlob.type};base64,${btoa(binary)}`;
-      console.log(`[yolov8-detect-bottle] Fetched image converted to base64 data URI. Starts with: ${base64ImageString.substring(0, 100)}...`);
+      console.log(`[yolov8-detect-bottle] Using provided imageUrl: ${imageUrl}`);
+      imagePath = imageUrl;
     } else {
       console.error('[yolov8-detect-bottle] Error: Image data or image URL is required in request body.');
       return new Response(JSON.stringify({ error: 'Image data or image URL is required' }), {
@@ -65,34 +47,95 @@ serve(async (req) => {
       });
     }
 
-    console.log(`[yolov8-detect-bottle] Base64 image string length: ${base64ImageString.length}`);
+    console.log(`[yolov8-detect-bottle] Image path (URL or data URI) length: ${imagePath.length}`);
 
-    console.log("[yolov8-detect-bottle] Sending request to YOLOv8 API (Hugging Face Gradio) using /api/predict endpoint...");
-    const yolov8Response = await fetch(`${yolov8ApiUrl}/api/predict`, { // Changed endpoint to /api/predict
+    // --- Step 1: Initiate prediction and get event_id ---
+    console.log("[yolov8-detect-bottle] Sending initial POST request to Gradio API to get event_id...");
+    const initialResponse = await fetch(`${yolov8ApiUrl}/gradio_api/call/predict`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        data: [base64ImageString]
+        data: [{
+          path: imagePath,
+          meta: { _type: "gradio.FileData" }
+        }]
       }),
     });
-    console.log(`[yolov8-detect-bottle] YOLOv8 API response status: ${yolov8Response.status}`);
+    console.log(`[yolov8-detect-bottle] Initial POST response status: ${initialResponse.status}`);
 
-    if (!yolov8Response.ok) {
-      const errorText = await yolov8Response.text();
-      console.error(`[yolov8-detect-bottle] YOLOv8 API responded with non-OK status: ${yolov8Response.status}, body: ${errorText}`);
-      throw new Error(`YOLOv8 API error: ${yolov8Response.status} - ${errorText}`);
+    if (!initialResponse.ok) {
+      const errorText = await initialResponse.text();
+      console.error(`[yolov8-detect-bottle] Initial POST to Gradio API responded with non-OK status: ${initialResponse.status}, body: ${errorText}`);
+      throw new Error(`Gradio API error (initial POST): ${initialResponse.status} - ${errorText}`);
     }
 
-    const yolov8Data = await yolov8Response.json();
-    console.log("[yolov8-detect-bottle] YOLOv8 API full response (truncated for log):", JSON.stringify(yolov8Data, null, 2).substring(0, 500) + "...");
+    const initialData = await initialResponse.json();
+    const eventId = initialData.event_id;
 
-    // Gradio output for /predict typically has the result in `data` array
-    // The first element of the `data` array should be the boolean result
-    const isPlasticBottle = yolov8Data.data && typeof yolov8Data.data[0] === 'boolean' ? yolov8Data.data[0] : false;
-    
-    console.log(`[yolov8-detect-bottle] Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
+    if (!eventId) {
+      console.error('[yolov8-detect-bottle] Error: event_id not found in initial Gradio API response:', initialData);
+      throw new Error('Failed to get event_id from Gradio API.');
+    }
+    console.log(`[yolov8-detect-bottle] Received event_id: ${eventId}`);
+
+    // --- Step 2: Poll for the prediction result ---
+    console.log(`[yolov8-detect-bottle] Polling for prediction result using event_id: ${eventId}`);
+    const pollResponse = await fetch(`${yolov8ApiUrl}/gradio_api/call/predict/${eventId}`);
+    console.log(`[yolov8-detect-bottle] Poll GET response status: ${pollResponse.status}`);
+
+    if (!pollResponse.ok) {
+      const errorText = await pollResponse.text();
+      console.error(`[yolov8-detect-bottle] Poll GET to Gradio API responded with non-OK status: ${pollResponse.status}, body: ${errorText}`);
+      throw new Error(`Gradio API error (poll GET): ${pollResponse.status} - ${errorText}`);
+    }
+
+    if (!pollResponse.body) {
+      throw new Error('Gradio API poll response body is null.');
+    }
+
+    const reader = pollResponse.body.getReader();
+    const decoder = new TextDecoder();
+    let receivedText = '';
+    let isPlasticBottle: boolean | null = null;
+    const timeout = 30 * 1000; // 30 seconds timeout for polling
+    const startTime = Date.now();
+
+    while (true) {
+      if (Date.now() - startTime > timeout) {
+        throw new Error('Gradio API polling timed out.');
+      }
+
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      receivedText += decoder.decode(value, { stream: true });
+      const lines = receivedText.split('\n');
+      receivedText = lines.pop() || ''; // Keep incomplete last line
+
+      for (const line of lines) {
+        if (line.trim()) {
+          try {
+            const json = JSON.parse(line);
+            console.log("[yolov8-detect-bottle] Received Gradio stream message:", json.msg);
+            if (json.msg === 'process_completed' && json.output && Array.isArray(json.output.data)) {
+              isPlasticBottle = typeof json.output.data[0] === 'boolean' ? json.output.data[0] : false;
+              console.log(`[yolov8-detect-bottle] Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
+              reader.cancel(); // Stop reading the stream
+              break;
+            }
+          } catch (e) {
+            console.warn("[yolov8-detect-bottle] Error parsing Gradio stream line:", e);
+          }
+        }
+      }
+      if (isPlasticBottle !== null) break; // Exit loop if result found
+    }
+
+    if (isPlasticBottle === null) {
+      throw new Error('Failed to get plastic bottle detection result from Gradio API.');
+    }
 
     return new Response(JSON.stringify({ is_plastic_bottle: isPlasticBottle }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

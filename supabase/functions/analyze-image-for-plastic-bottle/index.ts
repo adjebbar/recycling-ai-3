@@ -38,23 +38,15 @@ async function getGoogleAccessToken(serviceAccountKey: ServiceAccountKey): Promi
     iat: now,
   };
 
-  // --- DEBUG LOG & Cleaning: Inspect the private key string before import ---
-  const privateKeyString = serviceAccountKey.private_key.trim(); // Trim whitespace
-  // Attempt to remove any non-printable characters that might interfere, except for newlines
-  const cleanedPrivateKeyString = privateKeyString.replace(/[\u0000-\u001F\u007F-\u009F&&[^\n\r]]/g, "");
-
-  console.log("DEBUG: Private key string (first 100 chars):", cleanedPrivateKeyString.substring(0, 100));
-  console.log("DEBUG: Private key string (last 100 chars):", cleanedPrivateKeyString.substring(cleanedPrivateKeyString.length - 100));
-  console.log("DEBUG: Private key string length:", cleanedPrivateKeyString.length);
-  console.log("DEBUG: Private key string contains BEGIN:", cleanedPrivateKeyString.includes('-----BEGIN PRIVATE KEY-----'));
-  console.log("DEBUG: Private key string contains END:", cleanedPrivateKeyString.includes('-----END PRIVATE KEY-----'));
-  // New debug log to visualize newlines
-  console.log("DEBUG: Cleaned Private Key (newlines visible):", cleanedPrivateKeyString.replace(/\n/g, '[NEWLINE]'));
-  // --- END DEBUG LOG & Cleaning ---
+  // --- DEBUG LOG: Log the private key string as it is before import ---
+  const privateKeyToImport = serviceAccountKey.private_key;
+  console.log("DEBUG: Private key string (newlines visible, before import):", privateKeyToImport.replace(/\n/g, '[NEWLINE]'));
+  console.log("DEBUG: Private key string length (before import):", privateKeyToImport.length);
+  // --- END DEBUG LOG ---
 
   const privateKey = await crypto.subtle.importKey(
     "pkcs8",
-    new TextEncoder().encode(cleanedPrivateKeyString),
+    new TextEncoder().encode(privateKeyToImport),
     { name: "RSASSA-PKCS1-V1_5", hash: "SHA-256" },
     false,
     ["sign"]
@@ -120,8 +112,9 @@ serve(async (req) => {
       throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY_JSON is not set in environment variables.');
     }
     console.log("DEBUG: Retrieved GOOGLE_SERVICE_ACCOUNT_KEY_JSON. Length:", googleServiceAccountKeyJson.length);
-    console.log("DEBUG: First 100 chars:", googleServiceAccountKeyJson.substring(0, 100));
-    console.log("DEBUG: Last 100 chars:", googleServiceAccountKeyJson.substring(googleServiceAccountKeyJson.length - 100));
+    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON (first 200 chars):", googleServiceAccountKeyJson.substring(0, 200));
+    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON (last 200 chars):", googleServiceAccountKeyJson.substring(googleServiceAccountKeyJson.length - 200));
+
 
     let serviceAccountKey: ServiceAccountKey;
     try {

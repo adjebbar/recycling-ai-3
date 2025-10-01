@@ -114,11 +114,15 @@ serve(async (req) => {
     console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON (first 200 chars):", googleServiceAccountKeyJson.substring(0, 200));
     console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON length:", googleServiceAccountKeyJson.length);
 
-
-    const serviceAccountKey: ServiceAccountKey = JSON.parse(googleServiceAccountKeyJson);
-    console.log("DEBUG: Parsed serviceAccountKey object (client_email):", serviceAccountKey.client_email);
-    console.log("DEBUG: Parsed serviceAccountKey object (private_key_id):", serviceAccountKey.private_key_id);
-
+    let serviceAccountKey: ServiceAccountKey;
+    try {
+      serviceAccountKey = JSON.parse(googleServiceAccountKeyJson);
+      console.log("DEBUG: Parsed serviceAccountKey object (client_email):", serviceAccountKey.client_email);
+      console.log("DEBUG: Parsed serviceAccountKey object (private_key_id):", serviceAccountKey.private_key_id);
+    } catch (parseError: any) {
+      console.error("ERROR: Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY_JSON:", parseError.message);
+      throw new Error(`Failed to parse Google Service Account Key JSON: ${parseError.message}`);
+    }
 
     const accessToken = await getGoogleAccessToken(serviceAccountKey);
     console.log("Google access token obtained.");

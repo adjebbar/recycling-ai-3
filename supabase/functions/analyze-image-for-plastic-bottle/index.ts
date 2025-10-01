@@ -38,10 +38,15 @@ async function getGoogleAccessToken(serviceAccountKey: ServiceAccountKey): Promi
     iat: now,
   };
 
-  // --- DEBUG LOG: Log the private key string as it is before import ---
-  const privateKeyToImport = serviceAccountKey.private_key;
-  console.log("DEBUG: Private key string (newlines visible, before import):", privateKeyToImport.replace(/\n/g, '[NEWLINE]'));
-  console.log("DEBUG: Private key string length (before import):", privateKeyToImport.length);
+  // --- DEBUG LOG & Cleaning: Explicitly handle newlines and log the exact string for import ---
+  let privateKeyToImport = serviceAccountKey.private_key;
+  // Replace escaped newlines with actual newlines, just in case
+  privateKeyToImport = privateKeyToImport.replace(/\\n/g, '\n');
+  
+  console.log("DEBUG: Private key string (after newline processing, newlines visible):", privateKeyToImport.replace(/\n/g, '[NEWLINE]'));
+  console.log("DEBUG: Private key string length (after newline processing):", privateKeyToImport.length);
+  console.log("DEBUG: Private key string starts with BEGIN:", privateKeyToImport.startsWith('-----BEGIN PRIVATE KEY-----'));
+  console.log("DEBUG: Private key string ends with END:", privateKeyToImport.endsWith('-----END PRIVATE KEY-----'));
   // --- END DEBUG LOG ---
 
   const privateKey = await crypto.subtle.importKey(
@@ -111,10 +116,11 @@ serve(async (req) => {
     if (!googleServiceAccountKeyJson) {
       throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY_JSON is not set in environment variables.');
     }
-    console.log("DEBUG: Retrieved GOOGLE_SERVICE_ACCOUNT_KEY_JSON. Length:", googleServiceAccountKeyJson.length);
-    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON (first 200 chars):", googleServiceAccountKeyJson.substring(0, 200));
-    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON (last 200 chars):", googleServiceAccountKeyJson.substring(googleServiceAccountKeyJson.length - 200));
-
+    // --- NEW DEBUG LOG: Log the raw environment variable content ---
+    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON from Deno.env.get (first 200 chars):", googleServiceAccountKeyJson.substring(0, 200));
+    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON from Deno.env.get (last 200 chars):", googleServiceAccountKeyJson.substring(googleServiceAccountKeyJson.length - 200));
+    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON length:", googleServiceAccountKeyJson.length);
+    // --- END NEW DEBUG LOG ---
 
     let serviceAccountKey: ServiceAccountKey;
     try {

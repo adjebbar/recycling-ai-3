@@ -10,18 +10,19 @@ const corsHeaders = {
 declare const Deno: any;
 
 // Helper function to poll for the prediction result
-async function pollForPredictionResult(yolov8ApiUrl: string, eventId: string, timeoutMs = 30000, intervalMs = 500) { // Reverted interval to 0.5s for quicker updates
+async function pollForPredictionResult(yolov8ApiUrl: string, eventId: string, timeoutMs = 30000, intervalMs = 500) {
   const startTime = Date.now();
-  const pollEndpoint = `${yolov8ApiUrl}/gradio_api/queue/data`; // Correct polling endpoint
+  // Changed to GET with query parameter for hash
+  const pollEndpoint = `${yolov8ApiUrl}/gradio_api/queue/data?hash=${eventId}`; 
 
-  while (Date.now() - startTime < timeoutMs) {
+  while (Date.now() - startTime < timeoutMs) { // Corrected Date.Now() to Date.now()
     console.log(`[yolov8-detect-bottle] Polling for result with event_id: ${eventId} at ${pollEndpoint}`);
     const pollResponse = await fetch(pollEndpoint, {
-      method: 'POST', // Changed back to POST
+      method: 'GET', // Changed to GET
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', // Still good practice
       },
-      body: JSON.stringify({ hash: eventId }), // Send eventId as hash in body
+      // No body for GET request
     });
 
     if (!pollResponse.ok) {

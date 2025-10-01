@@ -110,7 +110,7 @@ serve(async (req) => {
     }
 
     const initialPredictionData = await initialPredictionResponse.json();
-    console.log("[yolov8-detect-bottle] Raw initial prediction data:", initialPredictionData);
+    console.log("[yolov8-detect-bottle] Raw initial prediction data:", JSON.stringify(initialPredictionData, null, 2)); // Log full data
 
     const eventId = initialPredictionData.event_id;
     const sessionHash = initialPredictionData.session_hash; // Extract session_hash

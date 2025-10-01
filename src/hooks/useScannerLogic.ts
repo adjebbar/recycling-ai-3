@@ -42,47 +42,68 @@ const analyzeProductData = (product: any): ValidationResult => {
   console.log("analyzeProductData: Raw product name:", product.product_name);
 
 
-  // --- Phase 1: Prioritize direct packaging info for plastic ---
-  const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc', 'bottle', 'bouteille', 'flacon']; // Added 'bottle', 'bouteille', 'flacon' here
+  // --- Phase 1: Explicit Plastic Packaging (Strongest ACCEPT) ---
+  // If packaging explicitly states plastic, accept.
+  const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc'];
   const isPackagingExplicitlyPlastic = directPackagingPlasticTerms.some(k => {
     const foundInPackaging = packaging.includes(k) || packagingTags.includes(k);
-    if (foundInPackaging) console.log(`DEBUG: ACCEPTED (Phase 1) - Found direct plastic term in packaging: '${k}'.`);
+    if (foundInPackaging) console.log(`DEBUG: ACCEPTED (Phase 1 - Explicit Plastic Packaging) - Found direct plastic term: '${k}'.`);
     return foundInPackaging;
   });
-
   if (isPackagingExplicitlyPlastic) {
     return 'accepted';
   }
 
-  // --- Phase 2: Strong Positive Identification (if it's definitely a plastic bottle from product name/category) ---
-  const directPlasticProductKeywords = [
-    'water bottle', 'soda bottle', 'juice bottle', 'milk bottle', 'detergent bottle', 'shampoo bottle', // Common product types
-    'bouteille d\'eau', 'bouteille de soda', 'bouteille de jus', 'bouteille de lait', 'bouteille de détergent', 'bouteille de shampoing', // French variations
-    'botella de agua', 'botella de refresco', 'botella de jugo', 'botella de leche', 'botella de detergente', 'botella de champú', // Spanish variations
-    'eau minérale', 'boisson gazeuse', 'soft drink', 'boisson rafraîchissante', 'cola', 'limonade', 'soda', // Added more beverage terms
-    'huile végétale', 'vegetable oil', 'aceite vegetal', // Oils often in plastic bottles
-    'coca-cola', 'pepsi', 'fanta', 'sprite', // Specific brand names often in plastic bottles
-    'evian', 'volvic', 'vittel', // Specific water brands
-    'beverages', 'drinks', 'soft drinks', 'eaux', 'jus de fruits', 'sodas', // Added categories
-  ];
-
-  const isPlasticProductDirectlyIdentified = directPlasticProductKeywords.some(k => {
-    const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: ACCEPTED (Phase 2) - Found direct plastic product keyword: '${k}' in searchText.`);
-    return found;
-  });
-
-  if (isPlasticProductDirectlyIdentified) {
-    return 'accepted';
-  }
-
-  // --- Phase 3: Strict Exclusion (if it's definitely NOT plastic) ---
-  const definitiveNonPlasticKeywords = [
+  // --- Phase 2: Explicit Non-Plastic Packaging (Strongest REJECT) ---
+  // If packaging explicitly states non-plastic, reject immediately.
+  const definitiveNonPlasticPackagingTerms = [
     'glass', 'verre', 'vidrio', 'cristal', // Glass
     'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', 'lata', 'hojalata', // Metal
     'carton', 'paper', 'papier', 'wood', 'bois', 'brique', 'tetrapak', 'cartón', 'papel', 'madera', // Paper/Cardboard/Wood
-    'ceramic', 'céramique', 'cerámica', // Ceramic
     'aerosol', 'spray', 'bombe', // Aerosol cans
+  ];
+  const isPackagingExplicitlyNonPlastic = definitiveNonPlasticPackagingTerms.some(k => {
+    const foundInPackaging = packaging.includes(k) || packagingTags.includes(k);
+    if (foundInPackaging) console.log(`DEBUG: REJECTED (Phase 2 - Explicit Non-Plastic Packaging) - Found definitive non-plastic term: '${k}'.`);
+    return foundInPackaging;
+  });
+  if (isPackagingExplicitlyNonPlastic) {
+    return 'rejected';
+  }
+
+  // --- Phase 3: Heuristics for Plastic Bottle Products (ACCEPT based on product type/name) ---
+  // If product name/category strongly suggests a plastic bottle, accept.
+  const strongPlasticProductKeywords = [
+    'water bottle', 'soda bottle', 'juice bottle', 'milk bottle', 'detergent bottle', 'shampoo bottle', // Common product types
+    'bouteille d\'eau', 'bouteille de soda', 'bouteille de jus', 'bouteille de lait', 'bouteille de détergent', 'bouteille de shampoing', // French variations
+    'botella de agua', 'botella de refresco', 'botella de jugo', 'botella de leche', 'botella de detergente', 'botella de champú', // Spanish variations
+    'eau minérale', 'boisson gazeuse', 'soft drink', 'boisson rafraîchissante',
+    'huile végétale', 'vegetable oil', 'aceite vegetal', // Oils often in plastic bottles
+    'shampoo', 'conditioner', 'gel douche', 'body wash', 'lotion', 'detergent', 'liquide vaisselle',
+    'champú', 'acondicionador', 'gel de ducha', 'loción', 'detergente',
+    'bouteille', 'flacon', 'bottle', // Generic bottle terms, but less strong than explicit packaging
+  ];
+  const isStronglyPlasticProduct = strongPlasticProductKeywords.some(k => {
+    const found = searchText.includes(k);
+    if (found) console.log(`DEBUG: ACCEPTED (Phase 3 - Strong Plastic Product Heuristic) - Found strong plastic product keyword: '${k}' in searchText.`);
+    return found;
+  });
+  if (isStronglyPlasticProduct) {
+    return 'accepted';
+  }
+
+  // --- Phase 4: Heuristics for Non-Plastic Products (REJECT based on product type/name) ---
+  // If product name/category strongly suggests a non-plastic item (e.g., a can of soda, but not explicitly stated in packaging)
+  const strongNonPlasticProductKeywords = [
+    'can of', 'canette de', 'lata de', // "can of soda"
+    'glass jar', 'pot en verre', 'tarro de cristal',
+    'carton of', 'brique de', // "carton of milk"
+    'beer', 'bière', 'cerveza', // Often in cans/glass
+    'wine', 'vin', 'vino', // Often in glass bottles
+    'coffee', 'café', // Often in bags/jars
+    'tea', 'thé', // Often in bags/boxes
+    'chocolate bar', 'barre de chocolat', // Solid food
+    'crisps', 'chips', // Bags
     'film', 'pellicule', 'wrap', 'emballage souple', 'película', 'envoltura', // Films/wraps
     'box', 'boîte', 'caja', // Boxes
     'pouch', 'sachet', 'bolsa', // Pouches/bags
@@ -90,34 +111,17 @@ const analyzeProductData = (product: any): ValidationResult => {
     'cup', 'tasse', 'gobelet', 'plate', 'assiette', 'tray', 'barquette', // Non-bottle containers
     'jar', 'pot', 'bocal', 'tarro', 'frasco', // Often glass jars, but can be plastic, so lower priority than direct plastic terms
   ];
-
-  const isDefinitelyNonPlastic = definitiveNonPlasticKeywords.some(k => {
+  const isStronglyNonPlasticProduct = strongNonPlasticProductKeywords.some(k => {
     const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: REJECTED (Phase 3) - Found definitive non-plastic keyword: '${k}' in searchText.`);
+    if (found) console.log(`DEBUG: REJECTED (Phase 4 - Strong Non-Plastic Product Heuristic) - Found strong non-plastic product keyword: '${k}' in searchText.`);
     return found;
   });
-
-  if (isDefinitelyNonPlastic) {
+  if (isStronglyNonPlasticProduct) {
     return 'rejected';
   }
 
-  // --- Phase 4: Heuristics for common bottle types (if not explicitly identified or excluded) ---
-  const bottleTerms = ['bottle', 'bouteille', 'botella', 'flacon', 'container', 'récipient', 'envase', 'frasco'];
-  const liquidProductKeywords = [
-    'water', 'eau', 'agua', 'mineral water', 'eau minérale', 'agua mineral',
-    'drink', 'boisson', 'bebida', 'soda', 'jus', 'juice', 'zumo',
-    'milk', 'lait', 'leche', 'yogurt drink', 'boisson lactée', 'bebida láctea',
-    'oil', 'huile', 'aceite', 'vinegar', 'vinaigre', 'vinagre',
-    'shampoo', 'conditioner', 'gel douche', 'body wash', 'lotion', 'detergent', 'liquide vaisselle', 'champú', 'acondicionador', 'gel de ducha', 'loción', 'detergente',
-  ];
-
-  const isBottleAndLiquid = bottleTerms.some(k => searchText.includes(k)) && liquidProductKeywords.some(k => searchText.includes(k));
-  if (isBottleAndLiquid) {
-    console.log("DEBUG: ACCEPTED (Phase 4) - Found combination of bottle and liquid product keywords.");
-    return 'accepted';
-  }
-
   // --- Phase 5: Inconclusive (if no strong decision can be made from text) ---
+  // If no strong decision can be made from text, recommend image analysis.
   const packagingInfoPresent = packaging.length > 0 || packagingTags.length > 0;
   if (!packagingInfoPresent) {
     console.log("DEBUG: INCONCLUSIVE (Phase 5) - No packaging info found. Recommending image analysis.");

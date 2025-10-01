@@ -33,17 +33,14 @@ serve(async (req) => {
     yolov8ApiUrl = yolov8ApiUrl.endsWith('/') ? yolov8ApiUrl.slice(0, -1) : yolov8ApiUrl;
     console.log(`[yolov8-detect-bottle] Normalized YOLOv8 API URL from env: ${yolov8ApiUrl}`);
 
-    let gradioInputData: any;
+    let imageSource: string;
 
     if (imageData) {
-      console.log("[yolov8-detect-bottle] Using provided imageData (base64 data URI) directly in Gradio input.");
-      gradioInputData = imageData; // Pass base64 data URI directly
+      console.log("[yolov8-detect-bottle] Using provided imageData (base64 data URI).");
+      imageSource = imageData;
     } else if (imageUrl) {
-      console.log(`[yolov8-detect-bottle] Using provided imageUrl: ${imageUrl} with Gradio FileData structure.`);
-      gradioInputData = {
-        path: imageUrl,
-        meta: { _type: "gradio.FileData" }
-      };
+      console.log(`[yolov8-detect-bottle] Using provided imageUrl: ${imageUrl}`);
+      imageSource = imageUrl;
     } else {
       console.error('[yolov8-detect-bottle] Error: Image data or image URL is required in request body.');
       return new Response(JSON.stringify({ error: 'Image data or image URL is required' }), {
@@ -51,6 +48,13 @@ serve(async (req) => {
         status: 400,
       });
     }
+
+    console.log(`[yolov8-detect-bottle] Image source (URL or data URI) length: ${imageSource.length}`);
+
+    const gradioInputData = {
+      path: imageSource,
+      meta: { _type: "gradio.FileData" }
+    };
 
     // --- Step 1: Initiate prediction and get event_id ---
     const predictEndpoint = `${yolov8ApiUrl}/gradio_api/call/predict`;
@@ -61,7 +65,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        data: [gradioInputData] // Use the dynamically formatted input data
+        data: [gradioInputData] // Use the consistently formatted input data
       }),
     });
     console.log(`[yolov8-detect-bottle] Initial POST response status: ${initialResponse.status}`);

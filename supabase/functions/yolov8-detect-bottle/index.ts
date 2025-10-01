@@ -41,6 +41,8 @@ serve(async (req) => {
       
       const imageFetchResponse = await fetch(imageUrl);
       if (!imageFetchResponse.ok) {
+        const errorBody = await imageFetchResponse.text();
+        console.error(`[yolov8-detect-bottle] Failed to fetch image from URL: ${imageFetchResponse.status} - ${errorBody}`);
         throw new Error(`Failed to fetch image from URL: ${imageFetchResponse.statusText}`);
       }
       const imageBlob = await imageFetchResponse.blob();
@@ -61,6 +63,8 @@ serve(async (req) => {
         status: 400,
       });
     }
+
+    console.log(`[yolov8-detect-bottle] Base64 image string length: ${base64ImageString.length}`);
 
     console.log("[yolov8-detect-bottle] Sending request to YOLOv8 API (Hugging Face Gradio)...");
     const yolov8Response = await fetch(yolov8ApiUrl, {

@@ -103,7 +103,13 @@ const analyzeProductData = (product: any): ValidationResult => {
   }
 
   // --- Phase 4: Inconclusive (if no strong decision can be made from text) ---
-  console.log("analyzeProductData: INCONCLUSIVE - Text analysis not definitive. Recommending image analysis.");
+  // Explicitly check if packaging info was vague or missing
+  const packagingInfoPresent = packaging.length > 0 || packagingTags.length > 0;
+  if (!packagingInfoPresent || (packagingInfoPresent && !isPlasticDirectlyIdentified && !isDefinitelyNonPlastic)) {
+    console.log("DEBUG: INCONCLUSIVE - Packaging info missing or vague, or text analysis not definitive. Recommending image analysis.");
+  } else {
+    console.log("analyzeProductData: INCONCLUSIVE - Text analysis not definitive. Recommending image analysis.");
+  }
   return 'inconclusive';
 };
 

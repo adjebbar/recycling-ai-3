@@ -33,12 +33,11 @@ serve(async (req) => {
     console.log(`[analyze-image-for-plastic-bottle] Roboflow API key found: ${roboflowApiKey ? 'YES' : 'NO'}`);
     console.log(`[analyze-image-for-plastic-bottle] Roboflow Workflow URL found: ${roboflowWorkflowUrl}`);
 
-    const roboflowApiUrl = roboflowWorkflowUrl; // Use the workflow URL
+    // Append API key as a query parameter
+    const roboflowApiUrl = `${roboflowWorkflowUrl}?api_key=${roboflowApiKey}`;
     console.log(`[analyze-image-for-plastic-bottle] Constructed Roboflow API URL for POST: ${roboflowApiUrl}`);
 
-    const requestHeaders: HeadersInit = {
-      'Authorization': `Bearer ${roboflowApiKey}`, // Use Bearer token
-    };
+    const requestHeaders: HeadersInit = {}; // Removed Authorization header
     let requestBody: FormData;
 
     if (imageData) {

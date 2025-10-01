@@ -73,7 +73,8 @@ serve(async (req) => {
     }
 
     const roboflowData = await roboflowResponse.json();
-    console.log("Roboflow Workflow API response received:", JSON.stringify(roboflowData, null, 2));
+    // Log the entire Roboflow response for debugging
+    console.log("Roboflow Workflow API full response:", JSON.stringify(roboflowData, null, 2));
 
     let isPlasticBottle = false;
     const confidenceThreshold = 0.7; // 70% confidence

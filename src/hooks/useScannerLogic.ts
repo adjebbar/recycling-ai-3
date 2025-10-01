@@ -35,6 +35,21 @@ const analyzeProductData = (product: any): ValidationResult => {
   ].filter(Boolean).join(' ');
 
   console.log("analyzeProductData: Final searchText for analysis:", searchText);
+  console.log("analyzeProductData: Raw product packaging:", product.packaging);
+  console.log("analyzeProductData: Raw product packaging_tags:", product.packaging_tags);
+
+
+  // --- NEW: Prioritize direct packaging info for plastic ---
+  const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc'];
+  const isPackagingExplicitlyPlastic = directPackagingPlasticTerms.some(k => {
+    const foundInPackaging = packaging.includes(k) || packagingTags.includes(k);
+    if (foundInPackaging) console.log(`DEBUG: ACCEPTED - Found direct plastic term in packaging: '${k}'.`);
+    return foundInPackaging;
+  });
+
+  if (isPackagingExplicitlyPlastic) {
+    return 'accepted';
+  }
 
   // --- Phase 1: Strong Positive Identification (if it's definitely a plastic bottle) ---
   const directPlasticTerms = [
@@ -49,6 +64,8 @@ const analyzeProductData = (product: any): ValidationResult => {
     'botella de agua', 'botella de refresco', 'botella de jugo', 'botella de leche', 'botella de detergente', 'botella de champú', // Spanish common products
     'eau minérale', 'boisson gazeuse', 'soft drink', 'boisson rafraîchissante', // Common liquid products often in plastic bottles
     'huile végétale', 'vegetable oil', 'aceite vegetal', // Oils often in plastic bottles
+    'bouteille de boisson', 'bouteille de soda', 'bouteille de jus', // More specific French terms
+    'bouteille d\'eau', 'eau en bouteille', // More specific French water terms
   ];
 
   const isPlasticDirectlyIdentified = directPlasticTerms.some(k => {

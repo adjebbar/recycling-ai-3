@@ -46,7 +46,7 @@ async function getGoogleAccessToken(serviceAccountKey: ServiceAccountKey): Promi
 
   const privateKey = await crypto.subtle.importKey(
     "pkcs8",
-    new TextEncoder().encode(serviceAccountKey.private_key), // Removed .replace(/\\n/g, '\n')
+    new TextEncoder().encode(serviceAccountKey.private_key),
     { name: "RSASSA-PKCS1-V1_5", hash: "SHA-256" },
     false,
     ["sign"]
@@ -111,8 +111,15 @@ serve(async (req) => {
     if (!googleServiceAccountKeyJson) {
       throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY_JSON is not set in environment variables.');
     }
+    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON (first 200 chars):", googleServiceAccountKeyJson.substring(0, 200));
+    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON length:", googleServiceAccountKeyJson.length);
+
 
     const serviceAccountKey: ServiceAccountKey = JSON.parse(googleServiceAccountKeyJson);
+    console.log("DEBUG: Parsed serviceAccountKey object (client_email):", serviceAccountKey.client_email);
+    console.log("DEBUG: Parsed serviceAccountKey object (private_key_id):", serviceAccountKey.private_key_id);
+
+
     const accessToken = await getGoogleAccessToken(serviceAccountKey);
     console.log("Google access token obtained.");
 

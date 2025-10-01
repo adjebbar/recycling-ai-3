@@ -36,10 +36,10 @@ serve(async (req) => {
       });
     }
 
-    // CORRECTIF : Extraire l'origine (base URL) pour éviter de concaténer les chemins
     const url = new URL(yolov8ApiUrl);
-    const baseUrl = url.origin; // ex: "https://djaber2025-yolov8-bottle-detector.hf.space"
-    const predictEndpoint = `${baseUrl}/run/predict`;
+    const baseUrl = url.origin;
+    // CHANGEMENT : Utilisation du point d'accès /api/predict
+    const predictEndpoint = `${baseUrl}/api/predict`;
     
     console.log(`[yolov8-detect-bottle] Sending POST request to Hugging Face API: ${predictEndpoint}`);
 
@@ -49,7 +49,9 @@ serve(async (req) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${huggingFaceToken}`,
       },
+      // CHANGEMENT : Utilisation du format de payload pour /api/predict
       body: JSON.stringify({
+        fn_index: 0, // Requis pour /api/predict
         data: [imageSource],
       }),
     });

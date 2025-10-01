@@ -17,8 +17,8 @@ serve(async (req) => {
   }
 
   try {
-    const { imageData, imageUrl, productName } = await req.json();
-    console.log(`[yolov8-detect-bottle] Received request: imageData present: ${!!imageData}, imageUrl present: ${!!imageUrl}, productName: ${productName}`);
+    const { imageData, imageUrl } = await req.json(); // Removed productName as Gradio API doesn't use it
+    console.log(`[yolov8-detect-bottle] Received request: imageData present: ${!!imageData}, imageUrl present: ${!!imageUrl}`);
     
     const yolov8ApiUrl = Deno.env.get('YOLOV8_API_URL');
 
@@ -31,34 +31,29 @@ serve(async (req) => {
     }
     console.log(`[yolov8-detect-bottle] YOLOv8 API URL found: ${yolov8ApiUrl}`);
 
-    let requestBody: FormData;
+    let base64ImageString: string;
 
     if (imageData) {
-      console.log("[yolov8-detect-bottle] Processing imageData (base64).");
-      const byteString = atob(imageData.split(',')[1]);
-      const mimeString = imageData.split(',')[0].split(':')[1].split(';')[0];
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-      const blob = new Blob([ab], { type: mimeString });
-      requestBody = new FormData();
-      requestBody.append("image", blob, "image.jpeg");
-      console.log("[yolov8-detect-bottle] Appended base64 image as Blob to FormData.");
+      console.log("[yolov8-detect-bottle] Using provided imageData (base64).");
+      base64ImageString = imageData; // imageData is already a data URI
     } else if (imageUrl) {
-      console.log(`[yolov8-detect-bottle] Processing imageUrl: ${imageUrl}`);
+      console.log(`[yolov8-detect-bottle] Fetching image from imageUrl: ${imageUrl}`);
       
-      // Fetch the image from the URL
       const imageFetchResponse = await fetch(imageUrl);
       if (!imageFetchResponse.ok) {
         throw new Error(`Failed to fetch image from URL: ${imageFetchResponse.statusText}`);
       }
       const imageBlob = await imageFetchResponse.blob();
       
-      requestBody = new FormData();
-      requestBody.append("image", imageBlob, "image.jpeg"); // Append the fetched image blob
-      console.log(`[yolov8-detect-bottle] Appended fetched image Blob to FormData.`);
+      // Convert blob to base64 data URI
+      const arrayBuffer = await imageBlob.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      base64ImageString = `data:${imageBlob.type};base64,${btoa(binary)}`;
+      console.log(`[yolov8-detect-bottle] Fetched image converted to base64 data URI.`);
     } else {
       console.error('[yolov8-detect-bottle] Error: Image data or image URL is required in request body.');
       return new Response(JSON.stringify({ error: 'Image data or image URL is required' }), {
@@ -67,10 +62,13 @@ serve(async (req) => {
       });
     }
 
-    console.log("[yolov8-detect-bottle] Sending request to YOLOv8 API...");
+    console.log("[yolov8-detect-bottle] Sending request to YOLOv8 API (Hugging Face Gradio)...");
     const yolov8Response = await fetch(yolov8ApiUrl, {
       method: 'POST',
-      body: requestBody, // FormData automatically sets Content-Type: multipart/form-data
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ data: [base64ImageString] }), // Gradio API expects JSON with 'data' array
     });
     console.log(`[yolov8-detect-bottle] YOLOv8 API response status: ${yolov8Response.status}`);
 
@@ -83,25 +81,9 @@ serve(async (req) => {
     const yolov8Data = await yolov8Response.json();
     console.log("[yolov8-detect-bottle] YOLOv8 API full response (truncated for log):", JSON.stringify(yolov8Data, null, 2).substring(0, 500) + "...");
 
-    let isPlasticBottle = false;
-    const confidenceThreshold = 0.7; // 70% confidence
-
-    // Assuming the YOLOv8 API returns a structure similar to Roboflow's predictions/detections
-    // You might need to adjust this parsing based on your actual YOLOv8 API response format
-    if (yolov8Data.predictions && Array.isArray(yolov8Data.predictions)) {
-      isPlasticBottle = yolov8Data.predictions.some((prediction: any) =>
-        prediction.class.toLowerCase().includes('plastic bottle') && prediction.confidence > confidenceThreshold
-      );
-      if (isPlasticBottle) console.log("[yolov8-detect-bottle] Plastic bottle identified via YOLOv8 predictions.");
-    } else if (yolov8Data.detections && Array.isArray(yolov8Data.detections)) {
-      isPlasticBottle = yolov8Data.detections.some((detection: any) =>
-        detection.class.toLowerCase().includes('plastic bottle') && detection.confidence > confidenceThreshold
-      );
-      if (isPlasticBottle) console.log("[yolov8-detect-bottle] Plastic bottle identified via YOLOv8 detections.");
-    } else {
-      console.warn("[yolov8-detect-bottle] YOLOv8 response did not contain expected 'predictions' or 'detections' structure. Please check your YOLOv8 API response format.");
-    }
-
+    // Gradio output is [boolean, image_base64_string]
+    const isPlasticBottle = yolov8Data.data && typeof yolov8Data.data[0] === 'boolean' ? yolov8Data.data[0] : false;
+    
     console.log(`[yolov8-detect-bottle] Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
 
     return new Response(JSON.stringify({ is_plastic_bottle: isPlasticBottle }), {

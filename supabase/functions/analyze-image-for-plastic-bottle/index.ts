@@ -56,8 +56,8 @@ serve(async (req) => {
 
     console.log("Sending request to Roboflow API with FormData...");
     const roboflowResponse = await fetch(roboflowApiUrl, {
-      method: 'POST',
-      body: formData, // Deno's fetch will automatically set Content-Type: multipart/form-data
+      method: 'POST', // This is explicitly set to POST
+      body: formData, // This is the FormData object
     });
 
     if (!roboflowResponse.ok) {

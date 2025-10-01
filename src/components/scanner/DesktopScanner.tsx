@@ -12,10 +12,11 @@ import { useTranslation } from 'react-i18next';
 interface DesktopScannerProps {
   state: any;
   actions: any;
-  fileInputRef: React.RefObject<HTMLInputElement>; // Add fileInputRef prop
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  scanFailureMessage: string | null; // New prop
 }
 
-export const DesktopScanner = ({ state, actions, fileInputRef }: DesktopScannerProps) => {
+export const DesktopScanner = ({ state, actions, fileInputRef, scanFailureMessage }: DesktopScannerProps) => {
   const { t } = useTranslation();
 
   return (
@@ -34,7 +35,7 @@ export const DesktopScanner = ({ state, actions, fileInputRef }: DesktopScannerP
                 onCapture={actions.handleImageCapture}
                 onAnalyze={actions.handleImageAnalysis}
                 onCancel={() => actions.updateState({ imageAnalysisMode: false })}
-                fileInputRef={fileInputRef} // Pass fileInputRef
+                fileInputRef={fileInputRef}
               />
             ) : (
               <div className="w-full max-w-xs mx-auto h-96 overflow-hidden rounded-md relative">
@@ -42,6 +43,7 @@ export const DesktopScanner = ({ state, actions, fileInputRef }: DesktopScannerP
                   onScanSuccess={actions.processBarcode}
                   onScanFailure={(error: string) => actions.updateState({ scanFailureMessage: t('scanner.noBarcodeDetected') })}
                   onCameraInitError={(error: string) => actions.updateState({ cameraInitializationError: error })}
+                  message={scanFailureMessage} // Pass the message
                 />
               </div>
             )}

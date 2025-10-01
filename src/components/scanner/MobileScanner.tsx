@@ -11,10 +11,11 @@ import { useTranslation } from 'react-i18next';
 interface MobileScannerProps {
   state: any;
   actions: any;
-  fileInputRef: React.RefObject<HTMLInputElement>; // Add fileInputRef prop
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  scanFailureMessage: string | null; // New prop
 }
 
-export const MobileScanner = ({ state, actions, fileInputRef }: MobileScannerProps) => {
+export const MobileScanner = ({ state, actions, fileInputRef, scanFailureMessage }: MobileScannerProps) => {
   const { t } = useTranslation();
 
   if (state.cameraInitializationError) {
@@ -38,7 +39,7 @@ export const MobileScanner = ({ state, actions, fileInputRef }: MobileScannerPro
         onCapture={actions.handleImageCapture}
         onAnalyze={actions.handleImageAnalysis}
         onCancel={() => actions.updateState({ imageAnalysisMode: false })}
-        fileInputRef={fileInputRef} // Pass fileInputRef
+        fileInputRef={fileInputRef}
       />
     );
   }
@@ -50,6 +51,7 @@ export const MobileScanner = ({ state, actions, fileInputRef }: MobileScannerPro
           onScanSuccess={actions.processBarcode}
           onScanFailure={(error: string) => actions.updateState({ scanFailureMessage: t('scanner.noBarcodeDetected') })}
           onCameraInitError={(error: string) => actions.updateState({ cameraInitializationError: error })}
+          message={scanFailureMessage} // Pass the message
         />
       </AspectRatio>
     </div>

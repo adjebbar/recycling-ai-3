@@ -20,6 +20,11 @@ serve(async (req) => {
     const yolov8ApiUrl = Deno.env.get('YOLOV8_API_URL');
     const huggingFaceToken = Deno.env.get('HUGGINGFACE_TOKEN');
 
+    // NOUVEAUX LOGS DE DÉBOGAGE POUR LES VARIABLES D'ENVIRONNEMENT
+    console.log(`[yolov8-detect-bottle] YOLOV8_API_URL: ${yolov8ApiUrl ? 'Set' : 'Not Set'}`);
+    console.log(`[yolov8-detect-bottle] HUGGINGFACE_TOKEN: ${huggingFaceToken ? 'Set' : 'Not Set'}`);
+
+
     if (!yolov8ApiUrl || !huggingFaceToken) {
       throw new Error('YOLOV8_API_URL and HUGGINGFACE_TOKEN must be set in environment variables.');
     }

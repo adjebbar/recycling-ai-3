@@ -20,7 +20,7 @@ serve(async (req) => {
     const { imageData, imageUrl } = await req.json();
     console.log(`[yolov8-detect-bottle] Received request: imageData present: ${!!imageData}, imageUrl present: ${!!imageUrl}`);
     
-    const yolov8ApiUrl = Deno.env.get('YOLOV8_API_URL');
+    let yolov8ApiUrl = Deno.env.get('YOLOV8_API_URL');
 
     if (!yolov8ApiUrl) {
       console.error('[yolov8-detect-bottle] Error: YOLOV8_API_URL is not set in environment variables.');
@@ -29,7 +29,9 @@ serve(async (req) => {
         status: 500,
       });
     }
-    console.log(`[yolov8-detect-bottle] YOLOv8 API URL from env: ${yolov8ApiUrl}`);
+    // Ensure no trailing slash on the base URL to prevent double slashes when appending paths
+    yolov8ApiUrl = yolov8ApiUrl.endsWith('/') ? yolov8ApiUrl.slice(0, -1) : yolov8ApiUrl;
+    console.log(`[yolov8-detect-bottle] Normalized YOLOv8 API URL from env: ${yolov8ApiUrl}`);
 
     let imagePath: string; // This will hold either the imageUrl or the base64 data URI
 
@@ -50,8 +52,9 @@ serve(async (req) => {
     console.log(`[yolov8-detect-bottle] Image path (URL or data URI) length: ${imagePath.length}`);
 
     // --- Step 1: Initiate prediction and get event_id ---
-    console.log("[yolov8-detect-bottle] Sending initial POST request to Gradio API to get event_id...");
-    const initialResponse = await fetch(`${yolov8ApiUrl}/gradio_api/call/predict`, {
+    const predictEndpoint = `${yolov8ApiUrl}/gradio_api/call/predict`;
+    console.log(`[yolov8-detect-bottle] Sending initial POST request to Gradio API endpoint: ${predictEndpoint}`);
+    const initialResponse = await fetch(predictEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -81,8 +84,9 @@ serve(async (req) => {
     console.log(`[yolov8-detect-bottle] Received event_id: ${eventId}`);
 
     // --- Step 2: Poll for the prediction result ---
-    console.log(`[yolov8-detect-bottle] Polling for prediction result using event_id: ${eventId}`);
-    const pollResponse = await fetch(`${yolov8ApiUrl}/gradio_api/call/predict/${eventId}`);
+    const pollEndpoint = `${yolov8ApiUrl}/gradio_api/call/predict/${eventId}`;
+    console.log(`[yolov8-detect-bottle] Polling for prediction result using endpoint: ${pollEndpoint}`);
+    const pollResponse = await fetch(pollEndpoint);
     console.log(`[yolov8-detect-bottle] Poll GET response status: ${pollResponse.status}`);
 
     if (!pollResponse.ok) {

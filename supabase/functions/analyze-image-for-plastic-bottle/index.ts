@@ -29,7 +29,8 @@ serve(async (req) => {
     const roboflowApiUrl = `https://serverless.roboflow.com/detect-bottles?api_key=${roboflowApiKey}`;
     console.log(`Constructed Roboflow API URL for POST: ${roboflowApiUrl}`);
 
-    const formData = new FormData();
+    let requestBody: FormData | URLSearchParams;
+    let requestHeaders: HeadersInit = {};
 
     if (imageData) {
       // Convert base64 to Blob for multipart/form-data
@@ -41,11 +42,16 @@ serve(async (req) => {
         ia[i] = byteString.charCodeAt(i);
       }
       const blob = new Blob([ab], { type: mimeString });
-      formData.append("image", blob, "image.jpeg"); // Append as a file
+      requestBody = new FormData();
+      requestBody.append("image", blob, "image.jpeg"); // Append as a file
       console.log("Appended base64 image as Blob to FormData.");
+      // Content-Type will be automatically set to multipart/form-data by fetch
     } else if (imageUrl) {
-      formData.append("image", imageUrl); // Append URL directly
-      console.log(`Appended image URL '${imageUrl}' to FormData.`);
+      // Use application/x-www-form-urlencoded for image URLs
+      requestBody = new URLSearchParams();
+      requestBody.append("image", imageUrl);
+      requestHeaders['Content-Type'] = 'application/x-www-form-urlencoded';
+      console.log(`Appended image URL '${imageUrl}' to URLSearchParams with Content-Type: application/x-www-form-urlencoded.`);
     } else {
       console.error('Error: Image data or image URL is required in request body.');
       return new Response(JSON.stringify({ error: 'Image data or image URL is required' }), {
@@ -54,10 +60,11 @@ serve(async (req) => {
       });
     }
 
-    console.log("Sending request to Roboflow API with FormData...");
+    console.log("Sending request to Roboflow API...");
     const roboflowResponse = await fetch(roboflowApiUrl, {
-      method: 'POST', // This is explicitly set to POST
-      body: formData, // This is the FormData object
+      method: 'POST',
+      headers: requestHeaders,
+      body: requestBody,
     });
 
     if (!roboflowResponse.ok) {

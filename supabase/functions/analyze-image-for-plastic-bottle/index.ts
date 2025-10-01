@@ -38,6 +38,12 @@ async function getGoogleAccessToken(serviceAccountKey: ServiceAccountKey): Promi
     iat: now,
   };
 
+  // --- DEBUG LOG: Inspect the private key string before import ---
+  console.log("DEBUG: Private key string (first 100 chars):", serviceAccountKey.private_key.substring(0, 100));
+  console.log("DEBUG: Private key string (last 100 chars):", serviceAccountKey.private_key.substring(serviceAccountKey.private_key.length - 100));
+  console.log("DEBUG: Private key string length:", serviceAccountKey.private_key.length);
+  // --- END DEBUG LOG ---
+
   const privateKey = await crypto.subtle.importKey(
     "pkcs8",
     new TextEncoder().encode(serviceAccountKey.private_key.replace(/\\n/g, '\n')), // Handle escaped newlines

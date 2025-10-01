@@ -13,7 +13,7 @@ import { Html5QrcodeScanner } from 'html5-qrcode'; // Import Html5QrcodeScanner 
 const POINTS_PER_BOTTLE = 10;
 const IMAGE_ANALYSIS_DELAY_MS = 1500; // 1.5 seconds delay before triggering image analysis
 
-type ValidationResult = 'accepted' | 'rejected' | 'inconclusive';
+type ValidationResult = 'accepted' | 'rejected' | { type: 'inconclusive', reason: 'no_packaging_info' | 'vague_text_info' };
 
 const analyzeProductData = (product: any): ValidationResult => {
   // Aggregate all relevant text fields for comprehensive analysis
@@ -103,14 +103,14 @@ const analyzeProductData = (product: any): ValidationResult => {
   }
 
   // --- Phase 4: Inconclusive (if no strong decision can be made from text) ---
-  // Explicitly check if packaging info was vague or missing
   const packagingInfoPresent = packaging.length > 0 || packagingTags.length > 0;
-  if (!packagingInfoPresent || (packagingInfoPresent && !isPlasticDirectlyIdentified && !isDefinitelyNonPlastic)) {
-    console.log("DEBUG: INCONCLUSIVE - Packaging info missing or vague, or text analysis not definitive. Recommending image analysis.");
+  if (!packagingInfoPresent) {
+    console.log("DEBUG: INCONCLUSIVE - No packaging info found. Recommending image analysis.");
+    return { type: 'inconclusive', reason: 'no_packaging_info' };
   } else {
-    console.log("analyzeProductData: INCONCLUSIVE - Text analysis not definitive. Recommending image analysis.");
+    console.log("DEBUG: INCONCLUSIVE - Vague text analysis. Recommending image analysis.");
+    return { type: 'inconclusive', reason: 'vague_text_info' };
   }
-  return 'inconclusive';
 };
 
 export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeScanner | null>) => {
@@ -271,31 +271,29 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
         const validation = analyzeProductData(data.product);
         console.log("processBarcode: Product validation result:", validation); // Log the validation result
 
-        switch (validation) {
-          case 'accepted':
-            await handleSuccessfulRecycle(barcode);
-            updateState({ scanResult: { type: 'success', message: t('scanner.success', { points: POINTS_PER_BOTTLE }), imageUrl } });
-            break;
-          case 'rejected':
-            const rejectMessage = t('scanner.notPlastic');
-            showError(rejectMessage);
-            updateState({ scanResult: { type: 'error', message: rejectMessage } }); 
-            triggerPiConveyor('rejected');
-            break;
-          case 'inconclusive':
-            imageAnalysisTriggered = true; // Set flag
-            if (imageUrl) {
-              toast.info("Barcode data unclear. Analyzing product image for confirmation...");
-              await handleImageAnalysisFromProductData(imageUrl, barcode, productName); // Pass productName
-            } else if (isManual) {
-              const inconclusiveMessage = "Barcode data is inconclusive and no product image is available. Please use the camera scanner for a visual check.";
-              showError(inconclusiveMessage);
-              updateState({ scanResult: { type: 'error', message: inconclusiveMessage, imageUrl } });
-            } else {
-              toast.info("Barcode data unclear. Analyzing camera feed for confirmation...");
-              setTimeout(handleAutomaticImageAnalysisFromLiveCamera, IMAGE_ANALYSIS_DELAY_MS);
-            }
-            break;
+        if (validation === 'accepted') {
+          await handleSuccessfulRecycle(barcode);
+          updateState({ scanResult: { type: 'success', message: t('scanner.success', { points: POINTS_PER_BOTTLE }), imageUrl } });
+        } else if (validation === 'rejected') {
+          const rejectMessage = t('scanner.notPlastic');
+          showError(rejectMessage);
+          updateState({ scanResult: { type: 'error', message: rejectMessage } }); 
+          triggerPiConveyor('rejected');
+        } else { // validation is { type: 'inconclusive', reason: ... }
+          imageAnalysisTriggered = true;
+          const reason = validation.reason; // Access the specific reason
+
+          if (imageUrl) {
+            toast.info(`Barcode data inconclusive (${reason}). Analyzing product image from Open Food Facts for confirmation...`);
+            await handleImageAnalysisFromProductData(imageUrl, barcode, productName); // Pass productName
+          } else if (isManual) {
+            const inconclusiveMessage = `Barcode data is inconclusive (${reason}) and no product image is available. Please use the camera scanner for a visual check.`;
+            showError(inconclusiveMessage);
+            updateState({ scanResult: { type: 'error', message: inconclusiveMessage, imageUrl } });
+          } else {
+            toast.info(`Barcode data inconclusive (${reason}). Analyzing camera feed for confirmation...`);
+            setTimeout(handleAutomaticImageAnalysisFromLiveCamera, IMAGE_ANALYSIS_DELAY_MS);
+          }
         }
       } else {
         const notFoundMessage = t('scanner.notFound');

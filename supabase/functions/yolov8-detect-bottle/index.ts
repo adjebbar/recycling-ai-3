@@ -67,15 +67,13 @@ serve(async (req) => {
 
     console.log(`[yolov8-detect-bottle] Base64 image string length: ${base64ImageString.length}`);
 
-    console.log("[yolov8-detect-bottle] Sending request to YOLOv8 API (Hugging Face Gradio) using /predict endpoint...");
-    // Use the /predict endpoint as suggested by the Gradio client example
-    const yolov8Response = await fetch(`${yolov8ApiUrl}/predict`, {
+    console.log("[yolov8-detect-bottle] Sending request to YOLOv8 API (Hugging Face Gradio) using /api/predict endpoint...");
+    const yolov8Response = await fetch(`${yolov8ApiUrl}/api/predict`, { // Changed endpoint to /api/predict
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        // fn_index is typically not needed for the /predict endpoint if there's only one main prediction function
         data: [base64ImageString]
       }),
     });

@@ -1,7 +1,5 @@
 // @ts-ignore
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-// @ts-ignore
-import { SignJWT } from "https://deno.land/x/jose@v5.2.4/index.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,76 +8,6 @@ const corsHeaders = {
 
 // Declare Deno global for TypeScript
 declare const Deno: any;
-
-interface ServiceAccountKey {
-  type: string;
-  project_id: string;
-  private_key_id: string;
-  private_key: string;
-  client_email: string;
-  client_id: string;
-  auth_uri: string;
-  token_uri: string;
-  auth_provider_x509_cert_url: string;
-  client_x509_cert_url: string;
-  universe_domain: string;
-}
-
-// Function to get an OAuth2 access token using a service account key
-async function getGoogleAccessToken(serviceAccountKey: ServiceAccountKey): Promise<string> {
-  const now = Math.floor(Date.now() / 1000);
-  const expiry = now + 3600; // Token valid for 1 hour
-
-  const payload = {
-    iss: serviceAccountKey.client_email,
-    scope: "https://www.googleapis.com/auth/cloud-platform", // Scope for Vision API
-    aud: serviceAccountKey.token_uri,
-    exp: expiry,
-    iat: now,
-  };
-
-  // --- DEBUG LOG & Cleaning: Explicitly handle newlines and log the exact string for import ---
-  let privateKeyToImport = serviceAccountKey.private_key;
-  // Replace escaped newlines with actual newlines, just in case
-  privateKeyToImport = privateKeyToImport.replace(/\\n/g, '\n');
-  
-  console.log("DEBUG: Private key string (after newline processing, newlines visible):", privateKeyToImport.replace(/\n/g, '[NEWLINE]'));
-  console.log("DEBUG: Private key string length (after newline processing):", privateKeyToImport.length);
-  console.log("DEBUG: Private key string starts with BEGIN:", privateKeyToImport.startsWith('-----BEGIN PRIVATE KEY-----'));
-  console.log("DEBUG: Private key string ends with END:", privateKeyToImport.endsWith('-----END PRIVATE KEY-----'));
-  // --- END DEBUG LOG ---
-
-  const privateKey = await crypto.subtle.importKey(
-    "pkcs8",
-    new TextEncoder().encode(privateKeyToImport),
-    { name: "RSASSA-PKCS1-V1_5", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-
-  const jwt = await new SignJWT(payload)
-    .setProtectedHeader({ alg: "RS256", typ: "JWT" })
-    .sign(privateKey);
-
-  const response = await fetch(serviceAccountKey.token_uri, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: jwt,
-    }).toString(),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to get Google access token: ${response.status} - ${errorText}`);
-  }
-
-  const data = await response.json();
-  return data.access_token;
-}
 
 serve(async (req) => {
   console.log(`analyze-image-for-plastic-bottle function invoked. Method: ${req.method}`);
@@ -112,91 +40,42 @@ serve(async (req) => {
       });
     }
 
-    const googleServiceAccountKeyJson = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_KEY_JSON');
-    if (!googleServiceAccountKeyJson) {
-      throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY_JSON is not set in environment variables.');
+    const roboflowApiKey = Deno.env.get('ROBOFLOW_API_KEY');
+    const roboflowProjectUrl = Deno.env.get('ROBOFLOW_PROJECT_URL');
+
+    if (!roboflowApiKey || !roboflowProjectUrl) {
+      throw new Error('ROBOFLOW_API_KEY and ROBOFLOW_PROJECT_URL must be set in environment variables.');
     }
-    // --- NEW DEBUG LOG: Log the raw environment variable content ---
-    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON from Deno.env.get (first 200 chars):", googleServiceAccountKeyJson.substring(0, 200));
-    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON from Deno.env.get (last 200 chars):", googleServiceAccountKeyJson.substring(googleServiceAccountKeyJson.length - 200));
-    console.log("DEBUG: Raw GOOGLE_SERVICE_ACCOUNT_KEY_JSON length:", googleServiceAccountKeyJson.length);
-    // --- END NEW DEBUG LOG ---
+    console.log("Roboflow API key and project URL found.");
 
-    let serviceAccountKey: ServiceAccountKey;
-    try {
-      serviceAccountKey = JSON.parse(googleServiceAccountKeyJson);
-      console.log("DEBUG: Parsed serviceAccountKey object (client_email):", serviceAccountKey.client_email);
-      console.log("DEBUG: Parsed serviceAccountKey object (private_key_id):", serviceAccountKey.private_key_id);
-    } catch (parseError: any) {
-      console.error("ERROR: Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY_JSON:", parseError.message);
-      throw new Error(`Failed to parse Google Service Account Key JSON: ${parseError.message}`);
-    }
+    const roboflowApiUrl = `${roboflowProjectUrl}?api_key=${roboflowApiKey}`;
 
-    const accessToken = await getGoogleAccessToken(serviceAccountKey);
-    console.log("Google access token obtained.");
-
-    const visionApiUrl = `https://vision.googleapis.com/v1/images:annotate`;
-
-    const visionRequestBody = {
-      requests: [
-        {
-          image: {
-            content: imageToAnalyze,
-          },
-          features: [
-            {
-              type: "LABEL_DETECTION",
-              maxResults: 10,
-            },
-            {
-              type: "OBJECT_LOCALIZATION",
-              maxResults: 10,
-            },
-          ],
-        },
-      ],
-    };
-
-    console.log("Sending request to Google Cloud Vision API...");
-    const visionResponse = await fetch(visionApiUrl, {
+    console.log("Sending request to Roboflow API...");
+    const roboflowResponse = await fetch(roboflowApiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`, // Use the obtained access token
       },
-      body: JSON.stringify(visionRequestBody),
+      body: JSON.stringify({ image: { type: 'base64', value: imageToAnalyze } }),
     });
 
-    if (!visionResponse.ok) {
-      const errorText = await visionResponse.text();
-      console.error(`Google Vision API responded with status: ${visionResponse.status}, body: ${errorText}`);
-      throw new Error(`Google Vision API error: ${visionResponse.status} - ${errorText}`);
+    if (!roboflowResponse.ok) {
+      const errorText = await roboflowResponse.text();
+      console.error(`Roboflow API responded with status: ${roboflowResponse.status}, body: ${errorText}`);
+      throw new Error(`Roboflow API error: ${roboflowResponse.status} - ${errorText}`);
     }
 
-    const visionData = await visionResponse.json();
-    console.log("Google Vision API response received.");
+    const roboflowData = await roboflowResponse.json();
+    console.log("Roboflow API response received:", JSON.stringify(roboflowData, null, 2));
 
     let isPlasticBottle = false;
     const confidenceThreshold = 0.7; // 70% confidence
 
-    // Check Label Detection results
-    if (visionData.responses && visionData.responses[0] && visionData.responses[0].labelAnnotations) {
-      const labels = visionData.responses[0].labelAnnotations;
-      const plasticLabels = ['plastic bottle', 'bottle', 'plastic', 'pet bottle', 'water bottle', 'soda bottle', 'container', 'recycling'];
-      isPlasticBottle = labels.some((label: any) => 
-        plasticLabels.includes(label.description.toLowerCase()) && label.score > confidenceThreshold
+    if (roboflowData.predictions && Array.isArray(roboflowData.predictions)) {
+      isPlasticBottle = roboflowData.predictions.some((prediction: any) =>
+        prediction.class.toLowerCase().includes('plastic bottle') && prediction.confidence > confidenceThreshold
       );
-      if (isPlasticBottle) console.log("Plastic bottle identified via Label Detection.");
-    }
-
-    // Check Object Localization results (more precise for object detection)
-    if (!isPlasticBottle && visionData.responses && visionData.responses[0] && visionData.responses[0].localizedObjectAnnotations) {
-      const objects = visionData.responses[0].localizedObjectAnnotations;
-      const plasticObjects = ['plastic bottle', 'bottle', 'water bottle', 'soda bottle'];
-      isPlasticBottle = objects.some((obj: any) => 
-        plasticObjects.includes(obj.name.toLowerCase()) && obj.score > confidenceThreshold
-      );
-      if (isPlasticBottle) console.log("Plastic bottle identified via Object Localization.");
+      if (isPlasticBottle) console.log("Plastic bottle identified via Roboflow predictions.");
     }
 
     console.log(`Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);

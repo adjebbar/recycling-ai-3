@@ -21,21 +21,25 @@ serve(async (req) => {
     console.log(`[analyze-image-for-plastic-bottle] Received request: imageData present: ${!!imageData}, imageUrl present: ${!!imageUrl}, productName: ${productName}`);
     
     const roboflowApiKey = Deno.env.get('ROBOFLOW_API_KEY');
+    const roboflowWorkflowUrl = Deno.env.get('ROBOFLOW_WORKFLOW_URL');
 
-    if (!roboflowApiKey) {
-      console.error('[analyze-image-for-plastic-bottle] Error: ROBOFLOW_API_KEY is not set in environment variables.');
-      return new Response(JSON.stringify({ error: 'ROBOFLOW_API_KEY must be set in environment variables.' }), {
+    if (!roboflowApiKey || !roboflowWorkflowUrl) {
+      console.error('[analyze-image-for-plastic-bottle] Error: ROBOFLOW_API_KEY or ROBOFLOW_WORKFLOW_URL is not set in environment variables.');
+      return new Response(JSON.stringify({ error: 'ROBOFLOW_API_KEY and ROBOFLOW_WORKFLOW_URL must be set in environment variables.' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
       });
     }
     console.log(`[analyze-image-for-plastic-bottle] Roboflow API key found: ${roboflowApiKey ? 'YES' : 'NO'}`);
+    console.log(`[analyze-image-for-plastic-bottle] Roboflow Workflow URL found: ${roboflowWorkflowUrl}`);
 
-    const roboflowApiUrl = `https://serverless.roboflow.com/detect-bottles?api_key=${roboflowApiKey}`;
+    const roboflowApiUrl = roboflowWorkflowUrl; // Use the workflow URL
     console.log(`[analyze-image-for-plastic-bottle] Constructed Roboflow API URL for POST: ${roboflowApiUrl}`);
 
-    let requestBody: FormData | URLSearchParams;
-    let requestHeaders: HeadersInit = {};
+    const requestHeaders: HeadersInit = {
+      'Authorization': `Bearer ${roboflowApiKey}`, // Use Bearer token
+    };
+    let requestBody: FormData;
 
     if (imageData) {
       console.log("[analyze-image-for-plastic-bottle] Processing imageData (base64).");
@@ -52,10 +56,17 @@ serve(async (req) => {
       console.log("[analyze-image-for-plastic-bottle] Appended base64 image as Blob to FormData.");
     } else if (imageUrl) {
       console.log(`[analyze-image-for-plastic-bottle] Processing imageUrl: ${imageUrl}`);
-      requestBody = new URLSearchParams();
-      requestBody.append("image", imageUrl);
-      requestHeaders['Content-Type'] = 'application/x-www-form-urlencoded';
-      console.log(`[analyze-image-for-plastic-bottle] Appended image URL to URLSearchParams with Content-Type: application/x-www-form-urlencoded.`);
+      
+      // Fetch the image from the URL
+      const imageFetchResponse = await fetch(imageUrl);
+      if (!imageFetchResponse.ok) {
+        throw new Error(`Failed to fetch image from URL: ${imageFetchResponse.statusText}`);
+      }
+      const imageBlob = await imageFetchResponse.blob();
+      
+      requestBody = new FormData();
+      requestBody.append("image", imageBlob, "image.jpeg"); // Append the fetched image blob
+      console.log(`[analyze-image-for-plastic-bottle] Appended fetched image Blob to FormData.`);
     } else {
       console.error('[analyze-image-for-plastic-bottle] Error: Image data or image URL is required in request body.');
       return new Response(JSON.stringify({ error: 'Image data or image URL is required' }), {
@@ -67,7 +78,7 @@ serve(async (req) => {
     console.log("[analyze-image-for-plastic-bottle] Sending request to Roboflow API...");
     const roboflowResponse = await fetch(roboflowApiUrl, {
       method: 'POST',
-      headers: requestHeaders,
+      headers: requestHeaders, // FormData automatically sets Content-Type: multipart/form-data
       body: requestBody,
     });
     console.log(`[analyze-image-for-plastic-bottle] Roboflow API response status: ${roboflowResponse.status}`);

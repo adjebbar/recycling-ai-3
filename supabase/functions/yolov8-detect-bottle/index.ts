@@ -10,12 +10,13 @@ const corsHeaders = {
 declare const Deno: any;
 
 // Helper function to poll for the prediction result (for asynchronous/queued models)
-async function pollForPredictionResult(yolov8ApiUrl: string, eventId: string, sessionHash: string, timeoutMs = 30000, intervalMs = 500) {
+async function pollForPredictionResult(yolov8ApiUrl: string, eventId: string, timeoutMs = 30000, intervalMs = 500) {
   const startTime = Date.now();
-  const pollEndpoint = `${yolov8ApiUrl}/gradio_api/queue/data?session_hash=${sessionHash}&hash=${eventId}`;
+  // The endpoint now only uses the eventId (as 'hash')
+  const pollEndpoint = `${yolov8ApiUrl}/gradio_api/queue/data?hash=${eventId}`;
 
   while (Date.now() - startTime < timeoutMs) {
-    console.log(`[yolov8-detect-bottle] Polling for result with event_id: ${eventId} and session_hash: ${sessionHash}`);
+    console.log(`[yolov8-detect-bottle] Polling for result with event_id: ${eventId}`);
     const pollResponse = await fetch(pollEndpoint, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
@@ -95,10 +96,10 @@ serve(async (req) => {
 
     let rawPredictionResult;
 
-    // SCENARIO 1: Asynchronous response (with queue)
-    if (initialPredictionData.event_id && initialPredictionData.session_hash) {
-      console.log("[yolov8-detect-bottle] Asynchronous response detected. Starting polling.");
-      rawPredictionResult = await pollForPredictionResult(yolov8ApiUrl, initialPredictionData.event_id, initialPredictionData.session_hash);
+    // SCENARIO 1: Asynchronous response (with queue) - ONLY CHECK FOR event_id
+    if (initialPredictionData.event_id) {
+      console.log("[yolov8-detect-bottle] Asynchronous response detected (event_id found). Starting polling.");
+      rawPredictionResult = await pollForPredictionResult(yolov8ApiUrl, initialPredictionData.event_id);
     } 
     // SCENARIO 2: Synchronous response (direct result)
     else if (initialPredictionData.data && Array.isArray(initialPredictionData.data) && initialPredictionData.data.length > 0) {
@@ -107,7 +108,7 @@ serve(async (req) => {
     } 
     // SCENARIO 3: Unknown response format
     else {
-      throw new Error('Unknown Gradio API response format. Could not find event_id/session_hash for polling or a direct data result.');
+      throw new Error('Unknown Gradio API response format. Could not find event_id for polling or a direct data result.');
     }
     
     const isPlasticBottle = typeof rawPredictionResult === 'boolean' ? rawPredictionResult : false;

@@ -51,8 +51,14 @@ serve(async (req) => {
 
     console.log(`[yolov8-detect-bottle] Image source (URL or data URI) length: ${imageSource.length}`);
 
-    // --- Direct prediction using /predict endpoint as per API documentation ---
-    const predictEndpoint = `${yolov8ApiUrl}/predict`; // Changed endpoint to /predict
+    // Construct the Gradio-specific input data format
+    const gradioInputData = {
+      path: imageSource,
+      meta: { _type: "gradio.FileData" }
+    };
+
+    // --- Direct prediction using /gradio_api/call/predict endpoint as per curl command ---
+    const predictEndpoint = `${yolov8ApiUrl}/gradio_api/call/predict`; // Corrected endpoint
     console.log(`[yolov8-detect-bottle] Sending POST request to Gradio API endpoint: ${predictEndpoint}`);
     
     const predictionResponse = await fetch(predictEndpoint, {
@@ -61,7 +67,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        data: [imageSource] // Send imageSource directly in the data array
+        data: [gradioInputData] // Send structured image data in the data array
       }),
     });
     console.log(`[yolov8-detect-bottle] Prediction response status: ${predictionResponse.status}`);

@@ -38,7 +38,7 @@ serve(async (req) => {
     }
 
     const roboflowApiKey = Deno.env.get('ROBOFLOW_API_KEY');
-    const roboflowWorkflowId = Deno.env.get('ROBOFLOW_WORKFLOW_ID');
+    const roboflowWorkflowId = Deno.env.get('ROBOFLOW_WORKFLOW_ID'); // This should be in format 'project/version'
 
     if (!roboflowApiKey || !roboflowWorkflowId) {
       console.error('ROBOFLOW_API_KEY or ROBOFLOW_WORKFLOW_ID is not set in environment variables.');
@@ -47,8 +47,8 @@ serve(async (req) => {
     console.log(`Roboflow API key found: ${roboflowApiKey ? 'YES' : 'NO'}`);
     console.log(`Roboflow Workflow ID found: ${roboflowWorkflowId}`);
 
-    // Roboflow Workflow API endpoint
-    const roboflowApiUrl = `https://api.roboflow.com/workflow/${roboflowWorkflowId}`;
+    // Correct Roboflow Workflow API endpoint format
+    const roboflowApiUrl = `https://detect.roboflow.com/${roboflowWorkflowId}?api_key=${roboflowApiKey}`;
     console.log(`Constructed Roboflow API URL: ${roboflowApiUrl}`);
 
     console.log("Sending request to Roboflow Workflow API...");
@@ -58,7 +58,6 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        api_key: roboflowApiKey,
         image: {
           type: imageType,
           value: imageToAnalyze,

@@ -9,6 +9,41 @@ const corsHeaders = {
 // Declare Deno global for TypeScript
 declare const Deno: any;
 
+// Helper function to poll for the prediction result
+async function pollForPredictionResult(yolov8ApiUrl: string, eventId: string, timeoutMs = 30000, intervalMs = 500) {
+  const startTime = Date.now();
+  const pollEndpoint = `${yolov8ApiUrl}/gradio_api/queue/data`;
+
+  while (Date.now() - startTime < timeoutMs) {
+    console.log(`[yolov8-detect-bottle] Polling for result with event_id: ${eventId}`);
+    const pollResponse = await fetch(pollEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ hash: eventId }),
+    });
+
+    if (!pollResponse.ok) {
+      const errorText = await pollResponse.text();
+      throw new Error(`Gradio API error (polling): ${pollResponse.status} - ${errorText}`);
+    }
+
+    const pollData = await pollResponse.json();
+    console.log("[yolov8-detect-bottle] Raw polling data:", pollData);
+
+    if (pollData.status === 'complete') {
+      // The actual prediction result is expected in pollData.data[0]
+      return pollData.data[0];
+    } else if (pollData.status === 'error') {
+      throw new Error(`Gradio API prediction error: ${pollData.message || 'Unknown error'}`);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, intervalMs));
+  }
+  throw new Error('Prediction polling timed out.');
+}
+
 serve(async (req) => {
   console.log(`[yolov8-detect-bottle] function invoked. Method: ${req.method}`);
   if (req.method === 'OPTIONS') {
@@ -57,33 +92,41 @@ serve(async (req) => {
       meta: { _type: "gradio.FileData" }
     };
 
-    // --- Direct prediction using /gradio_api/call/predict endpoint as per curl command ---
-    const predictEndpoint = `${yolov8ApiUrl}/gradio_api/call/predict`; // Corrected endpoint
-    console.log(`[yolov8-detect-bottle] Sending POST request to Gradio API endpoint: ${predictEndpoint}`);
+    // 1. Send initial prediction request to get event_id
+    const predictEndpoint = `${yolov8ApiUrl}/gradio_api/call/predict`;
+    console.log(`[yolov8-detect-bottle] Sending initial POST request to Gradio API endpoint: ${predictEndpoint}`);
     
-    const predictionResponse = await fetch(predictEndpoint, {
+    const initialPredictionResponse = await fetch(predictEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        data: [gradioInputData] // Send structured image data in the data array
+        data: [gradioInputData]
       }),
     });
-    console.log(`[yolov8-detect-bottle] Prediction response status: ${predictionResponse.status}`);
+    console.log(`[yolov8-detect-bottle] Initial prediction response status: ${initialPredictionResponse.status}`);
 
-    if (!predictionResponse.ok) {
-      const errorText = await predictionResponse.text();
-      console.error(`[yolov8-detect-bottle] Prediction to Gradio API responded with non-OK status: ${predictionResponse.status}, body: ${errorText}`);
-      throw new Error(`Gradio API error (prediction): ${predictionResponse.status} - ${errorText}`);
+    if (!initialPredictionResponse.ok) {
+      const errorText = await initialPredictionResponse.text();
+      console.error(`[yolov8-detect-bottle] Initial prediction to Gradio API responded with non-OK status: ${initialPredictionResponse.status}, body: ${errorText}`);
+      throw new Error(`Gradio API error (initial prediction): ${initialPredictionResponse.status} - ${errorText}`);
     }
 
-    const predictionData = await predictionResponse.json();
-    console.log("[yolov8-detect-bottle] Raw prediction data:", predictionData);
+    const initialPredictionData = await initialPredictionResponse.json();
+    console.log("[yolov8-detect-bottle] Raw initial prediction data:", initialPredictionData);
 
-    // The Gradio API documentation implies the result is directly in data[0]
-    // The output is a boolean, so we expect predictionData.data[0] to be the boolean result.
-    const isPlasticBottle = typeof predictionData.data[0] === 'boolean' ? predictionData.data[0] : false;
+    const eventId = initialPredictionData.event_id;
+    if (!eventId) {
+      throw new Error('Failed to get event_id from initial prediction response.');
+    }
+    console.log(`[yolov8-detect-bottle] Received event_id: ${eventId}`);
+
+    // 2. Poll for the prediction result using the event_id
+    const rawPredictionResult = await pollForPredictionResult(yolov8ApiUrl, eventId);
+    
+    // The output is expected to be a boolean
+    const isPlasticBottle = typeof rawPredictionResult === 'boolean' ? rawPredictionResult : false;
     console.log(`[yolov8-detect-bottle] Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
 
     return new Response(JSON.stringify({ is_plastic_bottle: isPlasticBottle }), {

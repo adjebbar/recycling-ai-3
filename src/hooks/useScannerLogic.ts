@@ -36,10 +36,7 @@ const analyzeProductData = (product: any): ValidationResult => {
   ].filter(Boolean).join(' ');
 
   console.log("--- analyzeProductData START ---");
-  console.log("Product Name:", productName);
-  console.log("Categories:", categories);
-  console.log("Packaging:", packaging);
-  console.log("Packaging Tags:", packagingTags);
+  console.log("Full Product Data:", JSON.stringify(product, null, 2)); // Log full product data
   console.log("Combined Search Text:", searchText);
 
 
@@ -51,12 +48,13 @@ const analyzeProductData = (product: any): ValidationResult => {
     'carton', 'paper', 'papier', 'wood', 'bois', 'brique', 'tetrapak', 'cartón', 'papel', 'madera', // Paper/Cardboard/Wood
     'aerosol', 'spray', 'bombe', // Aerosol cans
   ];
-  console.log("Phase 1: Checking for explicit non-plastic packaging terms:", definitiveNonPlasticPackagingTerms.join(', '));
+  console.log("Phase 1: Checking for explicit non-plastic packaging terms...");
   const isPackagingExplicitlyNonPlastic = definitiveNonPlasticPackagingTerms.some(k => {
-    const foundInPackaging = packaging.includes(k) || packagingTags.includes(k);
-    if (foundInPackaging) console.log(`DEBUG: REJECTED (Phase 1 - Explicit Non-Plastic Packaging) - Found definitive non-plastic term: '${k}'.`);
-    return foundInPackaging;
+    const found = searchText.includes(k); // Check in combined search text
+    if (found) console.log(`DEBUG: Found definitive non-plastic term: '${k}'.`);
+    return found;
   });
+  console.log("Result Phase 1 (isPackagingExplicitlyNonPlastic):", isPackagingExplicitlyNonPlastic);
   if (isPackagingExplicitlyNonPlastic) {
     console.log("--- analyzeProductData END: REJECTED (Explicit Non-Plastic Packaging) ---");
     return 'rejected';
@@ -65,12 +63,13 @@ const analyzeProductData = (product: any): ValidationResult => {
   // --- Phase 2: Explicit Plastic Packaging (Strongest ACCEPT) ---
   // If packaging explicitly states plastic, accept.
   const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc'];
-  console.log("Phase 2: Checking for explicit plastic packaging terms:", directPackagingPlasticTerms.join(', '));
+  console.log("Phase 2: Checking for explicit plastic packaging terms...");
   const isPackagingExplicitlyPlastic = directPackagingPlasticTerms.some(k => {
-    const foundInPackaging = packaging.includes(k) || packagingTags.includes(k);
-    if (foundInPackaging) console.log(`DEBUG: ACCEPTED (Phase 2 - Explicit Plastic Packaging) - Found direct plastic term: '${k}'.`);
-    return foundInPackaging;
+    const found = searchText.includes(k); // Check in combined search text
+    if (found) console.log(`DEBUG: Found direct plastic term: '${k}'.`);
+    return found;
   });
+  console.log("Result Phase 2 (isPackagingExplicitlyPlastic):", isPackagingExplicitlyPlastic);
   if (isPackagingExplicitlyPlastic) {
     console.log("--- analyzeProductData END: ACCEPTED (Explicit Plastic Packaging) ---");
     return 'accepted';
@@ -88,12 +87,13 @@ const analyzeProductData = (product: any): ValidationResult => {
     'champú', 'acondicionador', 'gel de ducha', 'loción', 'detergente',
     'bouteille', 'flacon', 'bottle', // Generic bottle terms, but less strong than explicit packaging
   ];
-  console.log("Phase 3: Checking for strong plastic product keywords in search text:", strongPlasticProductKeywords.join(', '));
+  console.log("Phase 3: Checking for strong plastic product keywords...");
   const isStronglyPlasticProduct = strongPlasticProductKeywords.some(k => {
     const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: ACCEPTED (Phase 3 - Strong Plastic Product Heuristic) - Found strong plastic product keyword: '${k}' in searchText.`);
+    if (found) console.log(`DEBUG: Found strong plastic product keyword: '${k}'.`);
     return found;
   });
+  console.log("Result Phase 3 (isStronglyPlasticProduct):", isStronglyPlasticProduct);
   if (isStronglyPlasticProduct) {
     console.log("--- analyzeProductData END: ACCEPTED (Strong Plastic Product Heuristic) ---");
     return 'accepted';
@@ -118,12 +118,13 @@ const analyzeProductData = (product: any): ValidationResult => {
     'cup', 'tasse', 'gobelet', 'plate', 'assiette', 'tray', 'barquette', // Non-bottle containers
     'jar', 'pot', 'bocal', 'tarro', 'frasco', // Often glass jars, but can be plastic, so lower priority than direct plastic terms
   ];
-  console.log("Phase 4: Checking for strong non-plastic product keywords in search text:", strongNonPlasticProductKeywords.join(', '));
+  console.log("Phase 4: Checking for strong non-plastic product keywords...");
   const isStronglyNonPlasticProduct = strongNonPlasticProductKeywords.some(k => {
     const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: REJECTED (Phase 4 - Strong Non-Plastic Product Heuristic) - Found strong non-plastic product keyword: '${k}' in searchText.`);
+    if (found) console.log(`DEBUG: Found strong non-plastic product keyword: '${k}'.`);
     return found;
   });
+  console.log("Result Phase 4 (isStronglyNonPlasticProduct):", isStronglyNonPlasticProduct);
   if (isStronglyNonPlasticProduct) {
     console.log("--- analyzeProductData END: REJECTED (Strong Non-Plastic Product Heuristic) ---");
     return 'rejected';

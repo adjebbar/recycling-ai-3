@@ -220,6 +220,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       triggerPiConveyor('rejected');
     } finally {
       updateState({ isImageAnalyzing: false });
+      // This timeout is specifically for clearing the image analysis result
       setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
     }
   };
@@ -266,6 +267,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       triggerPiConveyor('rejected');
     } finally {
       updateState({ isImageAnalyzing: false });
+      // This timeout is specifically for clearing the image analysis result
       setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
     }
   };
@@ -275,6 +277,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     
     updateState({ lastScanned: barcode, scanResult: null });
     const loadingToast = showLoading(t('scanner.verifying'));
+    let imageAnalysisTriggered = false; // Flag to track if image analysis was initiated
 
     try {
       const { data, error } = await supabase.functions.invoke('fetch-product-info', { body: { barcode } });
@@ -299,6 +302,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
             triggerPiConveyor('rejected');
             break;
           case 'inconclusive':
+            imageAnalysisTriggered = true; // Set flag
             if (imageUrl) {
               toast.info("Barcode data unclear. Analyzing product image for confirmation...");
               await handleImageAnalysisFromProductData(imageUrl, barcode);
@@ -325,7 +329,8 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       updateState({ scanResult: { type: 'error', message: errorMessage } });
       triggerPiConveyor('rejected');
     } finally {
-      if (!state.isImageAnalyzing) {
+      // Only clear scanResult here if image analysis was NOT triggered
+      if (!imageAnalysisTriggered) {
         setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
       }
     }

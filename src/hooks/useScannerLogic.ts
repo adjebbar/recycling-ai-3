@@ -193,7 +193,8 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     const loadingToast = showLoading("Analyzing product image...");
 
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', { body: { imageUrl, productName } }); // Pass productName
+      // Call the new YOLOv8 Edge Function
+      const { data, error } = await supabase.functions.invoke('yolov8-detect-bottle', { body: { imageUrl, productName } });
       if (error || data.error) throw new Error(error?.message || data.error);
       dismissToast(loadingToast);
 
@@ -240,7 +241,8 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       const imageData = canvas.toDataURL('image/jpeg', 0.8);
 
       // No product name available for live camera image analysis
-      const { data, error } = await supabase.functions.invoke('analyze-image-for-plastic-bottle', { body: { imageData } });
+      // Call the new YOLOv8 Edge Function
+      const { data, error } = await supabase.functions.invoke('yolov8-detect-bottle', { body: { imageData } });
       if (error || data.error) throw new Error(error?.message || data.error);
       dismissToast(loadingToast);
 

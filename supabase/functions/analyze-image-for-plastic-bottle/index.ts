@@ -6,6 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Declare Deno global for TypeScript
+declare const Deno: any;
+
 serve(async (req) => {
   console.log(`analyze-image-for-plastic-bottle function invoked. Method: ${req.method}`);
   if (req.method === 'OPTIONS') {
@@ -14,12 +17,12 @@ serve(async (req) => {
   }
 
   try {
-    const { imageData, imageUrl, productName } = await req.json(); // Now accepts productName
+    const { imageData, imageUrl } = await req.json(); // productName is no longer used for AI decision
     let imageToAnalyze: string | null = null;
 
     if (imageData) {
-      imageToAnalyze = imageData; // Base64 from client camera
-      console.log("Received base64 image data for analysis (simulated).");
+      imageToAnalyze = imageData.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+      console.log("Received base64 image data for analysis.");
     } else if (imageUrl) {
       console.log(`Received image URL for analysis: ${imageUrl}`);
       // Fetch the image from the URL
@@ -39,36 +42,75 @@ serve(async (req) => {
       });
     }
 
-    // --- START: SIMULATED DEEP LEARNING OBJECT DETECTION ---
-    // In a real application, you would send `imageToAnalyze` (base64 or URL)
-    // to an external AI service (e.g., Google Cloud Vision, AWS Rekognition, custom model API) here.
-    // The AI service would return a classification (e.g., "plastic bottle", "glass jar", "aluminum can").
-
-    let isPlasticBottle = false;
-    const lowerCaseProductName = (productName || '').toLowerCase();
-    console.log(`Simulated AI: Analyzing image with product name context: "${lowerCaseProductName}"`);
-
-    // Heuristics for simulated AI based on product name
-    const strongPlasticKeywords = ['plastic bottle', 'bouteille plastique', 'botella de plástico', 'pet bottle', 'hdpe bottle', 'water bottle', 'soda bottle', 'juice bottle', 'shampoo bottle'];
-    const strongNonPlasticKeywords = ['glass jar', 'metal can', 'aluminum can', 'verre', 'métal', 'canette', 'boîte de conserve', 'carton'];
-
-    if (strongPlasticKeywords.some(k => lowerCaseProductName.includes(k))) {
-      isPlasticBottle = true;
-      console.log("Simulated AI: Product name strongly suggests plastic bottle.");
-    } else if (strongNonPlasticKeywords.some(k => lowerCaseProductName.includes(k))) {
-      isPlasticBottle = false;
-      console.log("Simulated AI: Product name strongly suggests non-plastic.");
-    } else {
-      // If product name is inconclusive, use a biased random chance for the image analysis
-      // Assume a slightly higher chance of being plastic if it reached image analysis
-      isPlasticBottle = Math.random() > 0.3; // 70% chance of being plastic in ambiguous cases
-      console.log(`Simulated AI: Product name inconclusive, using biased random chance. Result: ${isPlasticBottle}`);
+    const googleVisionApiKey = Deno.env.get('GOOGLE_VISION_API_KEY');
+    if (!googleVisionApiKey) {
+      throw new Error('GOOGLE_VISION_API_KEY is not set in environment variables.');
     }
 
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate 2 seconds processing time for AI
+    const visionApiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${googleVisionApiKey}`;
 
-    console.log(`Simulated image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
-    // --- END: SIMULATED DEEP LEARNING OBJECT DETECTION ---
+    const visionRequestBody = {
+      requests: [
+        {
+          image: {
+            content: imageToAnalyze,
+          },
+          features: [
+            {
+              type: "LABEL_DETECTION",
+              maxResults: 10,
+            },
+            {
+              type: "OBJECT_LOCALIZATION",
+              maxResults: 10,
+            },
+          ],
+        },
+      ],
+    };
+
+    console.log("Sending request to Google Cloud Vision API...");
+    const visionResponse = await fetch(visionApiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(visionRequestBody),
+    });
+
+    if (!visionResponse.ok) {
+      const errorText = await visionResponse.text();
+      console.error(`Google Vision API responded with status: ${visionResponse.status}, body: ${errorText}`);
+      throw new Error(`Google Vision API error: ${visionResponse.status} - ${errorText}`);
+    }
+
+    const visionData = await visionResponse.json();
+    console.log("Google Vision API response received.");
+
+    let isPlasticBottle = false;
+    const confidenceThreshold = 0.7; // 70% confidence
+
+    // Check Label Detection results
+    if (visionData.responses && visionData.responses[0] && visionData.responses[0].labelAnnotations) {
+      const labels = visionData.responses[0].labelAnnotations;
+      const plasticLabels = ['plastic bottle', 'bottle', 'plastic', 'pet bottle', 'water bottle', 'soda bottle', 'container', 'recycling'];
+      isPlasticBottle = labels.some((label: any) => 
+        plasticLabels.includes(label.description.toLowerCase()) && label.score > confidenceThreshold
+      );
+      if (isPlasticBottle) console.log("Plastic bottle identified via Label Detection.");
+    }
+
+    // Check Object Localization results (more precise for object detection)
+    if (!isPlasticBottle && visionData.responses && visionData.responses[0] && visionData.responses[0].localizedObjectAnnotations) {
+      const objects = visionData.responses[0].localizedObjectAnnotations;
+      const plasticObjects = ['plastic bottle', 'bottle', 'water bottle', 'soda bottle'];
+      isPlasticBottle = objects.some((obj: any) => 
+        plasticObjects.includes(obj.name.toLowerCase()) && obj.score > confidenceThreshold
+      );
+      if (isPlasticBottle) console.log("Plastic bottle identified via Object Localization.");
+    }
+
+    console.log(`Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
 
     return new Response(JSON.stringify({ is_plastic_bottle: isPlasticBottle }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

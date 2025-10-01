@@ -310,10 +310,14 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
           }
         }
       } else {
-        const notFoundMessage = t('scanner.notFound');
-        showError(notFoundMessage);
-        updateState({ scanResult: { type: 'error', message: notFoundMessage } });
-        triggerPiConveyor('rejected');
+        // ** NOUVELLE LOGIQUE **
+        // Si le produit n'est pas trouvé, on lance l'analyse d'image
+        imageAnalysisTriggered = true;
+        toast.info(t('scanner.notFoundInDb'), {
+          description: t('scanner.checkingWithAi'),
+        });
+        // On attend un peu pour que l'utilisateur lise le message
+        setTimeout(handleAutomaticImageAnalysisFromLiveCamera, IMAGE_ANALYSIS_DELAY_MS);
       }
     } catch (err: any) {
       dismissToast(loadingToast);

@@ -25,13 +25,14 @@ const analyzeProductData = (product: any): ValidationResult => {
   const ingredientsText = (product.ingredients_text || '').toLowerCase();
   const traces = (product.traces || '').toLowerCase();
   const manufacturingPlaces = (product.manufacturing_places || '').toLowerCase();
-  const labels = (product.labels || '').toLowerCase(); // Labels can be a string or array, ensure it's a string
+  const labels = (product.labels || '').toLowerCase();
   const brands = (product.brands || '').toLowerCase();
   const quantity = (product.quantity || '').toLowerCase();
+  const stores = (product.stores || '').toLowerCase(); // Added stores field
 
   const searchText = [
     productName, genericName, categories, packaging, packagingTags,
-    ingredientsText, traces, manufacturingPlaces, labels, brands, quantity
+    ingredientsText, traces, manufacturingPlaces, labels, brands, quantity, stores // Include stores
   ].filter(Boolean).join(' ');
 
   console.log("analyzeProductData: Final searchText for analysis:", searchText);
@@ -39,7 +40,7 @@ const analyzeProductData = (product: any): ValidationResult => {
   console.log("analyzeProductData: Raw product packaging_tags:", product.packaging_tags);
 
 
-  // --- NEW: Prioritize direct packaging info for plastic ---
+  // --- Phase 1: Prioritize direct packaging info for plastic ---
   const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc'];
   const isPackagingExplicitlyPlastic = directPackagingPlasticTerms.some(k => {
     const foundInPackaging = packaging.includes(k) || packagingTags.includes(k);
@@ -51,34 +52,28 @@ const analyzeProductData = (product: any): ValidationResult => {
     return 'accepted';
   }
 
-  // --- Phase 1: Strong Positive Identification (if it's definitely a plastic bottle) ---
-  const directPlasticTerms = [
-    'plastic', 'plastique', 'plastico', 'plastik', // General plastic terms
-    'pet', 'pete', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc', 'other', // Recycling codes
-    'polyethylene', 'polypropylene', 'polystyrene', 'polyvinyl chloride', 'polycarbonate', 'acrylonitrile butadiene styrene', 'polyamide', // Polymer names
-    'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', // French variations
-    'botella de plástico', 'envase de plástico', // Spanish variations
-    'plastic container', 'plastic packaging', // English variations
-    'water bottle', 'soda bottle', 'juice bottle', 'milk bottle', 'detergent bottle', 'shampoo bottle', // Common plastic bottle products
-    'bouteille d\'eau', 'bouteille de soda', 'bouteille de jus', 'bouteille de lait', 'bouteille de détergent', 'bouteille de shampoing', // French common products
-    'botella de agua', 'botella de refresco', 'botella de jugo', 'botella de leche', 'botella de detergente', 'botella de champú', // Spanish common products
+  // --- Phase 2: Strong Positive Identification (if it's definitely a plastic bottle from product name/category) ---
+  const directPlasticProductKeywords = [
+    'water bottle', 'soda bottle', 'juice bottle', 'milk bottle', 'detergent bottle', 'shampoo bottle', // Common product types
+    'bouteille d\'eau', 'bouteille de soda', 'bouteille de jus', 'bouteille de lait', 'bouteille de détergent', 'bouteille de shampoing', // French variations
+    'botella de agua', 'botella de refresco', 'botella de jugo', 'botella de leche', 'botella de detergente', 'botella de champú', // Spanish variations
     'eau minérale', 'boisson gazeuse', 'soft drink', 'boisson rafraîchissante', // Common liquid products often in plastic bottles
     'huile végétale', 'vegetable oil', 'aceite vegetal', // Oils often in plastic bottles
-    'bouteille de boisson', 'bouteille de soda', 'bouteille de jus', // More specific French terms
-    'bouteille d\'eau', 'eau en bouteille', // More specific French water terms
+    'coca-cola', 'pepsi', 'fanta', 'sprite', // Specific brand names often in plastic bottles
+    'evian', 'volvic', 'vittel', // Specific water brands
   ];
 
-  const isPlasticDirectlyIdentified = directPlasticTerms.some(k => {
+  const isPlasticProductDirectlyIdentified = directPlasticProductKeywords.some(k => {
     const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: ACCEPTED - Found direct plastic term: '${k}' in searchText.`);
+    if (found) console.log(`DEBUG: ACCEPTED - Found direct plastic product keyword: '${k}' in searchText.`);
     return found;
   });
 
-  if (isPlasticDirectlyIdentified) {
+  if (isPlasticProductDirectlyIdentified) {
     return 'accepted';
   }
 
-  // --- Phase 2: Strict Exclusion (if it's definitely NOT plastic) ---
+  // --- Phase 3: Strict Exclusion (if it's definitely NOT plastic) ---
   const definitiveNonPlasticKeywords = [
     'glass', 'verre', 'vidrio', 'cristal', // Glass
     'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', 'lata', 'hojalata', // Metal
@@ -103,7 +98,7 @@ const analyzeProductData = (product: any): ValidationResult => {
     return 'rejected';
   }
 
-  // --- Phase 3: Heuristics for common bottle types (if not explicitly identified or excluded) ---
+  // --- Phase 4: Heuristics for common bottle types (if not explicitly identified or excluded) ---
   const bottleTerms = ['bottle', 'bouteille', 'botella', 'flacon', 'container', 'récipient', 'envase', 'frasco'];
   const liquidProductKeywords = [
     'water', 'eau', 'agua', 'mineral water', 'eau minérale', 'agua mineral',
@@ -119,7 +114,7 @@ const analyzeProductData = (product: any): ValidationResult => {
     return 'accepted';
   }
 
-  // --- Phase 4: Inconclusive (if no strong decision can be made from text) ---
+  // --- Phase 5: Inconclusive (if no strong decision can be made from text) ---
   const packagingInfoPresent = packaging.length > 0 || packagingTags.length > 0;
   if (!packagingInfoPresent) {
     console.log("DEBUG: INCONCLUSIVE - No packaging info found. Recommending image analysis.");

@@ -41,12 +41,15 @@ serve(async (req) => {
     const roboflowWorkflowId = Deno.env.get('ROBOFLOW_WORKFLOW_ID');
 
     if (!roboflowApiKey || !roboflowWorkflowId) {
+      console.error('ROBOFLOW_API_KEY or ROBOFLOW_WORKFLOW_ID is not set in environment variables.');
       throw new Error('ROBOFLOW_API_KEY and ROBOFLOW_WORKFLOW_ID must be set in environment variables.');
     }
-    console.log("Roboflow API key and Workflow ID found.");
+    console.log(`Roboflow API key found: ${roboflowApiKey ? 'YES' : 'NO'}`);
+    console.log(`Roboflow Workflow ID found: ${roboflowWorkflowId}`);
 
     // Roboflow Workflow API endpoint
     const roboflowApiUrl = `https://api.roboflow.com/workflow/${roboflowWorkflowId}`;
+    console.log(`Constructed Roboflow API URL: ${roboflowApiUrl}`);
 
     console.log("Sending request to Roboflow Workflow API...");
     const roboflowResponse = await fetch(roboflowApiUrl, {

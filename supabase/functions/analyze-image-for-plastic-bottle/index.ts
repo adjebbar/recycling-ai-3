@@ -48,6 +48,8 @@ async function getGoogleAccessToken(serviceAccountKey: ServiceAccountKey): Promi
   console.log("DEBUG: Private key string length:", cleanedPrivateKeyString.length);
   console.log("DEBUG: Private key string contains BEGIN:", cleanedPrivateKeyString.includes('-----BEGIN PRIVATE KEY-----'));
   console.log("DEBUG: Private key string contains END:", cleanedPrivateKeyString.includes('-----END PRIVATE KEY-----'));
+  // New debug log to visualize newlines
+  console.log("DEBUG: Cleaned Private Key (newlines visible):", cleanedPrivateKeyString.replace(/\n/g, '[NEWLINE]'));
   // --- END DEBUG LOG & Cleaning ---
 
   const privateKey = await crypto.subtle.importKey(

@@ -19,19 +19,16 @@ serve(async (req) => {
   try {
     const { imageData, imageUrl } = await req.json();
     let imageToAnalyze: string | null = null;
+    let imageType: 'base64' | 'url';
 
     if (imageData) {
       imageToAnalyze = imageData.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+      imageType = 'base64';
       console.log("Received base64 image data for analysis.");
     } else if (imageUrl) {
+      imageToAnalyze = imageUrl;
+      imageType = 'url';
       console.log(`Received image URL for analysis: ${imageUrl}`);
-      const imageResponse = await fetch(imageUrl);
-      if (!imageResponse.ok) {
-        throw new Error(`Failed to fetch image from URL: ${imageResponse.statusText}`);
-      }
-      const imageBuffer = await imageResponse.arrayBuffer();
-      imageToAnalyze = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
-      console.log("Fetched image from URL and converted to base64.");
     } else {
       console.error('Error: Image data or image URL is required in request body.');
       return new Response(JSON.stringify({ error: 'Image data or image URL is required' }), {
@@ -41,41 +38,53 @@ serve(async (req) => {
     }
 
     const roboflowApiKey = Deno.env.get('ROBOFLOW_API_KEY');
-    const roboflowProjectUrl = Deno.env.get('ROBOFLOW_PROJECT_URL');
+    const roboflowWorkflowId = Deno.env.get('ROBOFLOW_WORKFLOW_ID');
 
-    if (!roboflowApiKey || !roboflowProjectUrl) {
-      throw new Error('ROBOFLOW_API_KEY and ROBOFLOW_PROJECT_URL must be set in environment variables.');
+    if (!roboflowApiKey || !roboflowWorkflowId) {
+      throw new Error('ROBOFLOW_API_KEY and ROBOFLOW_WORKFLOW_ID must be set in environment variables.');
     }
-    console.log("Roboflow API key and project URL found.");
+    console.log("Roboflow API key and Workflow ID found.");
 
-    const roboflowApiUrl = `${roboflowProjectUrl}?api_key=${roboflowApiKey}`;
+    // Roboflow Workflow API endpoint
+    const roboflowApiUrl = `https://api.roboflow.com/workflow/${roboflowWorkflowId}`;
 
-    console.log("Sending request to Roboflow API...");
+    console.log("Sending request to Roboflow Workflow API...");
     const roboflowResponse = await fetch(roboflowApiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ image: { type: 'base64', value: imageToAnalyze } }),
+      body: JSON.stringify({
+        api_key: roboflowApiKey,
+        image: {
+          type: imageType,
+          value: imageToAnalyze,
+        },
+      }),
     });
 
     if (!roboflowResponse.ok) {
       const errorText = await roboflowResponse.text();
-      console.error(`Roboflow API responded with status: ${roboflowResponse.status}, body: ${errorText}`);
-      throw new Error(`Roboflow API error: ${roboflowResponse.status} - ${errorText}`);
+      console.error(`Roboflow Workflow API responded with status: ${roboflowResponse.status}, body: ${errorText}`);
+      throw new Error(`Roboflow Workflow API error: ${roboflowResponse.status} - ${errorText}`);
     }
 
     const roboflowData = await roboflowResponse.json();
-    console.log("Roboflow API response received:", JSON.stringify(roboflowData, null, 2));
+    console.log("Roboflow Workflow API response received:", JSON.stringify(roboflowData, null, 2));
 
     let isPlasticBottle = false;
     const confidenceThreshold = 0.7; // 70% confidence
 
-    if (roboflowData.predictions && Array.isArray(roboflowData.predictions)) {
-      isPlasticBottle = roboflowData.predictions.some((prediction: any) =>
+    // Assuming the workflow's final step produces predictions in a similar format to object detection
+    // You might need to adjust this parsing based on your specific workflow's output structure.
+    // For example, if your workflow has a classification step, you might look at `roboflowData.results.classification.predictions`.
+    if (roboflowData.results && roboflowData.results.predictions && Array.isArray(roboflowData.results.predictions)) {
+      isPlasticBottle = roboflowData.results.predictions.some((prediction: any) =>
         prediction.class.toLowerCase().includes('plastic bottle') && prediction.confidence > confidenceThreshold
       );
-      if (isPlasticBottle) console.log("Plastic bottle identified via Roboflow predictions.");
+      if (isPlasticBottle) console.log("Plastic bottle identified via Roboflow workflow predictions.");
+    } else {
+      console.warn("Roboflow workflow response did not contain expected 'results.predictions' structure.");
     }
 
     console.log(`Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);

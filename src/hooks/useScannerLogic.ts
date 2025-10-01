@@ -38,13 +38,15 @@ const analyzeProductData = (product: any): ValidationResult => {
   console.log("analyzeProductData: Final searchText for analysis:", searchText);
   console.log("analyzeProductData: Raw product packaging:", product.packaging);
   console.log("analyzeProductData: Raw product packaging_tags:", product.packaging_tags);
+  console.log("analyzeProductData: Raw product categories:", product.categories);
+  console.log("analyzeProductData: Raw product name:", product.product_name);
 
 
   // --- Phase 1: Prioritize direct packaging info for plastic ---
-  const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc'];
+  const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc', 'bottle', 'bouteille', 'flacon']; // Added 'bottle', 'bouteille', 'flacon' here
   const isPackagingExplicitlyPlastic = directPackagingPlasticTerms.some(k => {
     const foundInPackaging = packaging.includes(k) || packagingTags.includes(k);
-    if (foundInPackaging) console.log(`DEBUG: ACCEPTED - Found direct plastic term in packaging: '${k}'.`);
+    if (foundInPackaging) console.log(`DEBUG: ACCEPTED (Phase 1) - Found direct plastic term in packaging: '${k}'.`);
     return foundInPackaging;
   });
 
@@ -57,15 +59,16 @@ const analyzeProductData = (product: any): ValidationResult => {
     'water bottle', 'soda bottle', 'juice bottle', 'milk bottle', 'detergent bottle', 'shampoo bottle', // Common product types
     'bouteille d\'eau', 'bouteille de soda', 'bouteille de jus', 'bouteille de lait', 'bouteille de détergent', 'bouteille de shampoing', // French variations
     'botella de agua', 'botella de refresco', 'botella de jugo', 'botella de leche', 'botella de detergente', 'botella de champú', // Spanish variations
-    'eau minérale', 'boisson gazeuse', 'soft drink', 'boisson rafraîchissante', // Common liquid products often in plastic bottles
+    'eau minérale', 'boisson gazeuse', 'soft drink', 'boisson rafraîchissante', 'cola', 'limonade', 'soda', // Added more beverage terms
     'huile végétale', 'vegetable oil', 'aceite vegetal', // Oils often in plastic bottles
     'coca-cola', 'pepsi', 'fanta', 'sprite', // Specific brand names often in plastic bottles
     'evian', 'volvic', 'vittel', // Specific water brands
+    'beverages', 'drinks', 'soft drinks', 'eaux', 'jus de fruits', 'sodas', // Added categories
   ];
 
   const isPlasticProductDirectlyIdentified = directPlasticProductKeywords.some(k => {
     const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: ACCEPTED - Found direct plastic product keyword: '${k}' in searchText.`);
+    if (found) console.log(`DEBUG: ACCEPTED (Phase 2) - Found direct plastic product keyword: '${k}' in searchText.`);
     return found;
   });
 
@@ -90,7 +93,7 @@ const analyzeProductData = (product: any): ValidationResult => {
 
   const isDefinitelyNonPlastic = definitiveNonPlasticKeywords.some(k => {
     const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: REJECTED - Found definitive non-plastic keyword: '${k}' in searchText.`);
+    if (found) console.log(`DEBUG: REJECTED (Phase 3) - Found definitive non-plastic keyword: '${k}' in searchText.`);
     return found;
   });
 
@@ -110,17 +113,17 @@ const analyzeProductData = (product: any): ValidationResult => {
 
   const isBottleAndLiquid = bottleTerms.some(k => searchText.includes(k)) && liquidProductKeywords.some(k => searchText.includes(k));
   if (isBottleAndLiquid) {
-    console.log("DEBUG: ACCEPTED - Found combination of bottle and liquid product keywords.");
+    console.log("DEBUG: ACCEPTED (Phase 4) - Found combination of bottle and liquid product keywords.");
     return 'accepted';
   }
 
   // --- Phase 5: Inconclusive (if no strong decision can be made from text) ---
   const packagingInfoPresent = packaging.length > 0 || packagingTags.length > 0;
   if (!packagingInfoPresent) {
-    console.log("DEBUG: INCONCLUSIVE - No packaging info found. Recommending image analysis.");
+    console.log("DEBUG: INCONCLUSIVE (Phase 5) - No packaging info found. Recommending image analysis.");
     return { type: 'inconclusive', reason: 'no_packaging_info' };
   } else {
-    console.log("DEBUG: INCONCLUSIVE - Vague text analysis. Recommending image analysis.");
+    console.log("DEBUG: INCONCLUSIVE (Phase 5) - Vague text analysis. Recommending image analysis.");
     return { type: 'inconclusive', reason: 'vague_text_info' };
   }
 };

@@ -35,7 +35,7 @@ serve(async (req) => {
 
     if (imageData) {
       console.log("[yolov8-detect-bottle] Using provided imageData (base64).");
-      base64ImageString = imageData;
+      base64ImageString = imageData; // imageData is already a data URI
     } else if (imageUrl) {
       console.log(`[yolov8-detect-bottle] Fetching image from imageUrl: ${imageUrl}`);
       
@@ -46,6 +46,7 @@ serve(async (req) => {
         throw new Error(`Failed to fetch image from URL: ${imageFetchResponse.statusText}`);
       }
       const imageBlob = await imageFetchResponse.blob();
+      console.log(`[yolov8-detect-bottle] Fetched image type: ${imageBlob.type}`);
       
       // Convert blob to base64 data URI
       const arrayBuffer = await imageBlob.arrayBuffer();
@@ -55,7 +56,7 @@ serve(async (req) => {
         binary += String.fromCharCode(bytes[i]);
       }
       base64ImageString = `data:${imageBlob.type};base64,${btoa(binary)}`;
-      console.log(`[yolov8-detect-bottle] Fetched image converted to base64 data URI.`);
+      console.log(`[yolov8-detect-bottle] Fetched image converted to base64 data URI. Starts with: ${base64ImageString.substring(0, 100)}...`);
     } else {
       console.error('[yolov8-detect-bottle] Error: Image data or image URL is required in request body.');
       return new Response(JSON.stringify({ error: 'Image data or image URL is required' }), {

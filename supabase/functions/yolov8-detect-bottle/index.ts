@@ -10,19 +10,18 @@ const corsHeaders = {
 declare const Deno: any;
 
 // Helper function to poll for the prediction result
-async function pollForPredictionResult(yolov8ApiUrl: string, eventId: string, timeoutMs = 30000, intervalMs = 500) {
+async function pollForPredictionResult(yolov8ApiUrl: string, eventId: string, sessionHash: string, timeoutMs = 30000, intervalMs = 500) {
   const startTime = Date.now();
-  // Changed to GET with query parameter for hash
-  const pollEndpoint = `${yolov8ApiUrl}/gradio_api/queue/data?hash=${eventId}`; 
+  // Include session_hash as a query parameter
+  const pollEndpoint = `${yolov8ApiUrl}/gradio_api/queue/data?session_hash=${sessionHash}&hash=${eventId}`; 
 
-  while (Date.now() - startTime < timeoutMs) { // Corrected Date.Now() to Date.now()
-    console.log(`[yolov8-detect-bottle] Polling for result with event_id: ${eventId} at ${pollEndpoint}`);
+  while (Date.now() - startTime < timeoutMs) {
+    console.log(`[yolov8-detect-bottle] Polling for result with event_id: ${eventId} and session_hash: ${sessionHash} at ${pollEndpoint}`);
     const pollResponse = await fetch(pollEndpoint, {
-      method: 'GET', // Changed to GET
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json', // Still good practice
+        'Content-Type': 'application/json',
       },
-      // No body for GET request
     });
 
     if (!pollResponse.ok) {
@@ -89,7 +88,7 @@ serve(async (req) => {
       meta: { _type: "gradio.FileData" }
     };
 
-    // 1. Send initial prediction request to get event_id
+    // 1. Send initial prediction request to get event_id and session_hash
     const predictEndpoint = `${yolov8ApiUrl}/gradio_api/call/predict`;
     console.log(`[yolov8-detect-bottle] Sending initial POST request to Gradio API endpoint: ${predictEndpoint}`);
     
@@ -114,13 +113,14 @@ serve(async (req) => {
     console.log("[yolov8-detect-bottle] Raw initial prediction data:", initialPredictionData);
 
     const eventId = initialPredictionData.event_id;
-    if (!eventId) {
-      throw new Error('Failed to get event_id from initial prediction response.');
+    const sessionHash = initialPredictionData.session_hash; // Extract session_hash
+    if (!eventId || !sessionHash) {
+      throw new Error('Failed to get event_id or session_hash from initial prediction response.');
     }
-    console.log(`[yolov8-detect-bottle] Received event_id: ${eventId}`);
+    console.log(`[yolov8-detect-bottle] Received event_id: ${eventId}, session_hash: ${sessionHash}`);
 
-    // 2. Poll for the prediction result using the event_id
-    const rawPredictionResult = await pollForPredictionResult(yolov8ApiUrl, eventId);
+    // 2. Poll for the prediction result using the event_id and session_hash
+    const rawPredictionResult = await pollForPredictionResult(yolov8ApiUrl, eventId, sessionHash);
     
     const isPlasticBottle = typeof rawPredictionResult === 'boolean' ? rawPredictionResult : false;
     console.log(`[yolov8-detect-bottle] Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);

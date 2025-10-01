@@ -1,5 +1,7 @@
 // @ts-ignore
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+// @ts-ignore
+import { SignJWT } from "https://deno.land/x/jose@v5.2.4/index.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,6 +11,65 @@ const corsHeaders = {
 // Declare Deno global for TypeScript
 declare const Deno: any;
 
+interface ServiceAccountKey {
+  type: string;
+  project_id: string;
+  private_key_id: string;
+  private_key: string;
+  client_email: string;
+  client_id: string;
+  auth_uri: string;
+  token_uri: string;
+  auth_provider_x509_cert_url: string;
+  client_x509_cert_url: string;
+  universe_domain: string;
+}
+
+// Function to get an OAuth2 access token using a service account key
+async function getGoogleAccessToken(serviceAccountKey: ServiceAccountKey): Promise<string> {
+  const now = Math.floor(Date.now() / 1000);
+  const expiry = now + 3600; // Token valid for 1 hour
+
+  const payload = {
+    iss: serviceAccountKey.client_email,
+    scope: "https://www.googleapis.com/auth/cloud-platform", // Scope for Vision API
+    aud: serviceAccountKey.token_uri,
+    exp: expiry,
+    iat: now,
+  };
+
+  const privateKey = await crypto.subtle.importKey(
+    "pkcs8",
+    new TextEncoder().encode(serviceAccountKey.private_key.replace(/\\n/g, '\n')), // Handle escaped newlines
+    { name: "RSASSA-PKCS1-V1_5", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const jwt = await new SignJWT(payload)
+    .setProtectedHeader({ alg: "RS256", typ: "JWT" })
+    .sign(privateKey);
+
+  const response = await fetch(serviceAccountKey.token_uri, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion: jwt,
+    }).toString(),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to get Google access token: ${response.status} - ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.access_token;
+}
+
 serve(async (req) => {
   console.log(`analyze-image-for-plastic-bottle function invoked. Method: ${req.method}`);
   if (req.method === 'OPTIONS') {
@@ -17,7 +78,7 @@ serve(async (req) => {
   }
 
   try {
-    const { imageData, imageUrl } = await req.json(); // productName is no longer used for AI decision
+    const { imageData, imageUrl } = await req.json();
     let imageToAnalyze: string | null = null;
 
     if (imageData) {
@@ -25,13 +86,11 @@ serve(async (req) => {
       console.log("Received base64 image data for analysis.");
     } else if (imageUrl) {
       console.log(`Received image URL for analysis: ${imageUrl}`);
-      // Fetch the image from the URL
       const imageResponse = await fetch(imageUrl);
       if (!imageResponse.ok) {
         throw new Error(`Failed to fetch image from URL: ${imageResponse.statusText}`);
       }
       const imageBuffer = await imageResponse.arrayBuffer();
-      // Convert ArrayBuffer to base64
       imageToAnalyze = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
       console.log("Fetched image from URL and converted to base64.");
     } else {
@@ -42,12 +101,16 @@ serve(async (req) => {
       });
     }
 
-    const googleVisionApiKey = Deno.env.get('GOOGLE_VISION_API_KEY');
-    if (!googleVisionApiKey) {
-      throw new Error('GOOGLE_VISION_API_KEY is not set in environment variables.');
+    const googleServiceAccountKeyJson = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_KEY_JSON');
+    if (!googleServiceAccountKeyJson) {
+      throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY_JSON is not set in environment variables.');
     }
 
-    const visionApiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${googleVisionApiKey}`;
+    const serviceAccountKey: ServiceAccountKey = JSON.parse(googleServiceAccountKeyJson);
+    const accessToken = await getGoogleAccessToken(serviceAccountKey);
+    console.log("Google access token obtained.");
+
+    const visionApiUrl = `https://vision.googleapis.com/v1/images:annotate`;
 
     const visionRequestBody = {
       requests: [
@@ -74,6 +137,7 @@ serve(async (req) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`, // Use the obtained access token
       },
       body: JSON.stringify(visionRequestBody),
     });

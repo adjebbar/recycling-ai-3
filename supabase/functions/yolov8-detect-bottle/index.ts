@@ -51,8 +51,8 @@ serve(async (req) => {
 
     console.log(`[yolov8-detect-bottle] Image source (URL or data URI) length: ${imageSource.length}`);
 
-    // --- Direct prediction using /run/predict endpoint ---
-    const predictEndpoint = `${yolov8ApiUrl}/run/predict`; // Changed endpoint
+    // --- Direct prediction using /predict endpoint as per API documentation ---
+    const predictEndpoint = `${yolov8ApiUrl}/predict`; // Changed endpoint to /predict
     console.log(`[yolov8-detect-bottle] Sending POST request to Gradio API endpoint: ${predictEndpoint}`);
     
     const predictionResponse = await fetch(predictEndpoint, {

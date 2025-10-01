@@ -46,7 +46,7 @@ async function getGoogleAccessToken(serviceAccountKey: ServiceAccountKey): Promi
 
   const privateKey = await crypto.subtle.importKey(
     "pkcs8",
-    new TextEncoder().encode(serviceAccountKey.private_key.replace(/\\n/g, '\n')), // Handle escaped newlines
+    new TextEncoder().encode(serviceAccountKey.private_key), // Removed .replace(/\\n/g, '\n')
     { name: "RSASSA-PKCS1-V1_5", hash: "SHA-256" },
     false,
     ["sign"]

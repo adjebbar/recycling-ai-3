@@ -17,7 +17,7 @@ serve(async (req) => {
   }
 
   try {
-    const { imageData, imageUrl } = await req.json(); // Removed productName as Gradio API doesn't use it
+    const { imageData, imageUrl } = await req.json();
     console.log(`[yolov8-detect-bottle] Received request: imageData present: ${!!imageData}, imageUrl present: ${!!imageUrl}`);
     
     const yolov8ApiUrl = Deno.env.get('YOLOV8_API_URL');
@@ -29,13 +29,13 @@ serve(async (req) => {
         status: 500,
       });
     }
-    console.log(`[yolov8-detect-bottle] YOLOv8 API URL from env: ${yolov8ApiUrl}`); // Log the URL being used
+    console.log(`[yolov8-detect-bottle] YOLOv8 API URL from env: ${yolov8ApiUrl}`);
 
     let base64ImageString: string;
 
     if (imageData) {
       console.log("[yolov8-detect-bottle] Using provided imageData (base64).");
-      base64ImageString = imageData; // imageData is already a data URI
+      base64ImageString = imageData;
     } else if (imageUrl) {
       console.log(`[yolov8-detect-bottle] Fetching image from imageUrl: ${imageUrl}`);
       

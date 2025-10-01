@@ -10,18 +10,18 @@ const corsHeaders = {
 declare const Deno: any;
 
 // Helper function to poll for the prediction result
-async function pollForPredictionResult(yolov8ApiUrl: string, eventId: string, timeoutMs = 30000, intervalMs = 500) {
+async function pollForPredictionResult(yolov8ApiUrl: string, eventId: string, timeoutMs = 30000, intervalMs = 1500) { // Increased interval to 1.5s as per chatgpt
   const startTime = Date.now();
-  const pollEndpoint = `${yolov8ApiUrl}/gradio_api/queue/data`;
+  // Changed polling endpoint and method as per chatgpt's suggestion
+  const pollEndpoint = `${yolov8ApiUrl}/gradio_api/call/predict/${eventId}`; 
 
   while (Date.now() - startTime < timeoutMs) {
-    console.log(`[yolov8-detect-bottle] Polling for result with event_id: ${eventId}`);
-    const pollResponse = await fetch(pollEndpoint, {
-      method: 'POST',
+    console.log(`[yolov8-detect-bottle] Polling for result with event_id: ${eventId} at ${pollEndpoint}`);
+    const pollResponse = await fetch(pollEndpoint, { // GET request
+      method: 'GET', // Changed to GET
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', // Still good to send, though not strictly needed for GET
       },
-      body: JSON.stringify({ hash: eventId }),
     });
 
     if (!pollResponse.ok) {
@@ -32,10 +32,15 @@ async function pollForPredictionResult(yolov8ApiUrl: string, eventId: string, ti
     const pollData = await pollResponse.json();
     console.log("[yolov8-detect-bottle] Raw polling data:", pollData);
 
-    if (pollData.status === 'complete') {
-      // The actual prediction result is expected in pollData.data[0]
-      return pollData.data[0];
-    } else if (pollData.status === 'error') {
+    // chatgpt suggested "COMPLETE" (uppercase)
+    if (pollData.status === 'COMPLETE') { 
+      // chatgpt returns result.data, which is an array. We need data[0]
+      if (Array.isArray(pollData.data) && pollData.data.length > 0) {
+        return pollData.data[0];
+      } else {
+        throw new Error('Prediction result data is empty or not an array.');
+      }
+    } else if (pollData.status === 'ERROR') { // Also check for uppercase ERROR
       throw new Error(`Gradio API prediction error: ${pollData.message || 'Unknown error'}`);
     }
 

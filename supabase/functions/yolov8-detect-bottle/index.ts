@@ -36,14 +36,14 @@ serve(async (req) => {
       });
     }
 
-    // Étape 1 : Construire l'URL de manière fiable à partir de la base
     const url = new URL(yolov8ApiUrl);
-    const baseUrl = url.origin; // Assure que nous n'utilisons que la partie principale de l'URL
-    const predictEndpoint = `${baseUrl}/run/predict`; // Utilise le point d'accès standard
+    const baseUrl = url.origin;
+    const predictEndpoint = `${baseUrl}/run/predict`;
     
+    // NOUVEAU LOG DE DÉBOGAGE
+    console.log(`[yolov8-detect-bottle] DEBUG: Base URL constructed from YOLOV8_API_URL is: ${baseUrl}`);
     console.log(`[yolov8-detect-bottle] Sending POST request to Hugging Face API: ${predictEndpoint}`);
 
-    // Étape 2 : Envoyer la requête avec le format de payload correct
     const response = await fetch(predictEndpoint, {
       method: 'POST',
       headers: {
@@ -51,7 +51,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${huggingFaceToken}`,
       },
       body: JSON.stringify({
-        data: [imageSource], // Le format standard pour Gradio
+        data: [imageSource],
       }),
     });
 
@@ -63,7 +63,6 @@ serve(async (req) => {
     const responseData = await response.json();
     console.log("[yolov8-detect-bottle] Raw API response data:", JSON.stringify(responseData, null, 2));
 
-    // Étape 3 : Traiter la réponse
     if (!responseData.data || !Array.isArray(responseData.data) || responseData.data.length === 0) {
       throw new Error('Invalid response format from Hugging Face API.');
     }
@@ -77,7 +76,8 @@ serve(async (req) => {
       status: 200,
     });
 
-  } catch (error: any) {
+  } catch (error: any)
+{
     console.error(`[yolov8-detect-bottle] Uncaught error in function: ${error.message}`);
     return new Response(JSON.stringify({ error: `An unexpected error occurred: ${error.message}` }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

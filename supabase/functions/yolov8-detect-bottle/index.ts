@@ -51,97 +51,34 @@ serve(async (req) => {
 
     console.log(`[yolov8-detect-bottle] Image source (URL or data URI) length: ${imageSource.length}`);
 
-    const gradioInputData = {
-      path: imageSource,
-      meta: { _type: "gradio.FileData" }
-    };
-
-    // --- Step 1: Initiate prediction and get event_id ---
-    const predictEndpoint = `${yolov8ApiUrl}/gradio_api/call/predict`;
-    console.log(`[yolov8-detect-bottle] Sending initial POST request to Gradio API endpoint: ${predictEndpoint}`);
-    const initialResponse = await fetch(predictEndpoint, {
+    // --- Direct prediction using /run/predict endpoint ---
+    const predictEndpoint = `${yolov8ApiUrl}/run/predict`; // Changed endpoint
+    console.log(`[yolov8-detect-bottle] Sending POST request to Gradio API endpoint: ${predictEndpoint}`);
+    
+    const predictionResponse = await fetch(predictEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        data: [gradioInputData] // Use the consistently formatted input data
+        data: [imageSource] // Send imageSource directly in the data array
       }),
     });
-    console.log(`[yolov8-detect-bottle] Initial POST response status: ${initialResponse.status}`);
+    console.log(`[yolov8-detect-bottle] Prediction response status: ${predictionResponse.status}`);
 
-    if (!initialResponse.ok) {
-      const errorText = await initialResponse.text();
-      console.error(`[yolov8-detect-bottle] Initial POST to Gradio API responded with non-OK status: ${initialResponse.status}, body: ${errorText}`);
-      throw new Error(`Gradio API error (initial POST): ${initialResponse.status} - ${errorText}`);
+    if (!predictionResponse.ok) {
+      const errorText = await predictionResponse.text();
+      console.error(`[yolov8-detect-bottle] Prediction to Gradio API responded with non-OK status: ${predictionResponse.status}, body: ${errorText}`);
+      throw new Error(`Gradio API error (prediction): ${predictionResponse.status} - ${errorText}`);
     }
 
-    const initialData = await initialResponse.json();
-    const eventId = initialData.event_id;
+    const predictionData = await predictionResponse.json();
+    console.log("[yolov8-detect-bottle] Raw prediction data:", predictionData);
 
-    if (!eventId) {
-      console.error('[yolov8-detect-bottle] Error: event_id not found in initial Gradio API response:', initialData);
-      throw new Error('Failed to get event_id from Gradio API.');
-    }
-    console.log(`[yolov8-detect-bottle] Received event_id: ${eventId}`);
-
-    // --- Step 2: Poll for the prediction result ---
-    const pollEndpoint = `${yolov8ApiUrl}/gradio_api/call/predict/${eventId}`;
-    console.log(`[yolov8-detect-bottle] Polling for prediction result using endpoint: ${pollEndpoint}`);
-    const pollResponse = await fetch(pollEndpoint);
-    console.log(`[yolov8-detect-bottle] Poll GET response status: ${pollResponse.status}`);
-
-    if (!pollResponse.ok) {
-      const errorText = await pollResponse.text();
-      console.error(`[yolov8-detect-bottle] Poll GET to Gradio API responded with non-OK status: ${pollResponse.status}, body: ${errorText}`);
-      throw new Error(`Gradio API error (poll GET): ${pollResponse.status} - ${errorText}`);
-    }
-
-    if (!pollResponse.body) {
-      throw new Error('Gradio API poll response body is null.');
-    }
-
-    const reader = pollResponse.body.getReader();
-    const decoder = new TextDecoder();
-    let receivedText = '';
-    let isPlasticBottle: boolean | null = null;
-    const timeout = 30 * 1000; // 30 seconds timeout for polling
-    const startTime = Date.now();
-
-    while (true) {
-      if (Date.now() - startTime > timeout) {
-        throw new Error('Gradio API polling timed out.');
-      }
-
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      receivedText += decoder.decode(value, { stream: true });
-      const lines = receivedText.split('\n');
-      receivedText = lines.pop() || ''; // Keep incomplete last line
-
-      for (const line of lines) {
-        if (line.trim()) {
-          try {
-            const json = JSON.parse(line);
-            console.log("[yolov8-detect-bottle] Received Gradio stream message:", json.msg);
-            if (json.msg === 'process_completed' && json.output && Array.isArray(json.output.data)) {
-              isPlasticBottle = typeof json.output.data[0] === 'boolean' ? json.output.data[0] : false;
-              console.log(`[yolov8-detect-bottle] Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
-              reader.cancel(); // Stop reading the stream
-              break;
-            }
-          } catch (e) {
-            console.warn("[yolov8-detect-bottle] Error parsing Gradio stream line:", e);
-          }
-        }
-      }
-      if (isPlasticBottle !== null) break; // Exit loop if result found
-    }
-
-    if (isPlasticBottle === null) {
-      throw new Error('Failed to get plastic bottle detection result from Gradio API.');
-    }
+    // The Gradio API documentation implies the result is directly in data[0]
+    // The output is a boolean, so we expect predictionData.data[0] to be the boolean result.
+    const isPlasticBottle = typeof predictionData.data[0] === 'boolean' ? predictionData.data[0] : false;
+    console.log(`[yolov8-detect-bottle] Final image analysis result: is_plastic_bottle = ${isPlasticBottle}`);
 
     return new Response(JSON.stringify({ is_plastic_bottle: isPlasticBottle }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

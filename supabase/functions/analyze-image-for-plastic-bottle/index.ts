@@ -17,25 +17,7 @@ serve(async (req) => {
 
   try {
     const { imageData, imageUrl } = await req.json();
-    let imageToAnalyze: string | null = null;
-    let imageType: 'base64' | 'url';
-
-    if (imageData) {
-      imageToAnalyze = imageData.split(',')[1]; // Remove data:image/jpeg;base64, prefix
-      imageType = 'base64';
-      console.log("Received base64 image data for analysis.");
-    } else if (imageUrl) {
-      imageToAnalyze = imageUrl;
-      imageType = 'url';
-      console.log(`Received image URL for analysis: ${imageUrl}`);
-    } else {
-      console.error('Error: Image data or image URL is required in request body.');
-      return new Response(JSON.stringify({ error: 'Image data or image URL is required' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      });
-    }
-
+    
     const roboflowApiKey = Deno.env.get('ROBOFLOW_API_KEY');
 
     if (!roboflowApiKey) {
@@ -44,26 +26,38 @@ serve(async (req) => {
     }
     console.log(`Roboflow API key found: ${roboflowApiKey ? 'YES' : 'NO'}`);
 
-    // Use the specific endpoint for the 'detect-bottles' workflow
     const roboflowApiUrl = `https://serverless.roboflow.com/detect-bottles?api_key=${roboflowApiKey}`;
     console.log(`Constructed Roboflow API URL for POST: ${roboflowApiUrl}`);
 
-    const requestBody = JSON.stringify({
-      image: {
-        type: imageType,
-        value: imageToAnalyze,
-      },
-    });
-    console.log("Roboflow Request Body (first 200 chars):", requestBody.substring(0, 200));
+    const formData = new FormData();
 
+    if (imageData) {
+      // Convert base64 to Blob for multipart/form-data
+      const byteString = atob(imageData.split(',')[1]);
+      const mimeString = imageData.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([ab], { type: mimeString });
+      formData.append("image", blob, "image.jpeg"); // Append as a file
+      console.log("Appended base64 image as Blob to FormData.");
+    } else if (imageUrl) {
+      formData.append("image", imageUrl); // Append URL directly
+      console.log(`Appended image URL '${imageUrl}' to FormData.`);
+    } else {
+      console.error('Error: Image data or image URL is required in request body.');
+      return new Response(JSON.stringify({ error: 'Image data or image URL is required' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      });
+    }
 
-    console.log("Sending request to Roboflow API...");
+    console.log("Sending request to Roboflow API with FormData...");
     const roboflowResponse = await fetch(roboflowApiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json', // Keep Content-Type as application/json for base64/URL
-      },
-      body: requestBody,
+      body: formData, // Deno's fetch will automatically set Content-Type: multipart/form-data
     });
 
     if (!roboflowResponse.ok) {
@@ -73,15 +67,11 @@ serve(async (req) => {
     }
 
     const roboflowData = await roboflowResponse.json();
-    // Log the entire Roboflow response for debugging
     console.log("Roboflow API full response:", JSON.stringify(roboflowData, null, 2));
 
     let isPlasticBottle = false;
     const confidenceThreshold = 0.7; // 70% confidence
 
-    // The response structure for this endpoint might be different.
-    // Assuming it returns a 'predictions' array directly in the root or a 'detections' array.
-    // We'll check for common object detection output formats.
     if (roboflowData.predictions && Array.isArray(roboflowData.predictions)) {
       isPlasticBottle = roboflowData.predictions.some((prediction: any) =>
         prediction.class.toLowerCase().includes('plastic bottle') && prediction.confidence > confidenceThreshold

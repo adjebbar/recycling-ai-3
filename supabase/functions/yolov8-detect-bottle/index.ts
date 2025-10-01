@@ -29,7 +29,7 @@ serve(async (req) => {
         status: 500,
       });
     }
-    console.log(`[yolov8-detect-bottle] YOLOv8 API URL found: ${yolov8ApiUrl}`);
+    console.log(`[yolov8-detect-bottle] YOLOv8 API URL from env: ${yolov8ApiUrl}`); // Log the URL being used
 
     let base64ImageString: string;
 

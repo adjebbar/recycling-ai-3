@@ -38,6 +38,8 @@ const analyzeProductData = (product: any): ValidationResult => {
   console.log("--- analyzeProductData START ---");
   console.log("Full Product Data:", JSON.stringify(product, null, 2)); // Log full product data
   console.log("Combined Search Text:", searchText);
+  console.log("Raw Packaging Field:", product.packaging); // Added specific log
+  console.log("Raw Packaging Tags Field:", product.packaging_tags); // Added specific log
 
 
   // --- Phase 1: Explicit Non-Plastic Packaging (Strongest REJECT) ---

@@ -37,7 +37,7 @@ const analyzeProductData = (product: any): ValidationResult => {
 
   console.log("--- analyzeProductData START ---");
   console.log("Full Product Data:", JSON.stringify(product, null, 2)); // Log full product data
-  console.log("Combined Search Text:", searchText);
+  console.log("Combined Search Text for analysis:", searchText); // Log the final searchText
   console.log("Raw Packaging Field:", product.packaging); // Added specific log
   console.log("Raw Packaging Tags Field:", product.packaging_tags); // Added specific log
 
@@ -66,13 +66,17 @@ const analyzeProductData = (product: any): ValidationResult => {
   // If packaging explicitly states plastic, accept.
   const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc'];
   console.log("Phase 2: Checking for explicit plastic packaging terms...");
-  const isPackagingExplicitlyPlastic = directPackagingPlasticTerms.some(k => {
-    const found = searchText.includes(k); // Check in combined search text
-    if (found) console.log(`DEBUG: Found direct plastic term: '${k}'.`);
-    return found;
-  });
-  console.log("Result Phase 2 (isPackagingExplicitlyPlastic):", isPackagingExplicitlyPlastic);
-  if (isPackagingExplicitlyPlastic) {
+  let foundPlasticTerm = false;
+  for (const k of directPackagingPlasticTerms) {
+    const found = searchText.includes(k);
+    console.log(`DEBUG: Checking for plastic term '${k}' in searchText. Found: ${found}`);
+    if (found) {
+      foundPlasticTerm = true;
+      break; // Exit loop once found
+    }
+  }
+  console.log("Result Phase 2 (isPackagingExplicitlyPlastic):", foundPlasticTerm);
+  if (foundPlasticTerm) {
     console.log("--- analyzeProductData END: ACCEPTED (Explicit Plastic Packaging) ---");
     return 'accepted';
   }

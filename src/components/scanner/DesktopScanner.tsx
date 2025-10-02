@@ -6,17 +6,17 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Camera, Keyboard } from 'lucide-react';
 import BarcodeScanner from '@/components/BarcodeScanner';
-import { ImageAnalysis } from './ImageAnalysis.tsx';
+// Removed ImageAnalysis import
 import { useTranslation } from 'react-i18next';
 
 interface DesktopScannerProps {
   state: any;
   actions: any;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  // Removed fileInputRef as ImageAnalysis is removed
   scanFailureMessage: string | null; // New prop
 }
 
-export const DesktopScanner = ({ state, actions, fileInputRef, scanFailureMessage }: DesktopScannerProps) => {
+export const DesktopScanner = ({ state, actions, scanFailureMessage }: DesktopScannerProps) => {
   const { t } = useTranslation();
 
   return (
@@ -28,25 +28,15 @@ export const DesktopScanner = ({ state, actions, fileInputRef, scanFailureMessag
       <TabsContent value="camera">
         <Card className="overflow-hidden">
           <CardContent className="p-4 relative flex items-center justify-center">
-            {state.imageAnalysisMode ? (
-              <ImageAnalysis
-                capturedImage={state.capturedImage}
-                isAnalyzing={state.isAnalyzingImage}
-                onCapture={actions.handleImageCapture}
-                onAnalyze={actions.handleImageAnalysis}
-                onCancel={() => actions.updateState({ imageAnalysisMode: false })}
-                fileInputRef={fileInputRef}
+            {/* Removed conditional rendering for ImageAnalysis mode */}
+            <div className="w-full max-w-xs mx-auto h-96 overflow-hidden rounded-md relative">
+              <BarcodeScanner
+                onScanSuccess={actions.processBarcode}
+                onScanFailure={(error: string) => actions.updateState({ scanFailureMessage: t('scanner.noBarcodeDetected') })}
+                onCameraInitError={(error: string) => actions.updateState({ cameraInitializationError: error })}
+                message={scanFailureMessage} // Pass the message
               />
-            ) : (
-              <div className="w-full max-w-xs mx-auto h-96 overflow-hidden rounded-md relative">
-                <BarcodeScanner
-                  onScanSuccess={actions.processBarcode}
-                  onScanFailure={(error: string) => actions.updateState({ scanFailureMessage: t('scanner.noBarcodeDetected') })}
-                  onCameraInitError={(error: string) => actions.updateState({ cameraInitializationError: error })}
-                  message={scanFailureMessage} // Pass the message
-                />
-              </div>
-            )}
+            </div>
           </CardContent>
         </Card>
       </TabsContent>

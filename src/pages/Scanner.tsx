@@ -16,8 +16,7 @@ const ScannerPage = () => {
 
   // Create a ref for the Html5QrcodeScanner instance
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
-  // Create a ref for the file input used in image analysis
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Removed fileInputRef as image analysis is no longer used
 
   const { state, points, actions } = useScannerLogic(scannerRef); // Pass scannerRef to the hook
 
@@ -29,7 +28,7 @@ const ScannerPage = () => {
           <p className="text-muted-foreground mb-6">{t('scanner.subtitle')}</p>
         </div>
 
-        <ScannerView state={state} actions={actions} fileInputRef={fileInputRef} />
+        <ScannerView state={state} actions={actions} /> {/* Removed fileInputRef prop */}
 
         {!user && (
           <AnonymousUserActions

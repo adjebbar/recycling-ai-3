@@ -11,6 +11,7 @@ import { HowItWorksSection } from "@/components/HowItWorksSection"; // Import th
 import SeeItInAction from "@/components/SeeItInAction";
 import ArrowVector from "@/components/ArrowVector";
 import PlasticBottleVector from "@/components/PlasticBottleVector"; // Import the plastic bottle vector
+import RecyclingBinButton from "@/components/RecyclingBinButton"; // Import RecyclingBinButton
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -103,18 +104,14 @@ const LandingPage = () => {
                 </div>
 
                 <div className="animate-fade-in-up flex justify-center mt-4" style={{ animationDelay: '0.6s' }}>
-                  <div className="relative flex items-center justify-center h-48 w-48">
-                    {/* Animated Border */}
-                    <div className="absolute inset-0 rounded-full border-4 border-primary animate-border-color-change animate-subtle-pulse z-0"></div>
-                    
-                    <Link to="/scanner" className="transition-transform duration-300 hover:scale-105 relative z-10">
-                      <img 
-                        src="/images/7178577_61340.jpg" 
-                        alt="Scan Now" 
-                        className="h-44 w-44 object-cover shadow-xl rounded-full"
-                      />
-                    </Link>
-                  </div>
+                  <RecyclingBinButton 
+                    to="/scanner" 
+                    label="Scan Now" 
+                    icon={ScanLine} 
+                    shape="scanner" 
+                    variant="orange"
+                    className="w-48 h-48 text-lg" // Make it larger and more prominent
+                  />
                 </div>
               </div>
             </div>

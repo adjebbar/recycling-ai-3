@@ -125,3 +125,74 @@
 .html5-qrcode-button-stop-scanning {
   @apply absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4 py-2 rounded-md text-sm font-medium;
 }
+
+/* Print styles for the voucher */
+@media print {
+  body * {
+    visibility: hidden; /* Hide everything by default */
+  }
+  #printable-voucher, #printable-voucher * {
+    visibility: visible; /* Make printable voucher and its children visible */
+  }
+  #printable-voucher {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%; /* Take full width of the paper */
+    margin: 0;
+    padding: 10mm; /* Add some padding for print */
+    box-shadow: none !important;
+    background-color: white !important; /* Ensure white background */
+    color: black !important; /* Ensure black text */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh; /* Ensure it takes at least one full page height */
+  }
+  #printable-voucher .qr-code-container {
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+  }
+  #printable-voucher .qr-code-container svg {
+    width: 160px !important; /* Fixed size for print */
+    height: 160px !important;
+  }
+  #printable-voucher .text-center {
+    text-align: center;
+  }
+  #printable-voucher .text-xl {
+    font-size: 1.25rem !important; /* Adjust font size for print */
+  }
+  #printable-voucher .text-2xl {
+    font-size: 1.5rem !important;
+  }
+  #printable-voucher .text-3xl {
+    font-size: 1.875rem !important;
+  }
+  #printable-voucher .text-4xl {
+    font-size: 2.25rem !important;
+  }
+  #printable-voucher .text-sm {
+    font-size: 0.8rem !important;
+  }
+  #printable-voucher .text-xs {
+    font-size: 0.7rem !important;
+  }
+  #printable-voucher .my-4 {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  #printable-voucher .p-4 {
+    padding: 0.5rem !important;
+  }
+  #printable-voucher .rounded-md {
+    border-radius: 0 !important;
+  }
+  #printable-voucher .border-t {
+    border-top: none !important;
+  }
+  .no-print {
+    display: none !important; /* Hide elements with no-print class */
+  }
+}

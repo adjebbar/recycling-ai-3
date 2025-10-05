@@ -2,7 +2,7 @@
 
 import QRCode from "react-qr-code";
 import { Button } from "@/components/ui/button";
-import { Printer, Loader2 } from "lucide-react";
+import { Printer, Loader2, Download } from "lucide-react"; // Added Download icon
 import {
   AlertDialog,
   AlertDialogContent,
@@ -12,6 +12,9 @@ import {
   AlertDialogDescription,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { useRef } from "react"; // Import useRef
+import domtoimage from 'dom-to-image'; // Import domtoimage
+import { showSuccess, showError } from '@/utils/toast'; // Import toast utilities
 
 interface RewardTicketDialogProps {
   open: boolean;
@@ -28,9 +31,33 @@ const SHOPPING_CENTER_ID = "SC-12345";
 
 export const RewardTicketDialog = ({ open, onOpenChange, qrCodeValue, voucherCode, isLoading, points, onRedeemAndClose }: RewardTicketDialogProps) => {
   const cashValue = (points * VIRTUAL_CASH_PER_POINT).toFixed(2);
+  const qrCodeRef = useRef<HTMLDivElement>(null); // Create ref for QR code container
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownloadQrCode = async () => {
+    if (qrCodeRef.current) {
+      try {
+        // Ensure the background is white for the downloaded image
+        const dataUrl = await domtoimage.toPng(qrCodeRef.current, {
+          bgcolor: '#ffffff', 
+          width: qrCodeRef.current.offsetWidth,
+          height: qrCodeRef.current.offsetHeight,
+        });
+        const link = document.createElement('a');
+        link.download = `ecoscan-voucher-${voucherCode || 'qr-code'}.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showSuccess("QR Code downloaded successfully!");
+      } catch (error) {
+        console.error("Failed to download QR code as image:", error);
+        showError("Failed to download QR Code. Please try again.");
+      }
+    }
   };
 
   return (
@@ -44,7 +71,7 @@ export const RewardTicketDialog = ({ open, onOpenChange, qrCodeValue, voucherCod
             </AlertDialogDescription>
           </AlertDialogHeader>
           
-          <div className="bg-white p-4 rounded-md flex justify-center items-center my-4 h-[216px]">
+          <div ref={qrCodeRef} className="bg-white p-4 rounded-md flex justify-center items-center my-4 h-[216px]"> {/* Apply ref here */}
             {isLoading ? (
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
             ) : qrCodeValue ? ( // QR code still uses the JWT
@@ -77,6 +104,10 @@ export const RewardTicketDialog = ({ open, onOpenChange, qrCodeValue, voucherCod
           <Button variant="outline" onClick={handlePrint} disabled={isLoading || !qrCodeValue}>
             <Printer className="mr-2 h-4 w-4" />
             Print
+          </Button>
+          <Button variant="secondary" onClick={handleDownloadQrCode} disabled={isLoading || !qrCodeValue}> {/* New Download button */}
+            <Download className="mr-2 h-4 w-4" />
+            Download QR
           </Button>
           <AlertDialogAction onClick={onRedeemAndClose} disabled={isLoading}>
             Close & Redeem

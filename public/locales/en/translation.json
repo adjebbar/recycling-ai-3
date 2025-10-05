@@ -1,52 +1,57 @@
 {
   "nav": {
-    "home": "Home",
+    "appName": "EcoScan AI",
     "scan": "Scan",
+    "home": "Home",
     "rewards": "Rewards",
     "leaderboard": "Leaderboard",
     "profile": "Profile",
-    "appName": "EcoScan AI",
     "login": "Login",
     "signup": "Sign Up",
     "logout": "Logout",
-    "points": "{{count}} Points",
     "admin": "Admin",
+    "points": "{{count}} Points",
+    "myAccount": "My Account",
     "rewardHistory": "Reward History"
   },
   "home": {
     "hero": {
       "recycle": "Recycle.",
-      "earnRepeat": " Earn. Repeat."
+      "earnRepeat": "Earn. Repeat."
     },
     "subtitle": "Scan plastic bottles, earn points, and contribute to a greener planet.",
     "startScanning": "Start Scanning",
+    "howItWorks": "How It Works",
     "yourPoints": "Your Points"
   },
   "scanner": {
     "title": "Scan & Recycle",
-    "subtitle": "Scan the barcode of your plastic bottle to earn points!",
+    "subtitle": "Scan the barcode of a plastic bottle to earn points!",
+    "cameraTab": "Camera",
+    "manualTab": "Manual",
+    "manualTitle": "Manual Barcode Entry",
+    "manualDescription": "Enter the barcode number if the camera scan is not working.",
+    "manualPlaceholder": "Enter barcode number",
+    "manualButton": "Submit Barcode",
+    "manualFormatHint": "Enter 8 to 13 digits (e.g., UPC or EAN barcode).",
+    "sessionScore": "Session Score",
+    "resetScore": "Reset Score",
     "verifying": "Verifying product...",
     "success": "Bottle recycled! You earned {{points}} points!",
     "leveledUp": "Leveled up to {{levelName}}!",
     "achievementsUnlocked": "Achievements unlocked: {{achievements}}",
-    "notPlastic": "This doesn't seem to be a plastic bottle. Please try another item or use image analysis.",
-    "notFound": "Product not found in database. Please try another item or use image analysis.",
-    "connectionError": "Could not connect to product database. Please check your internet connection.",
-    "cameraInitError": "Failed to start camera. Please ensure camera permissions are granted and no other app is using the camera.",
+    "notPlastic": "This item is not recognized as a plastic bottle.",
+    "notFoundInDb": "Product not found in database.",
+    "checkingWithAi": "Checking with AI image analysis...",
+    "connectionError": "Failed to connect to product database.",
+    "cameraErrorTitle": "Camera Access Denied",
+    "cameraErrorMessage": "Please grant camera permissions in your browser settings to use the scanner.",
+    "retryCamera": "Retry Camera",
     "noBarcodeDetected": "No barcode detected. Try adjusting the camera or lighting.",
-    "manualTitle": "Manual Entry",
-    "manualDescription": "Enter the barcode manually if the scanner isn't working.",
-    "manualPlaceholder": "Enter barcode",
-    "manualButton": "Submit",
-    "sessionScore": "Session Score",
-    "resetScore": "Reset Score",
+    "imageSuccess": "Image analysis confirmed plastic bottle! You earned {{points}} points!",
+    "imageNotPlastic": "Image analysis indicates this is not a plastic bottle.",
     "signupPromptTitle": "Want to save your points?",
-    "signupPromptDescription": "Create an account to track your progress and unlock more rewards!",
-    "cameraPermission": "Camera permission is required for scanning.",
-    "cameraTab": "Camera",
-    "manualTab": "Manual",
-    "imageSuccess": "Image analyzed! Plastic bottle recycled, you earned {{points}} points!",
-    "imageNotPlastic": "Image analysis suggests this is not a plastic bottle. Please try another item."
+    "signupPromptDescription": "Sign up or log in to track your progress and redeem rewards!"
   },
   "profile": {
     "title": "My Profile",
@@ -56,7 +61,8 @@
     "recentActivityDescription": "Your last 20 recycling scans.",
     "date": "Date",
     "barcode": "Barcode",
-    "points": "Points"
+    "points": "Points",
+    "achievements": "Achievements"
   },
   "rewards": {
     "title": "Rewards",
@@ -69,11 +75,24 @@
     "allUnlockedTitle": "Congratulations!",
     "allUnlockedDescription": "You've unlocked all available rewards. You're a true recycling champion! Check back later for new rewards."
   },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "subtitle": "See who is leading the charge in our community!"
+  },
+  "howItWorks": {
+    "title": "How EcoScan AI Works",
+    "step1Title": "Scan",
+    "step1Description": "Use your phone camera to scan the barcode of any plastic bottle.",
+    "step2Title": "Earn",
+    "step2Description": "Our AI instantly verifies the bottle, and you earn points for every successful scan.",
+    "step3Title": "Redeem",
+    "step3Description": "Accumulate points and exchange them for exclusive rewards from our partners."
+  },
   "rewardHistory": {
     "title": "Reward History",
-    "subtitle": "Your past redeemed and active vouchers.",
+    "subtitle": "Your redeemed vouchers and their status.",
     "cardTitle": "Your Vouchers",
-    "cardDescription": "A list of your generated vouchers.",
+    "cardDescription": "A list of your recently redeemed vouchers.",
     "reward": "Reward",
     "cost": "Cost",
     "value": "Value",
@@ -85,29 +104,20 @@
     "genericVoucher": "Shopping Voucher",
     "errorLoading": "Failed to load reward history."
   },
-  "achievements": {
-    "firstScanName": "First Scan",
-    "firstScanDescription": "Recycle your first bottle.",
-    "noviceRecyclerName": "Novice Recycler",
-    "noviceRecyclerDescription": "Recycle 10 bottles.",
-    "pointCollectorName": "Point Collector",
-    "pointCollectorDescription": "Accumulate 100 points.",
-    "dedicatedRecyclerName": "Dedicated Recycler",
-    "dedicatedRecyclerDescription": "Recycle 50 bottles.",
-    "pointsHoarderName": "Points Hoarder",
-    "pointsHoarderDescription": "Accumulate 500 points."
-  },
   "footer": {
     "copyrightLine1": "© 2025 NewTech. All rights reserved.",
     "copyrightLine2": "Application developed by NewTech Corp."
   },
-  "howItWorks": {
-    "title": "How It Works",
-    "step1Title": "1. Choose Your Recycling Path",
-    "step1Description": "Scan bottles anonymously for instant points, or create an account to track your progress and unlock exclusive benefits.",
-    "step2Title": "2. Scan Plastic Bottles",
-    "step2Description": "Use your phone's camera to scan the barcode on plastic bottles you want to recycle and earn points.",
-    "step3Title": "3. Enjoy Your Rewards",
-    "step3Description": "Redeem your accumulated points for shopping vouchers (anonymous) or exclusive rewards and achievements (account holders)."
+  "achievements": {
+    "firstScanName": "First Scan",
+    "firstScanDescription": "Complete your very first scan.",
+    "noviceRecyclerName": "Novice Recycler",
+    "noviceRecyclerDescription": "Scan 10 bottles.",
+    "pointCollectorName": "Point Collector",
+    "pointCollectorDescription": "Accumulate 100 points.",
+    "dedicatedRecyclerName": "Dedicated Recycler",
+    "dedicatedRecyclerDescription": "Scan 50 bottles.",
+    "pointsHoarderName": "Points Hoarder",
+    "pointsHoarderDescription": "Accumulate 500 points."
   }
 }

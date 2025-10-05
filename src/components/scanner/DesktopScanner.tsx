@@ -8,6 +8,7 @@ import { Camera, Keyboard } from 'lucide-react';
 import BarcodeScanner from '@/components/BarcodeScanner';
 import { ImageAnalysis } from './ImageAnalysis.tsx';
 import { useTranslation } from 'react-i18next';
+import { FormDescription } from '@/components/ui/form'; // Import FormDescription
 
 interface DesktopScannerProps {
   state: any;
@@ -57,14 +58,20 @@ export const DesktopScanner = ({ state, actions, fileInputRef, scanFailureMessag
             <CardDescription>{t('scanner.manualDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={actions.handleManualSubmit} className="flex space-x-2">
+            <form onSubmit={actions.handleManualSubmit} className="flex flex-col space-y-2">
               <Input
-                type="text"
+                type="tel" // Use tel for numeric keyboard on mobile
+                pattern="[0-9]{8,13}" // Enforce 8 to 13 digits for common barcodes
+                maxLength={13} // Max length for common barcodes
                 placeholder={t('scanner.manualPlaceholder')}
                 value={state.manualBarcode}
                 onChange={(e) => actions.updateState({ manualBarcode: e.target.value })}
+                className="shadow-sm"
               />
-              <Button type="submit">{t('scanner.manualButton')}</Button>
+              <FormDescription className="text-left text-muted-foreground text-xs">
+                {t('scanner.manualFormatHint')}
+              </FormDescription>
+              <Button type="submit" className="w-full">{t('scanner.manualButton')}</Button>
             </form>
           </CardContent>
         </Card>

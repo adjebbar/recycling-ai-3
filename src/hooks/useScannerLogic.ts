@@ -39,24 +39,37 @@ const analyzeProductData = (product: any): ValidationResult => {
   console.log("DEBUG analyzeProductData: Raw product packaging string:", packaging);
   console.log("DEBUG analyzeProductData: Raw product packaging_tags string:", packagingTags);
 
-  // --- NEW PHASE 1: Prioritize direct packaging info for plastic ---
-  // If packaging or packagingTags explicitly state "plastic", accept it immediately.
-  const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc'];
-  const isPackagingExplicitlyPlastic = directPackagingPlasticTerms.some(k => {
-    const foundInPackaging = packaging.includes(k) || packagingTags.includes(k);
-    if (foundInPackaging) console.log(`DEBUG analyzeProductData: Found direct plastic term: '${k}' in packaging or packaging_tags.`);
-    return foundInPackaging;
+  const packagingRelatedText = [packaging, packagingTags].filter(Boolean).join(' ');
+
+  // --- NEW PHASE 1: Prioritize definitive non-plastic main container (e.g., glass bottle) ---
+  const definitiveGlassBottleTerms = ['bouteille verre', 'glass bottle', 'botella de vidrio', 'flacon verre'];
+  const isDefinitelyGlassBottle = definitiveGlassBottleTerms.some(k => {
+    const found = packagingRelatedText.includes(k);
+    if (found) console.log(`DEBUG analyzeProductData: Found definitive glass bottle term: '${k}' in packaging-related text.`);
+    return found;
   });
 
-  if (isPackagingExplicitlyPlastic) {
-    console.log("DEBUG analyzeProductData: ACCEPTED by NEW Phase 1 (explicit plastic packaging).");
+  if (isDefinitelyGlassBottle) {
+    console.log("DEBUG analyzeProductData: REJECTED by NEW Phase 1 (explicit glass bottle).");
+    return 'rejected';
+  }
+
+  // --- NEW PHASE 2: Prioritize definitive plastic main container (e.g., plastic bottle) ---
+  const definitivePlasticBottleTerms = ['bouteille plastique', 'plastic bottle', 'botella de plástico', 'flacon plastique', 'pet bottle', 'hdpe bottle', 'ldpe bottle'];
+  const isDefinitelyPlasticBottle = definitivePlasticBottleTerms.some(k => {
+    const found = packagingRelatedText.includes(k);
+    if (found) console.log(`DEBUG analyzeProductData: Found definitive plastic bottle term: '${k}' in packaging-related text.`);
+    return found;
+  });
+
+  if (isDefinitelyPlasticBottle) {
+    console.log("DEBUG analyzeProductData: ACCEPTED by NEW Phase 2 (explicit plastic bottle).");
     return 'accepted';
   }
 
-  // --- NEW PHASE 2: Strict Exclusion (if it's definitely NOT plastic, check packaging-related fields first) ---
-  // Only check definitive non-plastic keywords in packaging-specific fields to avoid false positives from general text.
+  // --- NEW PHASE 3: Strict Exclusion (if it's definitely NOT plastic, check general packaging-related fields) ---
   const definitiveNonPlasticKeywords = [
-    'glass', 'verre', 'vidrio', 'cristal', // Glass
+    'glass', 'verre', 'vidrio', 'cristal', // General Glass
     'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', 'lata', 'hojalata', // Metal
     'carton', 'paper', 'papier', 'wood', 'bois', 'brique', 'tetrapak', 'cartón', 'papel', 'madera', // Paper/Cardboard/Wood
     'ceramic', 'céramique', 'cerámica', // Ceramic
@@ -68,20 +81,32 @@ const analyzeProductData = (product: any): ValidationResult => {
     'cup', 'tasse', 'gobelet', 'plate', 'assiette', 'tray', 'barquette', // Non-bottle containers
   ];
 
-  const packagingRelatedText = [packaging, packagingTags].filter(Boolean).join(' ');
-
-  const isDefinitelyNonPlasticInPackaging = definitiveNonPlasticKeywords.some(k => {
+  const isDefinitelyNonPlasticInGeneralPackaging = definitiveNonPlasticKeywords.some(k => {
     const found = packagingRelatedText.includes(k);
-    if (found) console.log(`DEBUG analyzeProductData: REJECTED - Found definitive non-plastic keyword: '${k}' in packaging-related text.`);
+    if (found) console.log(`DEBUG analyzeProductData: REJECTED - Found definitive non-plastic keyword: '${k}' in general packaging-related text.`);
     return found;
   });
 
-  if (isDefinitelyNonPlasticInPackaging) {
+  if (isDefinitelyNonPlasticInGeneralPackaging) {
     return 'rejected';
   }
 
-  // --- NEW PHASE 3: Strong Positive Identification (if it's definitely a plastic bottle from product name/category) ---
-  // This can still use searchText as it's about product type, not just packaging material
+  // --- NEW PHASE 4: General Plastic Identification (if not explicitly excluded or identified as main container) ---
+  // This catches cases where "plastique" is mentioned but not necessarily as the main bottle,
+  // and no definitive non-plastic main container was found.
+  const generalPlasticTerms = ['plastic', 'plastique', 'emballage plastique'];
+  const isGeneralPlastic = generalPlasticTerms.some(k => {
+    const found = packagingRelatedText.includes(k);
+    if (found) console.log(`DEBUG analyzeProductData: Found general plastic term: '${k}' in packaging-related text.`);
+    return found;
+  });
+
+  if (isGeneralPlastic) {
+    console.log("DEBUG analyzeProductData: ACCEPTED by NEW Phase 4 (general plastic identification).");
+    return 'accepted';
+  }
+
+  // --- NEW PHASE 5: Strong Positive Identification (from product name/category, if not already decided) ---
   const directPlasticProductKeywords = [
     'water bottle', 'soda bottle', 'juice bottle', 'milk bottle', 'detergent bottle', 'shampoo bottle', // Common product types
     'bouteille d\'eau', 'bouteille de soda', 'bouteille de jus', 'bouteille de lait', 'bouteille de détergent', 'bouteille de shampoing', // French variations
@@ -99,11 +124,11 @@ const analyzeProductData = (product: any): ValidationResult => {
   });
 
   if (isPlasticProductDirectlyIdentified) {
-    console.log("DEBUG analyzeProductData: ACCEPTED by NEW Phase 3 (strong plastic product identification).");
+    console.log("DEBUG analyzeProductData: ACCEPTED by NEW Phase 5 (strong plastic product identification).");
     return 'accepted';
   }
 
-  // --- NEW PHASE 4: Heuristics for common bottle types (if not explicitly identified or excluded) ---
+  // --- NEW PHASE 6: Heuristics for common bottle types (if not explicitly identified or excluded) ---
   const bottleTerms = ['bottle', 'bouteille', 'botella', 'flacon', 'container', 'récipient', 'envase', 'frasco'];
   const liquidProductKeywords = [
     'water', 'eau', 'agua', 'mineral water', 'eau minérale', 'agua mineral',
@@ -115,11 +140,11 @@ const analyzeProductData = (product: any): ValidationResult => {
 
   const isBottleAndLiquid = bottleTerms.some(k => searchText.includes(k)) && liquidProductKeywords.some(k => searchText.includes(k));
   if (isBottleAndLiquid) {
-    console.log("DEBUG analyzeProductData: ACCEPTED by NEW Phase 4 (bottle and liquid heuristics).");
+    console.log("DEBUG analyzeProductData: ACCEPTED by NEW Phase 6 (bottle and liquid heuristics).");
     return 'accepted';
   }
 
-  // --- NEW PHASE 5: Inconclusive (if no strong decision can be made from text) ---
+  // --- NEW PHASE 7: Inconclusive (if no strong decision can be made from text) ---
   const packagingInfoPresent = packaging.length > 0 || packagingTags.length > 0;
   if (!packagingInfoPresent) {
     console.log("DEBUG analyzeProductData: INCONCLUSIVE - No packaging info found. Recommending image analysis.");

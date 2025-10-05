@@ -35,12 +35,11 @@ const analyzeProductData = (product: any): ValidationResult => {
     ingredientsText, traces, manufacturingPlaces, labels, brands, quantity, stores
   ].filter(Boolean).join(' ');
 
-  console.log("analyzeProductData: Final searchText for analysis:", searchText);
-  console.log("analyzeProductData: Raw product packaging:", product.packaging);
-  console.log("analyzeProductData: Raw product packaging_tags:", product.packaging_tags);
+  console.log("DEBUG analyzeProductData: Full searchText for analysis:", searchText);
+  console.log("DEBUG analyzeProductData: Raw product packaging string:", packaging);
+  console.log("DEBUG analyzeProductData: Raw product packaging_tags string:", packagingTags);
 
   // --- Phase 1: Strict Exclusion (if it's definitely NOT plastic) ---
-  // This phase is now prioritized to immediately reject non-plastic items.
   const definitiveNonPlasticKeywords = [
     'glass', 'verre', 'vidrio', 'cristal', // Glass
     'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', 'lata', 'hojalata', // Metal
@@ -52,12 +51,11 @@ const analyzeProductData = (product: any): ValidationResult => {
     'pouch', 'sachet', 'bolsa', // Pouches/bags
     'bag', 'sac', 'sachet', // Bags
     'cup', 'tasse', 'gobelet', 'plate', 'assiette', 'tray', 'barquette', // Non-bottle containers
-    // 'jar', 'pot', 'bocal', 'tarro', 'frasco', // These can be plastic or glass, so better to handle with more specific checks
   ];
 
   const isDefinitelyNonPlastic = definitiveNonPlasticKeywords.some(k => {
     const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: REJECTED - Found definitive non-plastic keyword: '${k}' in searchText.`);
+    if (found) console.log(`DEBUG analyzeProductData: REJECTED - Found definitive non-plastic keyword: '${k}' in searchText.`);
     return found;
   });
 
@@ -69,11 +67,13 @@ const analyzeProductData = (product: any): ValidationResult => {
   const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc'];
   const isPackagingExplicitlyPlastic = directPackagingPlasticTerms.some(k => {
     const foundInPackaging = packaging.includes(k) || packagingTags.includes(k);
-    if (foundInPackaging) console.log(`DEBUG: ACCEPTED - Found direct plastic term in packaging: '${k}'.`);
+    if (foundInPackaging) console.log(`DEBUG analyzeProductData: Found direct plastic term: '${k}' in packaging or packaging_tags.`);
     return foundInPackaging;
   });
+  console.log("DEBUG analyzeProductData: Result of isPackagingExplicitlyPlastic check:", isPackagingExplicitlyPlastic);
 
   if (isPackagingExplicitlyPlastic) {
+    console.log("DEBUG analyzeProductData: ACCEPTED by Phase 2 (explicit plastic packaging).");
     return 'accepted';
   }
 
@@ -90,11 +90,12 @@ const analyzeProductData = (product: any): ValidationResult => {
 
   const isPlasticProductDirectlyIdentified = directPlasticProductKeywords.some(k => {
     const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: ACCEPTED - Found direct plastic product keyword: '${k}' in searchText.`);
+    if (found) console.log(`DEBUG analyzeProductData: Found direct plastic product keyword: '${k}' in searchText.`);
     return found;
   });
 
   if (isPlasticProductDirectlyIdentified) {
+    console.log("DEBUG analyzeProductData: ACCEPTED by Phase 3 (strong plastic product identification).");
     return 'accepted';
   }
 
@@ -110,17 +111,17 @@ const analyzeProductData = (product: any): ValidationResult => {
 
   const isBottleAndLiquid = bottleTerms.some(k => searchText.includes(k)) && liquidProductKeywords.some(k => searchText.includes(k));
   if (isBottleAndLiquid) {
-    console.log("DEBUG: ACCEPTED - Found combination of bottle and liquid product keywords.");
+    console.log("DEBUG analyzeProductData: ACCEPTED by Phase 4 (bottle and liquid heuristics).");
     return 'accepted';
   }
 
   // --- Phase 5: Inconclusive (if no strong decision can be made from text) ---
   const packagingInfoPresent = packaging.length > 0 || packagingTags.length > 0;
   if (!packagingInfoPresent) {
-    console.log("DEBUG: INCONCLUSIVE - No packaging info found. Recommending image analysis.");
+    console.log("DEBUG analyzeProductData: INCONCLUSIVE - No packaging info found. Recommending image analysis.");
     return { type: 'inconclusive', reason: 'no_packaging_info' };
   } else {
-    console.log("DEBUG: INCONCLUSIVE - Vague text analysis. Recommending image analysis.");
+    console.log("DEBUG analyzeProductData: INCONCLUSIVE - Vague text analysis. Recommending image analysis.");
     return { type: 'inconclusive', reason: 'vague_text_info' };
   }
 };

@@ -94,19 +94,18 @@ export const RewardTicketDialog = ({ open, onOpenChange, qrCodeValue, voucherCod
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="w-[280px] p-0">
-        <div id="printable-voucher" className="p-4 bg-white text-black">
-          <AlertDialogHeader className="mb-4">
-            <AlertDialogTitle className="text-center text-xl font-bold text-primary-dark">Shopping Voucher</AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-sm text-muted-foreground no-print">
-              Present this QR code at checkout. Your points will be reset after closing.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          
-          <div className="qr-code-container flex justify-center items-center my-4">
+      <AlertDialogContent id="printable-voucher" className="w-[280px] p-0"> {/* Moved ID here */}
+        <AlertDialogHeader className="mb-4">
+          <AlertDialogTitle className="text-center text-xl font-bold text-primary-dark">Shopping Voucher</AlertDialogTitle>
+          <AlertDialogDescription className="text-center text-sm text-muted-foreground no-print">
+            Present this QR code at checkout. Your points will be reset after closing.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        
+        <div className="qr-code-container flex justify-center items-center my-4">
             {isLoading ? (
               <Loader2 className="h-12 w-12 animate-spin text-primary-dark" />
-            ) : ( // Added parentheses here to correctly group the nested ternary
+            ) : ( 
               qrCodeValue ? (
                 <QRCode value={qrCodeValue} size={160} />
               ) : (
@@ -132,8 +131,8 @@ export const RewardTicketDialog = ({ open, onOpenChange, qrCodeValue, voucherCod
             <p>ID: {SHOPPING_CENTER_ID}</p>
             <p className="no-print">This is a one-time use voucher.</p>
           </div>
-        </div>
         
+        {/* Email Sending Section - Hidden during print */}
         <div className="mt-6 pt-4 border-t border-muted-foreground/20 no-print p-4">
           <h3 className="text-lg font-semibold mb-2 text-center">Send Voucher via Email</h3>
           <div className="grid gap-2">

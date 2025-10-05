@@ -361,9 +361,8 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       handleRedeem,
       handleRedeemAndClose,
       resetAnonymousPoints,
-      handleManualSubmit: (e: React.FormEvent) => {
-        e.preventDefault();
-        processBarcode(state.manualBarcode.trim(), true);
+      handleManualSubmit: (barcode: string) => { // Now accepts barcode directly
+        processBarcode(barcode.trim(), true);
         updateState({ manualBarcode: '' });
       },
     },

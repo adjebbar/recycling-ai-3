@@ -170,6 +170,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     qrCodeValue: null as string | null,
     generatedVoucherCode: null as string | null,
     isRedeeming: false,
+    redeemedRewardName: null as string | null, // New state for reward name
   });
 
   const updateState = (newState: Partial<typeof state>) => {
@@ -360,7 +361,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
   };
 
   const handleRedeem = async () => {
-    updateState({ showTicket: true, isRedeeming: true, qrCodeValue: null, generatedVoucherCode: null });
+    updateState({ showTicket: true, isRedeeming: true, qrCodeValue: null, generatedVoucherCode: null, redeemedRewardName: "Shopping Voucher" }); // Default name for anonymous
     try {
       const { data, error } = await supabase.functions.invoke('generate-voucher', { body: { points, userId: user?.id } });
       if (error || data.error) throw new Error(error?.message || data.error);
@@ -375,7 +376,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
 
   const handleRedeemAndClose = () => {
     resetAnonymousPoints();
-    updateState({ showTicket: false, qrCodeValue: null, generatedVoucherCode: null });
+    updateState({ showTicket: false, qrCodeValue: null, generatedVoucherCode: null, redeemedRewardName: null });
   };
 
   return {

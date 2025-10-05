@@ -48,6 +48,7 @@ const ScannerPage = () => {
           isLoading={state.isRedeeming}
           points={points}
           onRedeemAndClose={actions.handleRedeemAndClose}
+          rewardName={state.redeemedRewardName} // Pass the rewardName here
         />
 
         {/* The 'camera permission' message has been removed from here. */}

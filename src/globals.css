@@ -136,11 +136,13 @@
   }
   #printable-voucher {
     position: absolute;
-    left: 0;
+    left: 50%; /* Center the ticket horizontally */
+    transform: translateX(-50%); /* Adjust for centering */
     top: 0;
     width: 100%; /* Take full width of the paper */
+    max-width: 80mm; /* Typical supermarket receipt width (e.g., 80mm or 3.15 inches) */
     margin: 0;
-    padding: 10mm; /* Add some padding for print */
+    padding: 5mm; /* Reduced padding for a more compact ticket look */
     box-shadow: none !important;
     background-color: white !important; /* Ensure white background */
     color: black !important; /* Ensure black text */
@@ -148,43 +150,44 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    min-height: 100vh; /* Ensure it takes at least one full page height */
+    min-height: auto; /* Allow height to adjust to content */
+    page-break-after: always; /* Ensure only one ticket per page */
   }
   #printable-voucher .qr-code-container {
-    margin-top: 10px !important;
-    margin-bottom: 10px !important;
+    margin-top: 8px !important; /* Adjusted margin */
+    margin-bottom: 8px !important; /* Adjusted margin */
   }
   #printable-voucher .qr-code-container svg {
-    width: 160px !important; /* Fixed size for print */
-    height: 160px !important;
+    width: 120px !important; /* Fixed size for print, slightly smaller for ticket */
+    height: 120px !important;
   }
   #printable-voucher .text-center {
     text-align: center;
   }
   #printable-voucher .text-xl {
-    font-size: 1.25rem !important; /* Adjust font size for print */
+    font-size: 1.1rem !important; /* Adjust font size for print */
   }
   #printable-voucher .text-2xl {
-    font-size: 1.5rem !important;
+    font-size: 1.3rem !important;
   }
   #printable-voucher .text-3xl {
-    font-size: 1.875rem !important;
+    font-size: 1.6rem !important;
   }
   #printable-voucher .text-4xl {
-    font-size: 2.25rem !important;
+    font-size: 2rem !important;
   }
   #printable-voucher .text-sm {
-    font-size: 0.8rem !important;
+    font-size: 0.75rem !important;
   }
   #printable-voucher .text-xs {
-    font-size: 0.7rem !important;
+    font-size: 0.65rem !important;
   }
   #printable-voucher .my-4 {
-    margin-top: 0.5rem !important;
-    margin-bottom: 0.5rem !important;
+    margin-top: 0.4rem !important;
+    margin-bottom: 0.4rem !important;
   }
   #printable-voucher .p-4 {
-    padding: 0.5rem !important;
+    padding: 0.4rem !important;
   }
   #printable-voucher .rounded-md {
     border-radius: 0 !important;

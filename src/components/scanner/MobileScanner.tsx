@@ -2,7 +2,7 @@
 
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import BarcodeScanner from '@/components/BarcodeScanner';
-// Removed ImageAnalysis import
+import { ImageAnalysis } from './ImageAnalysis.tsx';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
@@ -11,11 +11,11 @@ import { useTranslation } from 'react-i18next';
 interface MobileScannerProps {
   state: any;
   actions: any;
-  // Removed fileInputRef as ImageAnalysis is removed
+  fileInputRef: React.RefObject<HTMLInputElement>;
   scanFailureMessage: string | null; // New prop
 }
 
-export const MobileScanner = ({ state, actions, scanFailureMessage }: MobileScannerProps) => {
+export const MobileScanner = ({ state, actions, fileInputRef, scanFailureMessage }: MobileScannerProps) => {
   const { t } = useTranslation();
 
   if (state.cameraInitializationError) {
@@ -31,7 +31,18 @@ export const MobileScanner = ({ state, actions, scanFailureMessage }: MobileScan
     );
   }
 
-  // Removed conditional rendering for ImageAnalysis mode
+  if (state.imageAnalysisMode) {
+    return (
+      <ImageAnalysis
+        capturedImage={state.capturedImage}
+        isAnalyzing={state.isAnalyzingImage}
+        onCapture={actions.handleImageCapture}
+        onAnalyze={actions.handleImageAnalysis}
+        onCancel={() => actions.updateState({ imageAnalysisMode: false })}
+        fileInputRef={fileInputRef}
+      />
+    );
+  }
 
   return (
     <div className="w-full max-w-xs mx-auto">

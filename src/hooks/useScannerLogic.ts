@@ -11,7 +11,7 @@ import { achievementsList } from '@/lib/achievements';
 import { Html5QrcodeScanner } from 'html5-qrcode'; // Import Html5QrcodeScanner type
 
 const POINTS_PER_BOTTLE = 10;
-// Removed IMAGE_ANALYSIS_DELAY_MS as image analysis is no longer used
+const IMAGE_ANALYSIS_DELAY_MS = 1500; // 1.5 seconds delay before triggering image analysis
 
 type ValidationResult = 'accepted' | 'rejected' | { type: 'inconclusive', reason: 'no_packaging_info' | 'vague_text_info' };
 
@@ -35,88 +35,51 @@ const analyzeProductData = (product: any): ValidationResult => {
     ingredientsText, traces, manufacturingPlaces, labels, brands, quantity, stores // Include stores
   ].filter(Boolean).join(' ');
 
-  console.log("--- analyzeProductData START ---");
-  console.log("Full Product Data:", JSON.stringify(product, null, 2)); // Log full product data
-  console.log("Combined Search Text for analysis:", searchText); // Log the final searchText
-  console.log("Raw Packaging Field:", product.packaging); // Added specific log
-  console.log("Raw Packaging Tags Field:", product.packaging_tags); // Added specific log
+  console.log("analyzeProductData: Final searchText for analysis:", searchText);
+  console.log("analyzeProductData: Raw product packaging:", product.packaging);
+  console.log("analyzeProductData: Raw product packaging_tags:", product.packaging_tags);
 
 
-  // --- Phase 1: Explicit Non-Plastic Packaging (Strongest REJECT) ---
-  // If packaging explicitly states non-plastic, reject immediately.
-  const definitiveNonPlasticPackagingTerms = [
-    'glass', 'verre', 'vidrio', 'cristal', // Glass
-    'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', 'lata', 'hojalata', // Metal
-    'carton', 'paper', 'papier', 'wood', 'bois', 'brique', 'tetrapak', 'cartón', 'papel', 'madera', // Paper/Cardboard/Wood
-    'aerosol', 'spray', 'bombe', // Aerosol cans
-  ];
-  console.log("Phase 1: Checking for explicit non-plastic packaging terms...");
-  const isPackagingExplicitlyNonPlastic = definitiveNonPlasticPackagingTerms.some(k => {
-    const found = searchText.includes(k); // Check in combined search text
-    if (found) console.log(`DEBUG: Found definitive non-plastic term: '${k}'.`);
-    return found;
-  });
-  console.log("Result Phase 1 (isPackagingExplicitlyNonPlastic):", isPackagingExplicitlyNonPlastic);
-  if (isPackagingExplicitlyNonPlastic) {
-    console.log("--- analyzeProductData END: REJECTED (Explicit Non-Plastic Packaging) ---");
-    return 'rejected';
-  }
-
-  // --- Phase 2: Explicit Plastic Packaging (Strongest ACCEPT) ---
-  // If packaging explicitly states plastic, accept.
+  // --- Phase 1: Prioritize direct packaging info for plastic ---
   const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc'];
-  console.log("Phase 2: Checking for explicit plastic packaging terms...");
-  let foundPlasticTerm = false;
-  for (const k of directPackagingPlasticTerms) {
-    const found = searchText.includes(k);
-    console.log(`DEBUG: Checking for plastic term '${k}' in searchText. Found: ${found}`);
-    if (found) {
-      foundPlasticTerm = true;
-      break; // Exit loop once found
-    }
-  }
-  console.log("Result Phase 2 (isPackagingExplicitlyPlastic):", foundPlasticTerm);
-  if (foundPlasticTerm) {
-    console.log("--- analyzeProductData END: ACCEPTED (Explicit Plastic Packaging) ---");
+  const isPackagingExplicitlyPlastic = directPackagingPlasticTerms.some(k => {
+    const foundInPackaging = packaging.includes(k) || packagingTags.includes(k);
+    if (foundInPackaging) console.log(`DEBUG: ACCEPTED - Found direct plastic term in packaging: '${k}'.`);
+    return foundInPackaging;
+  });
+
+  if (isPackagingExplicitlyPlastic) {
     return 'accepted';
   }
 
-  // --- Phase 3: Heuristics for Plastic Bottle Products (ACCEPT based on product type/name) ---
-  // If product name/category strongly suggests a plastic bottle, accept.
-  const strongPlasticProductKeywords = [
+  // --- Phase 2: Strong Positive Identification (if it's definitely a plastic bottle from product name/category) ---
+  const directPlasticProductKeywords = [
     'water bottle', 'soda bottle', 'juice bottle', 'milk bottle', 'detergent bottle', 'shampoo bottle', // Common product types
     'bouteille d\'eau', 'bouteille de soda', 'bouteille de jus', 'bouteille de lait', 'bouteille de détergent', 'bouteille de shampoing', // French variations
     'botella de agua', 'botella de refresco', 'botella de jugo', 'botella de leche', 'botella de detergente', 'botella de champú', // Spanish variations
-    'eau minérale', 'boisson gazeuse', 'soft drink', 'boisson rafraîchissante',
+    'eau minérale', 'boisson gazeuse', 'soft drink', 'boisson rafraîchissante', // Common liquid products often in plastic bottles
     'huile végétale', 'vegetable oil', 'aceite vegetal', // Oils often in plastic bottles
-    'shampoo', 'conditioner', 'gel douche', 'body wash', 'lotion', 'detergent', 'liquide vaisselle',
-    'champú', 'acondicionador', 'gel de ducha', 'loción', 'detergente',
-    'bouteille', 'flacon', 'bottle', // Generic bottle terms, but less strong than explicit packaging
+    'coca-cola', 'pepsi', 'fanta', 'sprite', // Specific brand names often in plastic bottles
+    'evian', 'volvic', 'vittel', // Specific water brands
   ];
-  console.log("Phase 3: Checking for strong plastic product keywords...");
-  const isStronglyPlasticProduct = strongPlasticProductKeywords.some(k => {
+
+  const isPlasticProductDirectlyIdentified = directPlasticProductKeywords.some(k => {
     const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: Found strong plastic product keyword: '${k}'.`);
+    if (found) console.log(`DEBUG: ACCEPTED - Found direct plastic product keyword: '${k}' in searchText.`);
     return found;
   });
-  console.log("Result Phase 3 (isStronglyPlasticProduct):", isStronglyPlasticProduct);
-  if (isStronglyPlasticProduct) {
-    console.log("--- analyzeProductData END: ACCEPTED (Strong Plastic Product Heuristic) ---");
+
+  if (isPlasticProductDirectlyIdentified) {
     return 'accepted';
   }
 
-  // --- Phase 4: Heuristics for Non-Plastic Products (REJECT based on product type/name) ---
-  // If product name/category strongly suggests a non-plastic item (e.g., a can of soda, but not explicitly stated in packaging)
-  const strongNonPlasticProductKeywords = [
-    'can of', 'canette de', 'lata de', // "can of soda"
-    'glass jar', 'pot en verre', 'tarro de cristal',
-    'carton of', 'brique de', // "carton of milk"
-    'beer', 'bière', 'cerveza', // Often in cans/glass
-    'wine', 'vin', 'vino', // Often in glass bottles
-    'coffee', 'café', // Often in bags/jars
-    'tea', 'thé', // Often in bags/boxes
-    'chocolate bar', 'barre de chocolat', // Solid food
-    'crisps', 'chips', // Bags
+  // --- Phase 3: Strict Exclusion (if it's definitely NOT plastic) ---
+  const definitiveNonPlasticKeywords = [
+    'glass', 'verre', 'vidrio', 'cristal', // Glass
+    'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', 'lata', 'hojalata', // Metal
+    'carton', 'paper', 'papier', 'wood', 'bois', 'brique', 'tetrapak', 'cartón', 'papel', 'madera', // Paper/Cardboard/Wood
+    'ceramic', 'céramique', 'cerámica', // Ceramic
+    'aerosol', 'spray', 'bombe', // Aerosol cans
     'film', 'pellicule', 'wrap', 'emballage souple', 'película', 'envoltura', // Films/wraps
     'box', 'boîte', 'caja', // Boxes
     'pouch', 'sachet', 'bolsa', // Pouches/bags
@@ -124,27 +87,40 @@ const analyzeProductData = (product: any): ValidationResult => {
     'cup', 'tasse', 'gobelet', 'plate', 'assiette', 'tray', 'barquette', // Non-bottle containers
     'jar', 'pot', 'bocal', 'tarro', 'frasco', // Often glass jars, but can be plastic, so lower priority than direct plastic terms
   ];
-  console.log("Phase 4: Checking for strong non-plastic product keywords...");
-  const isStronglyNonPlasticProduct = strongNonPlasticProductKeywords.some(k => {
+
+  const isDefinitelyNonPlastic = definitiveNonPlasticKeywords.some(k => {
     const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: Found strong non-plastic product keyword: '${k}'.`);
+    if (found) console.log(`DEBUG: REJECTED - Found definitive non-plastic keyword: '${k}' in searchText.`);
     return found;
   });
-  console.log("Result Phase 4 (isStronglyNonPlasticProduct):", isStronglyNonPlasticProduct);
-  if (isStronglyNonPlasticProduct) {
-    console.log("--- analyzeProductData END: REJECTED (Strong Non-Plastic Product Heuristic) ---");
+
+  if (isDefinitelyNonPlastic) {
     return 'rejected';
   }
 
+  // --- Phase 4: Heuristics for common bottle types (if not explicitly identified or excluded) ---
+  const bottleTerms = ['bottle', 'bouteille', 'botella', 'flacon', 'container', 'récipient', 'envase', 'frasco'];
+  const liquidProductKeywords = [
+    'water', 'eau', 'agua', 'mineral water', 'eau minérale', 'agua mineral',
+    'drink', 'boisson', 'bebida', 'soda', 'jus', 'juice', 'zumo',
+    'milk', 'lait', 'leche', 'yogurt drink', 'boisson lactée', 'bebida láctea',
+    'oil', 'huile', 'aceite', 'vinegar', 'vinaigre', 'vinagre',
+    'shampoo', 'conditioner', 'gel douche', 'body wash', 'lotion', 'detergent', 'liquide vaisselle', 'champú', 'acondicionador', 'gel de ducha', 'loción', 'detergente',
+  ];
+
+  const isBottleAndLiquid = bottleTerms.some(k => searchText.includes(k)) && liquidProductKeywords.some(k => searchText.includes(k));
+  if (isBottleAndLiquid) {
+    console.log("DEBUG: ACCEPTED - Found combination of bottle and liquid product keywords.");
+    return 'accepted';
+  }
+
   // --- Phase 5: Inconclusive (if no strong decision can be made from text) ---
-  // If no strong decision can be made from text, recommend image analysis.
   const packagingInfoPresent = packaging.length > 0 || packagingTags.length > 0;
-  console.log("Phase 5: Checking for packaging info presence. Present:", packagingInfoPresent);
   if (!packagingInfoPresent) {
-    console.log("--- analyzeProductData END: INCONCLUSIVE (No packaging info found) ---");
+    console.log("DEBUG: INCONCLUSIVE - No packaging info found. Recommending image analysis.");
     return { type: 'inconclusive', reason: 'no_packaging_info' };
   } else {
-    console.log("--- analyzeProductData END: INCONCLUSIVE (Vague text analysis) ---");
+    console.log("DEBUG: INCONCLUSIVE - Vague text analysis. Recommending image analysis.");
     return { type: 'inconclusive', reason: 'vague_text_info' };
   }
 };
@@ -159,7 +135,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     manualBarcode: '',
     scanResult: null as { type: 'success' | 'error'; message: string; imageUrl?: string } | null,
     cameraInitializationError: null as string | null,
-    // Removed image analysis related states: isImageAnalyzing, capturedImage, imageAnalysisMode
+    isImageAnalyzing: false,
     showTicket: false,
     qrCodeValue: null as string | null,
     generatedVoucherCode: null as string | null,
@@ -212,13 +188,90 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
     }
   };
 
-  // Removed handleImageAnalysisFromProductData and handleAutomaticImageAnalysisFromLiveCamera functions
+  const handleImageAnalysisFromProductData = async (imageUrl: string, barcode?: string, productName?: string) => {
+    updateState({ isImageAnalyzing: true, scanResult: null });
+    const loadingToast = showLoading("Analyzing product image...");
+
+    try {
+      // Call the new YOLOv8 Edge Function
+      const { data, error } = await supabase.functions.invoke('yolov8-detect-bottle', { body: { imageUrl, productName } });
+      if (error || data.error) throw new Error(error?.message || data.error);
+      dismissToast(loadingToast);
+
+      if (data.is_plastic_bottle) {
+        await handleSuccessfulRecycle(barcode);
+        updateState({ scanResult: { type: 'success', message: t('scanner.imageSuccess', { points: POINTS_PER_BOTTLE }), imageUrl } });
+      } else {
+        const errorMessage = t('scanner.imageNotPlastic');
+        showError(errorMessage);
+        updateState({ scanResult: { type: 'error', message: errorMessage, imageUrl } });
+        triggerPiConveyor('rejected');
+      }
+    } catch (err: any) {
+      dismissToast(loadingToast);
+      showError(err.message || "Image analysis failed.");
+      updateState({ scanResult: { type: 'error', message: err.message || "Image analysis failed.", imageUrl } });
+      triggerPiConveyor('rejected');
+    } finally {
+      updateState({ isImageAnalyzing: false });
+      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
+    }
+  };
+
+  const handleAutomaticImageAnalysisFromLiveCamera = async () => {
+    if (!scannerRef.current) {
+      showError("Scanner not ready for image analysis.");
+      return;
+    }
+
+    updateState({ isImageAnalyzing: true, scanResult: null });
+    const loadingToast = showLoading("Analyzing image from camera...");
+
+    try {
+      const videoElement = document.querySelector('#reader video') as HTMLVideoElement;
+      if (!videoElement) throw new Error("Video element not found.");
+
+      const canvas = document.createElement('canvas');
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error("Could not get 2D context.");
+
+      context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL('image/jpeg', 0.8);
+
+      // No product name available for live camera image analysis
+      // Call the new YOLOv8 Edge Function
+      const { data, error } = await supabase.functions.invoke('yolov8-detect-bottle', { body: { imageData } });
+      if (error || data.error) throw new Error(error?.message || data.error);
+      dismissToast(loadingToast);
+
+      if (data.is_plastic_bottle) {
+        await handleSuccessfulRecycle();
+        updateState({ scanResult: { type: 'success', message: t('scanner.imageSuccess', { points: POINTS_PER_BOTTLE }) } });
+      } else {
+        const errorMessage = t('scanner.imageNotPlastic');
+        showError(errorMessage);
+        updateState({ scanResult: { type: 'error', message: errorMessage } });
+        triggerPiConveyor('rejected');
+      }
+    } catch (err: any) {
+      dismissToast(loadingToast);
+      showError(err.message || "Image analysis failed.");
+      updateState({ scanResult: { type: 'error', message: err.message || "Image analysis failed." } });
+      triggerPiConveyor('rejected');
+    } finally {
+      updateState({ isImageAnalyzing: false });
+      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
+    }
+  };
 
   const processBarcode = async (barcode: string, isManual: boolean = false) => {
     if (!barcode || (!isManual && barcode === state.lastScanned)) return;
     
     updateState({ lastScanned: barcode, scanResult: null });
     const loadingToast = showLoading(t('scanner.verifying'));
+    let imageAnalysisTriggered = false; // Flag to track if image analysis was initiated
 
     try {
       const { data, error } = await supabase.functions.invoke('fetch-product-info', { body: { barcode } });
@@ -226,10 +279,11 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       dismissToast(loadingToast);
 
       if (data.status === 1 && data.product) {
-        console.log("processBarcode: Product data received from API:", data.product);
+        console.log("processBarcode: Product data received from API:", data.product); // Added log
         const imageUrl = data.product.image_front_url || data.product.image_url;
+        const productName = data.product.product_name; // Get product name
         const validation = analyzeProductData(data.product);
-        console.log("processBarcode: Product validation result:", validation);
+        console.log("processBarcode: Product validation result:", validation); // Log the validation result
 
         if (validation === 'accepted') {
           await handleSuccessfulRecycle(barcode);
@@ -237,20 +291,33 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
         } else if (validation === 'rejected') {
           const rejectMessage = t('scanner.notPlastic');
           showError(rejectMessage);
-          updateState({ scanResult: { type: 'error', message: rejectMessage, imageUrl } }); 
+          updateState({ scanResult: { type: 'error', message: rejectMessage } }); 
           triggerPiConveyor('rejected');
         } else { // validation is { type: 'inconclusive', reason: ... }
-          const inconclusiveMessage = t('scanner.inconclusiveBarcode');
-          showError(inconclusiveMessage);
-          updateState({ scanResult: { type: 'error', message: inconclusiveMessage, imageUrl } });
-          triggerPiConveyor('rejected');
+          imageAnalysisTriggered = true;
+          const reason = validation.reason; // Access the specific reason
+
+          if (imageUrl) {
+            toast.info(`Barcode data inconclusive (${reason}). Analyzing product image from Open Food Facts for confirmation...`);
+            await handleImageAnalysisFromProductData(imageUrl, barcode, productName); // Pass productName
+          } else if (isManual) {
+            const inconclusiveMessage = `Barcode data is inconclusive (${reason}) and no product image is available. Please use the camera scanner for a visual check.`;
+            showError(inconclusiveMessage);
+            updateState({ scanResult: { type: 'error', message: inconclusiveMessage, imageUrl } });
+          } else {
+            toast.info(`Barcode data inconclusive (${reason}). Analyzing camera feed for confirmation...`);
+            setTimeout(handleAutomaticImageAnalysisFromLiveCamera, IMAGE_ANALYSIS_DELAY_MS);
+          }
         }
       } else {
-        // Product not found in DB
-        const notFoundMessage = t('scanner.notFoundInDbNoImage');
-        showError(notFoundMessage);
-        updateState({ scanResult: { type: 'error', message: notFoundMessage } });
-        triggerPiConveyor('rejected');
+        // ** NOUVELLE LOGIQUE **
+        // Si le produit n'est pas trouvé, on lance l'analyse d'image
+        imageAnalysisTriggered = true;
+        toast.info(t('scanner.notFoundInDb'), {
+          description: t('scanner.checkingWithAi'),
+        });
+        // On attend un peu pour que l'utilisateur lise le message
+        setTimeout(handleAutomaticImageAnalysisFromLiveCamera, IMAGE_ANALYSIS_DELAY_MS);
       }
     } catch (err: any) {
       dismissToast(loadingToast);
@@ -259,7 +326,10 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       updateState({ scanResult: { type: 'error', message: errorMessage } });
       triggerPiConveyor('rejected');
     } finally {
-      setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
+      // Only clear scanResult here if image analysis was NOT triggered
+      if (!imageAnalysisTriggered) {
+        setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
+      }
     }
   };
 

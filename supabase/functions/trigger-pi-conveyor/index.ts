@@ -29,13 +29,9 @@ serve(async (req) => {
     }
 
     const rpiConveyorApiUrl = Deno.env.get('RPI_CONVEYOR_API_URL');
-    
     if (!rpiConveyorApiUrl) {
-      console.warn("RPI_CONVEYOR_API_URL environment variable is not set. Skipping communication with Raspberry Pi.");
-      return new Response(JSON.stringify({ success: true, message: "Raspberry Pi not configured, skipping conveyor trigger." }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
+      console.error("RPI_CONVEYOR_API_URL environment variable is not set.");
+      throw new Error("RPI_CONVEYOR_API_URL environment variable is not set.");
     }
 
     console.log(`Forwarding result to Raspberry Pi at: ${rpiConveyorApiUrl}`);

@@ -9,14 +9,14 @@ import { Card, CardContent } from '@/components/ui/card';
 interface ScannerViewProps {
   state: any;
   actions: any;
-  // Removed fileInputRef as ImageAnalysis is removed
+  fileInputRef: React.RefObject<HTMLInputElement>;
 }
 
-export const ScannerView = ({ state, actions }: ScannerViewProps) => {
+export const ScannerView = ({ state, actions, fileInputRef }: ScannerViewProps) => {
   const isMobile = useIsMobile();
 
-  // Determine the message to show, only if no scan result is active
-  const messageToShow = (state.scanFailureMessage && !state.scanResult)
+  // Determine the message to show, only if no scan result is active and not in image analysis mode
+  const messageToShow = (state.scanFailureMessage && !state.scanResult && !state.imageAnalysisMode)
     ? state.scanFailureMessage
     : null;
 
@@ -27,16 +27,19 @@ export const ScannerView = ({ state, actions }: ScannerViewProps) => {
           <MobileScanner 
             state={state} 
             actions={actions} 
+            fileInputRef={fileInputRef} 
             scanFailureMessage={messageToShow} // Pass the message
           />
         ) : (
           <DesktopScanner 
             state={state} 
             actions={actions} 
+            fileInputRef={fileInputRef} 
             scanFailureMessage={messageToShow} // Pass the message
           />
         )}
         <ScanResultOverlay scanResult={state.scanResult} />
+        {/* The scanFailureMessage is now handled by BarcodeScanner directly */}
       </CardContent>
     </Card>
   );

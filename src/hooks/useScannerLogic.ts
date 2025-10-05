@@ -28,19 +28,44 @@ const analyzeProductData = (product: any): ValidationResult => {
   const labels = (product.labels || '').toLowerCase();
   const brands = (product.brands || '').toLowerCase();
   const quantity = (product.quantity || '').toLowerCase();
-  const stores = (product.stores || '').toLowerCase(); // Added stores field
+  const stores = (product.stores || '').toLowerCase();
 
   const searchText = [
     productName, genericName, categories, packaging, packagingTags,
-    ingredientsText, traces, manufacturingPlaces, labels, brands, quantity, stores // Include stores
+    ingredientsText, traces, manufacturingPlaces, labels, brands, quantity, stores
   ].filter(Boolean).join(' ');
 
   console.log("analyzeProductData: Final searchText for analysis:", searchText);
   console.log("analyzeProductData: Raw product packaging:", product.packaging);
   console.log("analyzeProductData: Raw product packaging_tags:", product.packaging_tags);
 
+  // --- Phase 1: Strict Exclusion (if it's definitely NOT plastic) ---
+  // This phase is now prioritized to immediately reject non-plastic items.
+  const definitiveNonPlasticKeywords = [
+    'glass', 'verre', 'vidrio', 'cristal', // Glass
+    'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', 'lata', 'hojalata', // Metal
+    'carton', 'paper', 'papier', 'wood', 'bois', 'brique', 'tetrapak', 'cartón', 'papel', 'madera', // Paper/Cardboard/Wood
+    'ceramic', 'céramique', 'cerámica', // Ceramic
+    'aerosol', 'spray', 'bombe', // Aerosol cans
+    'film', 'pellicule', 'wrap', 'emballage souple', 'película', 'envoltura', // Films/wraps
+    'box', 'boîte', 'caja', // Boxes
+    'pouch', 'sachet', 'bolsa', // Pouches/bags
+    'bag', 'sac', 'sachet', // Bags
+    'cup', 'tasse', 'gobelet', 'plate', 'assiette', 'tray', 'barquette', // Non-bottle containers
+    // 'jar', 'pot', 'bocal', 'tarro', 'frasco', // These can be plastic or glass, so better to handle with more specific checks
+  ];
 
-  // --- Phase 1: Prioritize direct packaging info for plastic ---
+  const isDefinitelyNonPlastic = definitiveNonPlasticKeywords.some(k => {
+    const found = searchText.includes(k);
+    if (found) console.log(`DEBUG: REJECTED - Found definitive non-plastic keyword: '${k}' in searchText.`);
+    return found;
+  });
+
+  if (isDefinitelyNonPlastic) {
+    return 'rejected';
+  }
+
+  // --- Phase 2: Prioritize direct packaging info for plastic ---
   const directPackagingPlasticTerms = ['plastic', 'plastique', 'bouteille en plastique', 'flacon en plastique', 'emballage en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc'];
   const isPackagingExplicitlyPlastic = directPackagingPlasticTerms.some(k => {
     const foundInPackaging = packaging.includes(k) || packagingTags.includes(k);
@@ -52,7 +77,7 @@ const analyzeProductData = (product: any): ValidationResult => {
     return 'accepted';
   }
 
-  // --- Phase 2: Strong Positive Identification (if it's definitely a plastic bottle from product name/category) ---
+  // --- Phase 3: Strong Positive Identification (if it's definitely a plastic bottle from product name/category) ---
   const directPlasticProductKeywords = [
     'water bottle', 'soda bottle', 'juice bottle', 'milk bottle', 'detergent bottle', 'shampoo bottle', // Common product types
     'bouteille d\'eau', 'bouteille de soda', 'bouteille de jus', 'bouteille de lait', 'bouteille de détergent', 'bouteille de shampoing', // French variations
@@ -71,31 +96,6 @@ const analyzeProductData = (product: any): ValidationResult => {
 
   if (isPlasticProductDirectlyIdentified) {
     return 'accepted';
-  }
-
-  // --- Phase 3: Strict Exclusion (if it's definitely NOT plastic) ---
-  const definitiveNonPlasticKeywords = [
-    'glass', 'verre', 'vidrio', 'cristal', // Glass
-    'metal', 'métal', 'aluminium', 'can', 'canette', 'tin', 'acier', 'steel', 'lata', 'hojalata', // Metal
-    'carton', 'paper', 'papier', 'wood', 'bois', 'brique', 'tetrapak', 'cartón', 'papel', 'madera', // Paper/Cardboard/Wood
-    'ceramic', 'céramique', 'cerámica', // Ceramic
-    'aerosol', 'spray', 'bombe', // Aerosol cans
-    'film', 'pellicule', 'wrap', 'emballage souple', 'película', 'envoltura', // Films/wraps
-    'box', 'boîte', 'caja', // Boxes
-    'pouch', 'sachet', 'bolsa', // Pouches/bags
-    'bag', 'sac', 'sachet', // Bags
-    'cup', 'tasse', 'gobelet', 'plate', 'assiette', 'tray', 'barquette', // Non-bottle containers
-    'jar', 'pot', 'bocal', 'tarro', 'frasco', // Often glass jars, but can be plastic, so lower priority than direct plastic terms
-  ];
-
-  const isDefinitelyNonPlastic = definitiveNonPlasticKeywords.some(k => {
-    const found = searchText.includes(k);
-    if (found) console.log(`DEBUG: REJECTED - Found definitive non-plastic keyword: '${k}' in searchText.`);
-    return found;
-  });
-
-  if (isDefinitelyNonPlastic) {
-    return 'rejected';
   }
 
   // --- Phase 4: Heuristics for common bottle types (if not explicitly identified or excluded) ---
@@ -279,11 +279,11 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       dismissToast(loadingToast);
 
       if (data.status === 1 && data.product) {
-        console.log("processBarcode: Product data received from API:", data.product); // Added log
+        console.log("processBarcode: Product data received from API:", data.product);
         const imageUrl = data.product.image_front_url || data.product.image_url;
-        const productName = data.product.product_name; // Get product name
+        const productName = data.product.product_name;
         const validation = analyzeProductData(data.product);
-        console.log("processBarcode: Product validation result:", validation); // Log the validation result
+        console.log("processBarcode: Product validation result:", validation);
 
         if (validation === 'accepted') {
           await handleSuccessfulRecycle(barcode);
@@ -295,11 +295,11 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
           triggerPiConveyor('rejected');
         } else { // validation is { type: 'inconclusive', reason: ... }
           imageAnalysisTriggered = true;
-          const reason = validation.reason; // Access the specific reason
+          const reason = validation.reason;
 
           if (imageUrl) {
             toast.info(`Barcode data inconclusive (${reason}). Analyzing product image from Open Food Facts for confirmation...`);
-            await handleImageAnalysisFromProductData(imageUrl, barcode, productName); // Pass productName
+            await handleImageAnalysisFromProductData(imageUrl, barcode, productName);
           } else if (isManual) {
             const inconclusiveMessage = `Barcode data is inconclusive (${reason}) and no product image is available. Please use the camera scanner for a visual check.`;
             showError(inconclusiveMessage);
@@ -310,13 +310,10 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
           }
         }
       } else {
-        // ** NOUVELLE LOGIQUE **
-        // Si le produit n'est pas trouvé, on lance l'analyse d'image
         imageAnalysisTriggered = true;
         toast.info(t('scanner.notFoundInDb'), {
           description: t('scanner.checkingWithAi'),
         });
-        // On attend un peu pour que l'utilisateur lise le message
         setTimeout(handleAutomaticImageAnalysisFromLiveCamera, IMAGE_ANALYSIS_DELAY_MS);
       }
     } catch (err: any) {
@@ -326,7 +323,6 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       updateState({ scanResult: { type: 'error', message: errorMessage } });
       triggerPiConveyor('rejected');
     } finally {
-      // Only clear scanResult here if image analysis was NOT triggered
       if (!imageAnalysisTriggered) {
         setTimeout(() => updateState({ scanResult: null, lastScanned: null }), 5000);
       }
@@ -361,7 +357,7 @@ export const useScannerLogic = (scannerRef: React.MutableRefObject<Html5QrcodeSc
       handleRedeem,
       handleRedeemAndClose,
       resetAnonymousPoints,
-      handleManualSubmit: (barcode: string) => { // Now accepts barcode directly
+      handleManualSubmit: (barcode: string) => {
         processBarcode(barcode.trim(), true);
         updateState({ manualBarcode: '' });
       },

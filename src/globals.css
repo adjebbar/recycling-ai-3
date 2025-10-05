@@ -136,38 +136,36 @@
   }
   #printable-voucher {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 50%; /* Center the ticket horizontally */
+    transform: translateX(-50%); /* Adjust for centering */
     top: 0;
-    width: 100%;
+    width: 100%; /* Take full width of the paper */
     max-width: 80mm; /* Typical supermarket receipt width (e.g., 80mm or 3.15 inches) */
-    margin: 0 auto; /* Centering for block elements */
-    padding: 5mm;
+    margin: 0;
+    padding: 5mm; /* Reduced padding for a more compact ticket look */
     box-shadow: none !important;
-    background-color: white !important;
-    color: black !important;
-    display: flex; /* Keep flex for internal layout */
+    background-color: white !important; /* Ensure white background */
+    color: black !important; /* Ensure black text */
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    height: auto !important; /* Ensure height adjusts to content */
-    min-height: auto;
-    page-break-inside: avoid; /* Prevent the voucher itself from breaking across pages */
-    /* Removed page-break-after: always; */
+    min-height: auto; /* Allow height to adjust to content */
+    page-break-after: always; /* Ensure only one ticket per page */
   }
   #printable-voucher .qr-code-container {
-    margin-top: 8px !important;
-    margin-bottom: 8px !important;
+    margin-top: 8px !important; /* Adjusted margin */
+    margin-bottom: 8px !important; /* Adjusted margin */
   }
   #printable-voucher .qr-code-container svg {
-    width: 120px !important;
+    width: 120px !important; /* Fixed size for print, slightly smaller for ticket */
     height: 120px !important;
   }
   #printable-voucher .text-center {
     text-align: center;
   }
   #printable-voucher .text-xl {
-    font-size: 1.1rem !important;
+    font-size: 1.1rem !important; /* Adjust font size for print */
   }
   #printable-voucher .text-2xl {
     font-size: 1.3rem !important;

@@ -31,10 +31,10 @@ const ScannerAnimationButton = ({ className }: ScannerAnimationButtonProps) => {
       />
 
       {/* Animated Scan Line */}
-      <div className="absolute inset-x-0 top-1/2 h-1 bg-primary shadow-[0_0_10px_hsl(var(--primary))] rounded-full animate-scan-line-sweep z-10" />
+      <div className="absolute inset-x-0 top-1/2 h-[2px] bg-primary shadow-[0_0_10px_hsl(var(--primary))] rounded-full animate-scan-line-sweep z-10" />
 
       {/* Central Scan Icon */}
-      <ScanLine className="h-16 w-16 text-white mb-2 group-hover:animate-pulse-once z-20" />
+      <ScanLine className="h-16 w-16 text-primary mb-2 group-hover:animate-pulse-once z-20" />
 
       {/* Subtle background glow on hover */}
       <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" />

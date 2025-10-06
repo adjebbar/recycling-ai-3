@@ -18,11 +18,14 @@ const ScannerAnimationButton = ({ className }: ScannerAnimationButtonProps) => {
       to="/scanner"
       className={cn(
         "relative flex flex-col items-center justify-center w-40 h-60 shadow-xl transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl group cursor-pointer",
-        "overflow-hidden rounded-xl snake-border-animation", // Added rounded-xl and snake-border-animation class
+        "overflow-hidden rounded-xl", // Added rounded-xl here for consistency
         className
       )}
       aria-label={t('home.startScanning')}
     >
+      {/* Animated Border Frame */}
+      <div className="absolute inset-0 border-2 rounded-xl animate-border-color-change z-5" />
+
       {/* Bottle image */}
       <img
         src="/images/plastic-bottle-scan-frame.png"

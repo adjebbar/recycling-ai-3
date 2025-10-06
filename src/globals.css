@@ -196,31 +196,3 @@
     display: none !important; /* Hide elements with no-print class */
   }
 }
-
-@layer utilities {
-  .snake-border-animation {
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--radius); /* Ensure it matches the button's border-radius */
-  }
-
-  .snake-border-animation::before {
-    content: '';
-    position: absolute;
-    inset: -2px; /* Slightly larger to cover the border area */
-    border-radius: inherit; /* Inherit from parent */
-    background: conic-gradient(from 0deg at 50% 50%, transparent 0%, hsl(var(--primary)) 20%, transparent 40%);
-    background-size: 100% 100%;
-    animation: rotate-gradient 4s linear infinite;
-    mask: linear-gradient(black, black) content-box, linear-gradient(black, black);
-    mask-composite: exclude;
-    -webkit-mask: linear-gradient(black, black) content-box, linear-gradient(black, black);
-    -webkit-mask-composite: exclude;
-    z-index: 5; /* Ensure it's below the bottle image (z-10) */
-  }
-}
-
-@keyframes rotate-gradient {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}

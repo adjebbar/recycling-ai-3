@@ -22,7 +22,7 @@ export const ScanResultOverlay = ({ scanResult }: ScanResultOverlayProps) => {
       )}
       <p className="text-xl font-semibold text-foreground text-center mb-2">{scanResult.message}</p>
       {scanResult.imageUrl && (
-        <img src={scanResult.imageUrl} alt="Scanned Product" className="h-24 w-24 object-contain rounded-md shadow-md" />
+        <img src={scanResult.imageUrl} alt="Scanned Product" className="h-48 w-48 object-contain rounded-md shadow-md" />
       )}
     </div>
   );

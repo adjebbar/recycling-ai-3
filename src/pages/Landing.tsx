@@ -11,7 +11,7 @@ import { HowItWorksSection } from "@/components/HowItWorksSection"; // Import th
 import SeeItInAction from "@/components/SeeItInAction";
 import ArrowVector from "@/components/ArrowVector";
 import PlasticBottleVector from "@/components/PlasticBottleVector"; // Import the plastic bottle vector
-import RecyclingBinButton from "@/components/RecyclingBinButton"; // Import RecyclingBinButton
+import ScannerAnimationButton from "@/components/ScannerAnimationButton"; // Import the new ScannerAnimationButton
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -104,14 +104,7 @@ const LandingPage = () => {
                 </div>
 
                 <div className="animate-fade-in-up flex justify-center mt-4" style={{ animationDelay: '0.6s' }}>
-                  <RecyclingBinButton 
-                    to="/scanner" 
-                    label="Scan Now" 
-                    icon={ScanLine} 
-                    shape="scanner" 
-                    variant="orange"
-                    className="w-48 h-48 text-lg" // Make it larger and more prominent
-                  />
+                  <ScannerAnimationButton className="w-48 h-48 text-lg" /> {/* Using the new component */}
                 </div>
               </div>
             </div>

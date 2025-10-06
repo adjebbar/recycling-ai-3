@@ -17,21 +17,27 @@ const ScannerAnimationButton = ({ className }: ScannerAnimationButtonProps) => {
     <Link
       to="/scanner"
       className={cn(
-        "relative flex flex-col items-center justify-center w-48 h-64 shadow-xl transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl group cursor-pointer",
-        "bg-primary text-primary-foreground overflow-hidden", // Primary background, white text
-        "clip-path-bottle", // Apply the custom bottle shape
+        "relative flex flex-col items-center justify-center w-40 h-60 shadow-xl transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl group cursor-pointer",
+        "overflow-hidden", // Ensure content stays within bounds
         className
       )}
       aria-label={t('home.startScanning')}
     >
+      {/* Background Image of the Plastic Bottle */}
+      <img 
+        src="/images/plastic-bottle-scan-frame.png" 
+        alt="Plastic Bottle Scan Frame" 
+        className="absolute inset-0 w-full h-full object-contain" // Use object-contain to fit the image
+      />
+
       {/* Animated Scan Line */}
-      <div className="absolute inset-x-0 top-1/2 h-1 bg-white/70 shadow-[0_0_10px_rgba(255,255,255,0.8)] rounded-full animate-scan-line-sweep" />
+      <div className="absolute inset-x-0 top-1/2 h-1 bg-primary shadow-[0_0_10px_hsl(var(--primary))] rounded-full animate-scan-line-sweep z-10" />
 
       {/* Central Scan Icon */}
-      <ScanLine className="h-16 w-16 text-white mb-2 group-hover:animate-pulse-once z-10" />
+      <ScanLine className="h-16 w-16 text-white mb-2 group-hover:animate-pulse-once z-20" />
 
       {/* Subtle background glow on hover */}
-      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" />
     </Link>
   );
 };

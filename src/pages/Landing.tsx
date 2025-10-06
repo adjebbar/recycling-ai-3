@@ -102,7 +102,7 @@ const LandingPage = () => {
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white text-balance">
                     Recycle Today for <TypewriterEffect 
                       phrases={sloganEndings} 
-                      className="text-primary-dark text-stroke-primary min-w-[300px]" 
+                      className="text-primary-dark text-stroke-primary" 
                       cursorClassName="bg-primary-dark"
                     />
                   </h1>

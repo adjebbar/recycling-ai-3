@@ -209,8 +209,7 @@
     position: absolute;
     inset: -2px; /* Slightly larger to cover the border area */
     border-radius: inherit; /* Inherit from parent */
-    /* Adjusted conic-gradient for a sharper, thinner "snake" effect */
-    background: conic-gradient(from 0deg at 50% 50%, transparent 0%, transparent 5%, hsl(var(--primary)) 5%, hsl(var(--primary)) 10%, transparent 10%, transparent 100%);
+    background: conic-gradient(from 0deg at 50% 50%, transparent 0%, hsl(var(--primary)) 20%, transparent 40%);
     background-size: 100% 100%;
     animation: rotate-gradient 4s linear infinite;
     mask: linear-gradient(black, black) content-box, linear-gradient(black, black);

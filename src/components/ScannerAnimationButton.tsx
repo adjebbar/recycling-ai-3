@@ -24,8 +24,7 @@ const ScannerAnimationButton = ({ className }: ScannerAnimationButtonProps) => {
       aria-label={t('home.startScanning')}
     >
       {/* Large Recycle icon as background, slightly darker, more opaque, and rotating */}
-      {/* Increased size to h-[120%] w-[120%] and centered it */}
-      <Recycle className="absolute h-[120%] w-[120%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary/40 animate-spin-slow" />
+      <Recycle className="absolute inset-0 h-full w-full text-primary/40 animate-spin-slow" />
 
       {/* Bottle image, slightly smaller and centered, with a higher z-index */}
       <img

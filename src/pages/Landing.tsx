@@ -2,16 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf, Trash2, Globe, Zap } from "lucide-react"; // Added Globe, Zap
+import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf, Trash2, Globe, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
-import React from "react";
+import React, { useState, useEffect } from "react"; // Import useState and useEffect
 import { useAuth } from "@/context/AuthContext";
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
-import { HowItWorksSection } from "@/components/HowItWorksSection"; // Import the new section component
+import { HowItWorksSection } from "@/components/HowItWorksSection";
 import SeeItInAction from "@/components/SeeItInAction";
 import ArrowVector from "@/components/ArrowVector";
-import PlasticBottleVector from "@/components/PlasticBottleVector"; // Import the plastic bottle vector
-import ScannerAnimationButton from "@/components/ScannerAnimationButton"; // Import the new ScannerAnimationButton
+import PlasticBottleVector from "@/components/PlasticBottleVector";
+import ScannerAnimationButton from "@/components/ScannerAnimationButton";
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -20,7 +20,6 @@ const LandingHeader = () => (
         <Recycle className="h-8 w-8 text-primary" />
         <span className="text-2xl font-bold text-white">EcoScan AI</span>
       </Link>
-      {/* Removed explicit Login/Sign Up buttons from header to streamline CTA */}
     </div>
   </header>
 );
@@ -53,6 +52,24 @@ const LandingPage = () => {
   const CO2_SAVED_PER_BOTTLE_KG = 0.03;
   const targetCo2Saved = totalBottlesRecycled * CO2_SAVED_PER_BOTTLE_KG;
   const animatedCo2Saved = useAnimatedCounter(parseFloat(targetCo2Saved.toFixed(1)), 1000);
+
+  // Dynamic slogan logic
+  const sloganEndings = [
+    "a Greener Tomorrow",
+    "a Cleaner Ocean",
+    "a Better Planet",
+    "a Sustainable Future",
+    "a Healthier Earth",
+  ];
+  const [currentSloganEndingIndex, setCurrentSloganEndingIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSloganEndingIndex((prevIndex) => (prevIndex + 1) % sloganEndings.length);
+    }, 3000); // Change every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [sloganEndings.length]);
 
   return (
     <div className="min-h-screen w-full text-foreground overflow-x-hidden">
@@ -88,12 +105,12 @@ const LandingPage = () => {
             className="relative min-h-screen flex items-center justify-center text-center pt-20 px-4"
           >
             <div className="container mx-auto relative z-10">
-              <div className="max-w-xs sm:max-w-md md:max-w-3xl mx-auto"> {/* Adjusted max-w for responsiveness */}
+              <div className="max-w-xs sm:max-w-md md:max-w-3xl mx-auto">
                 <div className="p-8 rounded-xl shadow-2xl bg-background/50 backdrop-blur-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white text-balance"> {/* Added text-balance */}
-                    Recycle Today for a <span className="text-primary-dark animate-blink-text text-stroke-primary">Greener</span> Tomorrow
+                  <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white text-balance">
+                    Recycle Today for <span className="text-primary-dark animate-blink-text text-stroke-primary">{sloganEndings[currentSloganEndingIndex]}</span>
                   </h1>
-                  <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-sm text-balance"> {/* Added text-balance */}
+                  <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-sm text-balance">
                     Scan plastic bottles to earn points instantly. Register later to track your progress and unlock exclusive rewards!
                   </p>
                 </div>
@@ -104,7 +121,7 @@ const LandingPage = () => {
                 </div>
 
                 <div className="animate-fade-in-up flex justify-center mt-4" style={{ animationDelay: '0.6s' }}>
-                  <ScannerAnimationButton className="w-48 h-48 text-lg" /> {/* Using the new component */}
+                  <ScannerAnimationButton className="w-48 h-48 text-lg" />
                 </div>
               </div>
             </div>

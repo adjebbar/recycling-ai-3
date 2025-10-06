@@ -329,6 +329,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (err) {
       console.error("AuthContext: Error invoking increment-community-bottles edge function:", err);
       showError("Error updating global recycling count.");
+    } finally {
+      await fetchCommunityStats(); // Ensure community stats are refreshed after any attempt to increment
     }
     resetInactivityTimer();
     return result;

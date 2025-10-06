@@ -35,14 +35,14 @@ const analyzeProductData = (product: any): ValidationResult => {
     ingredientsText, traces, manufacturingPlaces, labels, brands, quantity, stores
   ].filter(Boolean).join(' ');
 
-  console.log("DEBUG analyzeProductData: Full searchText for analysis:", searchText);
-  console.log("DEBUG analyzeProductData: Raw product packaging string:", packaging);
-  console.log("DEBUG analyzeProductData: Raw product packaging_tags string:", packagingTags);
+  const packagingMaterialsMain = (product.packagings_materials_main || '').toLowerCase(); // NEW: Get main packaging material
+  const packagingRelatedText = [packaging, packagingTags, packagingMaterialsMain].filter(Boolean).join(' '); // MODIFIED: Include packagingMaterialsMain
 
-  const packagingRelatedText = [packaging, packagingTags].filter(Boolean).join(' ');
+  console.log("DEBUG analyzeProductData: Full searchText for analysis:", searchText);
+  console.log("DEBUG analyzeProductData: Combined packagingRelatedText:", packagingRelatedText);
 
   // --- PHASE 1: Prioritize definitive plastic main container (e.g., plastic bottle) ---
-  const definitivePlasticBottleTerms = ['bouteille plastique', 'plastic bottle', 'botella de plástico', 'flacon plastique', 'pet bottle', 'hdpe bottle', 'ldpe bottle'];
+  const definitivePlasticBottleTerms = ['bouteille plastique', 'plastic bottle', 'botella de plástico', 'flacon plastique', 'pet bottle', 'hdpe bottle', 'ldpe bottle', 'bouteille en pet', 'bouteille en hdpe']; // Added more French terms
   const isDefinitelyPlasticBottle = definitivePlasticBottleTerms.some(k => {
     const found = packagingRelatedText.includes(k);
     if (found) console.log(`DEBUG analyzeProductData: Found definitive plastic bottle term: '${k}' in packaging-related text.`);
@@ -54,21 +54,9 @@ const analyzeProductData = (product: any): ValidationResult => {
     return 'accepted';
   }
 
-  // --- PHASE 2: Prioritize definitive non-plastic main container (e.g., glass bottle) ---
-  const definitiveGlassBottleTerms = ['bouteille verre', 'glass bottle', 'botella de vidrio', 'flacon verre'];
-  const isDefinitelyGlassBottle = definitiveGlassBottleTerms.some(k => {
-    const found = packagingRelatedText.includes(k);
-    if (found) console.log(`DEBUG analyzeProductData: Found definitive glass bottle term: '${k}' in packaging-related text.`);
-    return found;
-  });
-
-  if (isDefinitelyGlassBottle) {
-    console.log("DEBUG analyzeProductData: REJECTED by Phase 2 (explicit glass bottle).");
-    return 'rejected';
-  }
-
-  // --- PHASE 3: General Plastic Identification (if not explicitly a plastic bottle, but contains 'plastic') ---
-  const generalPlasticTerms = ['plastic', 'plastique', 'emballage plastique'];
+  // --- PHASE 2: General Plastic Identification (if not explicitly a plastic bottle, but contains 'plastic') ---
+  // MOVED UP: This now takes precedence over definitive glass bottle if 'plastic' is mentioned.
+  const generalPlasticTerms = ['plastic', 'plastique', 'emballage plastique', 'en plastique', 'pet', 'hdpe', 'ldpe', 'pp', 'ps', 'pvc', 'o-pet']; // Added more plastic types
   const isGeneralPlastic = generalPlasticTerms.some(k => {
     const found = packagingRelatedText.includes(k);
     if (found) console.log(`DEBUG analyzeProductData: Found general plastic term: '${k}' in packaging-related text.`);
@@ -76,8 +64,22 @@ const analyzeProductData = (product: any): ValidationResult => {
   });
 
   if (isGeneralPlastic) {
-    console.log("DEBUG analyzeProductData: ACCEPTED by Phase 3 (general plastic identification).");
+    console.log("DEBUG analyzeProductData: ACCEPTED by Phase 2 (general plastic identification).");
     return 'accepted';
+  }
+
+  // --- PHASE 3: Prioritize definitive non-plastic main container (e.g., glass bottle) ---
+  // MOVED DOWN: Only check this if no plastic terms were found in previous phases.
+  const definitiveGlassBottleTerms = ['bouteille verre', 'glass bottle', 'botella de vidrio', 'flacon verre', 'en verre']; // Added more French terms
+  const isDefinitelyGlassBottle = definitiveGlassBottleTerms.some(k => {
+    const found = packagingRelatedText.includes(k);
+    if (found) console.log(`DEBUG analyzeProductData: Found definitive glass bottle term: '${k}' in packaging-related text.`);
+    return found;
+  });
+
+  if (isDefinitelyGlassBottle) {
+    console.log("DEBUG analyzeProductData: REJECTED by Phase 3 (explicit glass bottle).");
+    return 'rejected';
   }
 
   // --- PHASE 4: Strict Exclusion (if it's definitely NOT plastic, check general non-plastic fields) ---
@@ -144,7 +146,7 @@ const analyzeProductData = (product: any): ValidationResult => {
   }
 
   // --- PHASE 7: Inconclusive (if no strong decision can be made from text) ---
-  const packagingInfoPresent = packaging.length > 0 || packagingTags.length > 0;
+  const packagingInfoPresent = packaging.length > 0 || packagingTags.length > 0 || packagingMaterialsMain.length > 0; // MODIFIED: Include packagingMaterialsMain
   if (!packagingInfoPresent) {
     console.log("DEBUG analyzeProductData: INCONCLUSIVE - No packaging info found. Recommending image analysis.");
     return { type: 'inconclusive', reason: 'no_packaging_info' };

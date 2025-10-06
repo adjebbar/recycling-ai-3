@@ -23,23 +23,21 @@ const ScannerAnimationButton = ({ className }: ScannerAnimationButtonProps) => {
       )}
       aria-label={t('home.startScanning')}
     >
-      {/* Background Image of the Plastic Bottle */}
-      <img 
-        src="/images/plastic-bottle-scan-frame.png" 
-        alt="Plastic Bottle Scan Frame" 
-        className="absolute inset-0 w-full h-full object-contain" // Use object-contain to fit the image
+      {/* Large Recycle icon as background, slightly darker, more opaque, and rotating */}
+      <Recycle className="absolute inset-0 h-full w-full text-primary/40 animate-spin-slow" />
+
+      {/* Bottle image, slightly smaller and centered, with a higher z-index */}
+      <img
+        src="/images/plastic-bottle-scan-frame.png"
+        alt="Plastic Bottle Scan Frame"
+        className="absolute h-4/5 w-4/5 object-contain z-10" // z-index 10 to be above the background recycle icon
       />
 
-      {/* Animated Scan Line */}
-      <div className="absolute inset-x-0 top-1/2 h-[2px] bg-primary shadow-[0_0_10px_hsl(var(--primary))] rounded-full animate-scan-line-sweep z-10" />
+      {/* Animated Scan Line, z-index 20 to be above the bottle */}
+      <div className="absolute inset-x-0 top-1/2 h-[2px] bg-primary shadow-[0_0_10px_hsl(var(--primary))] rounded-full animate-scan-line-sweep z-20" />
 
-      {/* Central Scan Icon */}
-      <ScanLine className="h-16 w-16 text-primary mb-2 group-hover:animate-pulse-once z-20" />
-
-      {/* Rotating Recycling Logo */}
-      <Recycle className="absolute h-10 w-10 text-primary/80 animate-spin-slow z-10 -top-4 -left-4" />
-      <Recycle className="absolute h-10 w-10 text-primary/80 animate-spin-slow z-10 -bottom-4 -right-4" style={{ animationDirection: 'reverse' }} />
-
+      {/* Central Scan Icon, z-index 30 to be above everything */}
+      <ScanLine className="h-16 w-16 text-primary mb-2 group-hover:animate-pulse-once z-30" />
 
       {/* Subtle background glow on hover */}
       <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0" />

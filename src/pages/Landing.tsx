@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Recycle, ScanLine, Trophy, BarChart, Users, LucideProps, Leaf, Trash2, Globe, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
-import React, { useState, useEffect } from "react"; // Import useState and useEffect
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 import { HowItWorksSection } from "@/components/HowItWorksSection";
@@ -105,10 +105,10 @@ const LandingPage = () => {
             className="relative min-h-screen flex items-center justify-center text-center pt-20 px-4"
           >
             <div className="container mx-auto relative z-10">
-              <div className="max-w-xs sm:max-w-md md:max-w-3xl mx-auto">
+              <div className="max-w-sm sm:max-w-lg md:max-w-4xl lg:max-w-5xl mx-auto">
                 <div className="p-8 rounded-xl shadow-2xl bg-background/50 backdrop-blur-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white text-balance">
-                    Recycle Today for <span className="text-primary-dark animate-blink-text text-stroke-primary">{sloganEndings[currentSloganEndingIndex]}</span>
+                    Recycle Today for <span className="text-primary-dark animate-blink-text text-stroke-primary min-w-[300px] inline-block">{sloganEndings[currentSloganEndingIndex]}</span>
                   </h1>
                   <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-sm text-balance">
                     Scan plastic bottles to earn points instantly. Register later to track your progress and unlock exclusive rewards!

@@ -23,7 +23,7 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure, onCameraInitError, messa
       'reader',
       {
         fps: 20,
-        qrbox: { width: 250, height: 150 },
+        qrbox: { width: 250, height: 250 }, // Ajusté la hauteur pour un cadre plus allongé
         supportedScanTypes: [0], // 0 for camera
         videoConstraints: {
           facingMode: 'environment'

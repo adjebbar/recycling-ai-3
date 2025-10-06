@@ -171,6 +171,10 @@ export default {
           '-webkit-text-fill-color': 'transparent',
           'text-fill-color': 'transparent',
         },
+        // Custom utility for plastic bottle shape
+        '.clip-path-bottle': {
+          'clip-path': 'polygon(35% 0%, 65% 0%, 75% 5%, 75% 95%, 65% 100%, 35% 100%, 25% 95%, 25% 5%)',
+        },
       });
     },
   ],

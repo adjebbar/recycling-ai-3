@@ -17,8 +17,9 @@ const ScannerAnimationButton = ({ className }: ScannerAnimationButtonProps) => {
     <Link
       to="/scanner"
       className={cn(
-        "relative flex flex-col items-center justify-center w-48 h-48 rounded-2xl shadow-xl transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl group cursor-pointer",
+        "relative flex flex-col items-center justify-center w-48 h-64 shadow-xl transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl group cursor-pointer",
         "bg-primary text-primary-foreground overflow-hidden", // Primary background, white text
+        "clip-path-bottle", // Apply the custom bottle shape
         className
       )}
       aria-label={t('home.startScanning')}
@@ -30,7 +31,7 @@ const ScannerAnimationButton = ({ className }: ScannerAnimationButtonProps) => {
       <ScanLine className="h-16 w-16 text-white mb-2 group-hover:animate-pulse-once z-10" />
 
       {/* Subtle background glow on hover */}
-      <div className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     </Link>
   );
 };

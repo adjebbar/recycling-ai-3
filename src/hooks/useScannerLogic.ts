@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { achievementsList } from '@/lib/achievements';
 import { Html5QrcodeScanner } from 'html5-qrcode'; // Import Html5QrcodeScanner type
 
-const POINTS_PER_BOTTLE = 10;
+const POINTS_PER_BOTTLE = 15; // Changed from 10 to 15
 const IMAGE_ANALYSIS_DELAY_MS = 1500; // 1.5 seconds delay before triggering image analysis
 
 type ValidationResult = 'accepted' | 'rejected' | { type: 'inconclusive', reason: 'no_packaging_info' | 'vague_text_info' };

@@ -103,7 +103,7 @@ const LandingPage = () => {
                     <span className="whitespace-nowrap">Recycle Today for </span><br /><TypewriterEffect 
                       phrases={sloganEndings} 
                       className="text-primary text-stroke-primary" 
-                      cursorClassName="bg-primary-dark"
+                      cursorClassName="bg-primary"
                     />
                   </h1>
                   <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-sm text-balance">

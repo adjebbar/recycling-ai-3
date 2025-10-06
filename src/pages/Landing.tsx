@@ -12,6 +12,7 @@ import SeeItInAction from "@/components/SeeItInAction";
 import ArrowVector from "@/components/ArrowVector";
 import PlasticBottleVector from "@/components/PlasticBottleVector";
 import ScannerAnimationButton from "@/components/ScannerAnimationButton";
+import TypewriterEffect from "@/components/TypewriterEffect"; // Import the new component
 
 const LandingHeader = () => (
   <header className="absolute top-0 left-0 right-0 z-20 py-4">
@@ -53,7 +54,7 @@ const LandingPage = () => {
   const targetCo2Saved = totalBottlesRecycled * CO2_SAVED_PER_BOTTLE_KG;
   const animatedCo2Saved = useAnimatedCounter(parseFloat(targetCo2Saved.toFixed(1)), 1000);
 
-  // Dynamic slogan logic
+  // Phrases for the typewriter effect
   const sloganEndings = [
     "a Greener Tomorrow",
     "a Cleaner Ocean",
@@ -61,15 +62,6 @@ const LandingPage = () => {
     "a Sustainable Future",
     "a Healthier Earth",
   ];
-  const [currentSloganEndingIndex, setCurrentSloganEndingIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSloganEndingIndex((prevIndex) => (prevIndex + 1) % sloganEndings.length);
-    }, 3000); // Change every 3 seconds
-
-    return () => clearInterval(interval);
-  }, [sloganEndings.length]);
 
   return (
     <div className="min-h-screen w-full text-foreground overflow-x-hidden">
@@ -108,7 +100,11 @@ const LandingPage = () => {
               <div className="max-w-sm sm:max-w-lg md:max-w-4xl lg:max-w-5xl mx-auto">
                 <div className="p-8 rounded-xl shadow-2xl bg-background/50 backdrop-blur-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white text-balance">
-                    Recycle Today for <br /><span className="text-primary-dark animate-blink-text text-stroke-primary min-w-[300px] inline-block">{sloganEndings[currentSloganEndingIndex]}</span>
+                    Recycle Today for <TypewriterEffect 
+                      phrases={sloganEndings} 
+                      className="text-primary-dark text-stroke-primary min-w-[300px]" 
+                      cursorClassName="bg-primary-dark"
+                    />
                   </h1>
                   <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto drop-shadow-sm text-balance">
                     Scan plastic bottles to earn points instantly. Register later to track your progress and unlock exclusive rewards!

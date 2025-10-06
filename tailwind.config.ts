@@ -139,6 +139,10 @@ export default {
           '0%, 100%': { borderColor: 'hsl(var(--primary))' },
           '50%': { borderColor: 'hsl(var(--orange))' },
         },
+        "blink-cursor": { // New keyframe for blinking cursor
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -156,6 +160,7 @@ export default {
         "blink-text": "blink-text 1.5s infinite alternate",
         "spin-slow": "spin-slow 3s linear infinite", // New animation
         "border-color-change": "border-color-change 3s ease-in-out infinite",
+        "blink-cursor": "blink-cursor 1s step-end infinite", // New animation
       },
     },
   },

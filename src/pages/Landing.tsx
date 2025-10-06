@@ -100,7 +100,7 @@ const LandingPage = () => {
               <div className="max-w-sm sm:max-w-lg md:max-w-4xl lg:max-w-5xl mx-auto">
                 <div className="p-8 rounded-xl shadow-2xl bg-background/50 backdrop-blur-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                   <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 drop-shadow-lg text-white">
-                    <span className="whitespace-nowrap">Recycle Today for </span><TypewriterEffect 
+                    <span className="whitespace-nowrap">Recycle Today for </span><br /><TypewriterEffect 
                       phrases={sloganEndings} 
                       className="text-primary-dark text-stroke-primary" 
                       cursorClassName="bg-primary-dark"
